@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f6faff" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Bargemon" />
+    <link rel="apple-touch-icon" href="./app-icon-photo.png" />
+    <link rel="icon" type="image/png" href="./app-icon-photo.png" />
+    <title>Comptes de la maison de Bargemon</title>
+    <style>
+      html,
+      body,
+      iframe {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        border: 0;
+      }
+
+      html,
+      body {
+        overflow: hidden;
+        background: #f6faff;
+      }
+
+      iframe {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <iframe
+      id="expense-app"
+      title="Comptes de la maison de Bargemon"
+      src="https://script.google.com/macros/s/AKfycbwcCvGGNSGLV4BKohoHkLHKLJkd6gGzkur4T9bPKlG9kbZOyivgx7Q_ap8kcW3cufM2NA/exec"
+      allow="clipboard-read; clipboard-write"
+    ></iframe>
+    <script>
+      'use strict';
+
+      const STORAGE_KEYS = {
+        access: 'maison-expenses-access-v1',
+        device: 'maison-expenses-device-v1',
+        data: 'maison-expenses-data-v1',
+      };
+
+      window.addEventListener('message', function (event) {
+        if (!isAppsScriptOrigin(event.origin) || !event.data || !event.data.type) return;
+
+        if (event.data.type === 'maison-expenses-storage-get') {
+          event.source.postMessage({
+            type: 'maison-expenses-storage-state',
+            state: {
+              access: readStorage(STORAGE_KEYS.access),
+              device: readStorage(STORAGE_KEYS.device),
+              data: readStorage(STORAGE_KEYS.data),
+            },
+          }, event.origin);
+          return;
+        }
+
+        if (event.data.type === 'maison-expenses-storage-set' && isKnownKey(event.data.key)) {
+          writeStorage(event.data.key, String(event.data.value || ''));
+        }
+
+        if (event.data.type === 'maison-expenses-storage-remove' && isKnownKey(event.data.key)) {
+          window.localStorage.removeItem(event.data.key);
+        }
+      });
+
+      function isAppsScriptOrigin(origin) {
+        try {
+          const host = new URL(origin).hostname;
+          return host === 'script.google.com' || host.endsWith('.googleusercontent.com');
+        } catch (error) {
+          return false;
+        }
+      }
+
+      function isKnownKey(key) {
+        return Object.keys(STORAGE_KEYS).some(function (name) { return STORAGE_KEYS[name] === key; });
+      }
+
+      function readStorage(key) {
+        try {
+          return window.localStorage.getItem(key) || '';
+        } catch (error) {
+          return '';
+        }
+      }
+
+      function writeStorage(key, value) {
+        try {
+          window.localStorage.setItem(key, value);
+        } catch (error) {
+          // The app remains usable for the current session if storage is unavailable.
+        }
+      }
+    </script>
+  </body>
+</html>
+
