@@ -1,0 +1,22 @@
+{
+  "name": "Comptes de la maison de Bargemon",
+  "short_name": "Bargemon",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f6faff",
+  "theme_color": "#f6faff",
+  "icons": [
+    {
+      "src": "./apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./app-icon-photo.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
