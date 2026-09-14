@@ -7,10 +7,10 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Bargemon" />
-    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png?v=3" />
-    <link rel="apple-touch-icon-precomposed" href="./apple-touch-icon.png?v=3" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/Bargemon/bargemon-icon-v4.png" />
+    <link rel="apple-touch-icon-precomposed" href="/Bargemon/bargemon-icon-v4.png" />
     <link rel="icon" type="image/png" href="./app-icon-photo.png?v=3" />
-    <link rel="manifest" href="./manifest.webmanifest?v=3" />
+    <link rel="manifest" href="/Bargemon/manifest.webmanifest?v=4" />
     <title>Comptes de la maison de Bargemon</title>
     <style>
       :root {
@@ -382,30 +382,6 @@
         text-transform: uppercase;
       }
 
-      .scope-toggle {
-        display: inline-flex;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.1);
-        padding: 3px;
-      }
-
-      .scope-button {
-        min-height: 33px;
-        border: 0;
-        border-radius: 999px;
-        color: rgba(255, 255, 255, 0.72);
-        background: transparent;
-        padding: 5px 10px;
-        cursor: pointer;
-        font-size: 11px;
-        font-weight: 800;
-      }
-
-      .scope-button.is-active {
-        color: var(--ink);
-        background: #fff;
-      }
-
       .balance-copy {
         position: relative;
         z-index: 1;
@@ -479,24 +455,29 @@
         font-size: 12px;
       }
 
-      .summary-grid {
+      .year-operations {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 9px;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 12px;
         margin: 12px 0 24px;
-      }
-
-      .summary-card {
-        min-width: 0;
         border: 1px solid var(--line);
         border-radius: 17px;
         background: rgba(255, 255, 255, 0.82);
-        padding: 14px 12px;
+        padding: 13px 16px;
       }
 
-      .summary-card span {
+      .year-operation {
+        min-width: 0;
+      }
+
+      .year-operation + .year-operation {
+        border-left: 1px solid var(--line);
+        padding-left: 16px;
+      }
+
+      .year-operation span {
         display: block;
-        margin-bottom: 6px;
+        margin-bottom: 4px;
         color: var(--ink-soft);
         font-size: 10px;
         font-weight: 800;
@@ -504,16 +485,77 @@
         text-transform: uppercase;
       }
 
-      .summary-card strong {
+      .year-operation span span { display: inline; }
+
+      .year-operation strong {
         display: block;
         overflow: hidden;
         font-family: Georgia, "Times New Roman", serif;
-        font-size: clamp(17px, 5vw, 23px);
+        font-size: clamp(20px, 5vw, 25px);
         font-weight: 600;
         letter-spacing: -0.03em;
         text-overflow: ellipsis;
         white-space: nowrap;
       }
+
+      .cleaning-card {
+        display: flex;
+        width: 100%;
+        min-height: 70px;
+        margin: 0 0 14px;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        color: var(--ink);
+        background: rgba(255, 255, 255, 0.82);
+        padding: 14px 17px;
+        cursor: pointer;
+        text-align: left;
+      }
+
+      .cleaning-card-title,
+      .cleaning-card-note { display: block; }
+      .cleaning-card-title { font-size: 15px; font-weight: 850; }
+      .cleaning-card-note { margin-top: 3px; color: var(--ink-soft); font-size: 11px; }
+      .cleaning-card-arrow { color: var(--accent-deep); font-size: 22px; }
+
+      .subview-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 6px 0 22px;
+      }
+
+      .back-button {
+        display: grid;
+        flex: 0 0 auto;
+        width: 42px;
+        height: 42px;
+        border: 1px solid var(--line);
+        border-radius: 50%;
+        place-items: center;
+        color: var(--ink);
+        background: rgba(255, 255, 255, 0.86);
+        cursor: pointer;
+        font-size: 21px;
+      }
+
+      .subview-header h1 { margin: 0; font-size: 28px; }
+      .cleaning-summary { margin: 0 0 14px; border-radius: 18px; background: #e6f1fa; padding: 15px 17px; }
+      .cleaning-summary strong { display: block; font-size: 18px; }
+      .cleaning-summary span { display: block; margin-top: 4px; color: var(--ink-soft); font-size: 11px; }
+      .cleaning-list { display: grid; gap: 10px; }
+      .cleaning-row { border: 1px solid var(--line); border-radius: 19px; background: rgba(255,255,255,.88); padding: 15px; }
+      .cleaning-row-top { display: flex; justify-content: space-between; gap: 12px; }
+      .cleaning-row-title { font-size: 14px; font-weight: 850; }
+      .cleaning-row-meta { margin-top: 4px; color: var(--ink-soft); font-size: 11px; }
+      .cleaning-amount { white-space: nowrap; font-weight: 850; }
+      .cleaning-statuses { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 13px; }
+      .cleaning-status-button { min-height: 36px; border: 1px solid var(--line); border-radius: 11px; color: var(--ink-soft); background: #fff; cursor: pointer; font-size: 11px; font-weight: 800; }
+      .cleaning-status-button.is-active { border-color: var(--accent); color: #fff; background: var(--accent-deep); }
+      .cleaning-edit { width: 100%; min-height: 38px; margin-top: 12px; border: 1px solid var(--line); border-radius: 11px; color: var(--accent-deep); background: #fff; cursor: pointer; font-weight: 800; }
 
       .trend-card {
         margin: 0 0 14px;
@@ -1187,10 +1229,6 @@
         <section class="balance-card" aria-labelledby="balance-heading">
           <div class="balance-topline">
             <p id="balance-heading" class="balance-label">Solde</p>
-            <div class="scope-toggle" aria-label="Période du tableau de bord">
-              <button class="scope-button is-active" data-scope="all" type="button">Depuis le début</button>
-              <button id="year-scope" class="scope-button" data-scope="year" type="button">Cette année</button>
-            </div>
           </div>
           <div class="expense-filters" role="group" aria-label="Types de dépenses affichés">
             <button class="filter-switch is-active" data-expense-filter="current" type="button" aria-pressed="true">
@@ -1207,18 +1245,14 @@
           <p id="balance-detail" class="balance-detail">D'après les dépenses, loyers et remboursements partagés.</p>
         </section>
 
-        <section class="summary-grid" aria-label="Résumé">
-          <div class="summary-card">
-            <span>Dépenses</span>
+        <section class="year-operations" aria-label="Opérations courantes de l'année">
+          <div class="year-operation">
+            <span>Dépenses courantes <span id="operations-year"></span></span>
             <strong id="summary-expenses">€0</strong>
           </div>
-          <div class="summary-card">
-            <span>Loyers</span>
+          <div class="year-operation">
+            <span>Loyers <span id="rent-year"></span></span>
             <strong id="summary-rent">€0</strong>
-          </div>
-          <div class="summary-card">
-            <span>Résultat net</span>
-            <strong id="summary-net">€0</strong>
           </div>
         </section>
 
@@ -1236,6 +1270,14 @@
           <div id="monthly-chart" class="monthly-chart" role="img" aria-label="Dépenses et revenus des six derniers mois"></div>
         </section>
 
+        <button id="open-cleanings" class="cleaning-card" type="button">
+          <span>
+            <span class="cleaning-card-title">Suivi des ménages</span>
+            <span id="cleaning-card-note" class="cleaning-card-note">Voir les ménages liés aux loyers</span>
+          </span>
+          <span class="cleaning-card-arrow" aria-hidden="true">→</span>
+        </button>
+
         <button id="open-add" class="add-card" type="button">
           <span>
             <span class="add-card-title">Ajouter une opération</span>
@@ -1250,6 +1292,24 @@
         </div>
         <section id="transaction-list" class="transaction-list" aria-label="Opérations récentes"></section>
         <p class="sync-note">Enregistré dans votre Google Sheet central · Aucune opération n'est supprimée définitivement</p>
+      </div>
+    </main>
+
+    <main id="cleaning-screen" class="screen">
+      <div class="main-shell">
+        <header class="subview-header">
+          <button id="close-cleanings" class="back-button" type="button" aria-label="Retour">←</button>
+          <div>
+            <p class="eyebrow">Loyers</p>
+            <h1>Suivi des ménages</h1>
+          </div>
+        </header>
+        <section class="cleaning-summary" aria-live="polite">
+          <strong id="cleaning-summary-title">Aucun ménage à traiter</strong>
+          <span id="cleaning-summary-detail">Les ménages effectués par Sandrine apparaîtront ici.</span>
+        </section>
+        <section id="cleaning-list" class="cleaning-list" aria-label="Ménages liés aux loyers"></section>
+        <p class="sync-note">« Alloué » diminue directement la dette de Sandrine du montant indiqué.</p>
       </div>
     </main>
 
@@ -1315,6 +1375,22 @@
           <div id="category-field" class="field">
             <label for="category">Catégorie</label>
             <select id="category"></select>
+          </div>
+
+          <div id="rent-cleaning-field" class="field" hidden>
+            <span class="field-label">Ménage effectué par</span>
+            <div class="segmented two" role="group" aria-label="Personne ayant effectué le ménage">
+              <button class="segment-button is-active" data-cleaner="SANDRINE" type="button">Sandrine</button>
+              <button class="segment-button" data-cleaner="OTHER" type="button">Autre</button>
+            </div>
+            <div class="field" style="margin-top: 12px">
+              <label for="cleaning-amount">Montant du ménage</label>
+              <div class="amount-wrap">
+                <span class="amount-symbol">€</span>
+                <input id="cleaning-amount" class="input" type="text" inputmode="decimal" value="200" />
+              </div>
+            </div>
+            <p class="share-note">Pour Sandrine, le statut pourra ensuite être défini comme payé ou alloué dans le suivi des ménages.</p>
           </div>
 
           <div class="field">
@@ -1391,7 +1467,6 @@
         accessKey: readStorage(STORAGE_KEYS.access),
         deviceKey: readStorage(STORAGE_KEYS.device),
         data: null,
-        scope: 'all',
         expenseFilters: {
           current: true,
           renovation: true,
@@ -1400,6 +1475,7 @@
         editId: null,
         selectedType: 'EXPENSE',
         selectedPerson: '',
+        selectedCleaner: 'SANDRINE',
         identityChange: false,
         toastTimer: null,
       };
@@ -1410,6 +1486,7 @@
         unlockScreen: document.getElementById('unlock-screen'),
         identityScreen: document.getElementById('identity-screen'),
         mainScreen: document.getElementById('main-screen'),
+        cleaningScreen: document.getElementById('cleaning-screen'),
         loading: document.getElementById('loading-overlay'),
         toast: document.getElementById('toast'),
         modalBackdrop: document.getElementById('transaction-backdrop'),
@@ -1466,6 +1543,14 @@
           }
           return apiCall('voidTransaction', [key, id, actorKey]);
         },
+        updateCleaningStatus: function (key, id, status, actorKey) {
+          if (isDemoMode) {
+            const transaction = demoState.transactions.find(function (item) { return item.id === id; });
+            if (transaction) transaction.cleaningStatus = status;
+            return Promise.resolve(buildDemoData());
+          }
+          return apiCall('updateCleaningStatus', [key, id, status, actorKey]);
+        },
       };
 
       function apiCall(method, args) {
@@ -1507,7 +1592,7 @@
           frame.setAttribute('aria-hidden', 'true');
           frame.tabIndex = -1;
           frame.style.cssText = 'position:fixed;width:1px;height:1px;right:0;bottom:0;border:0;opacity:0;pointer-events:none;';
-          frame.src = APPS_SCRIPT_URL + '?mode=bridge&v=3';
+          frame.src = APPS_SCRIPT_URL + '?mode=bridge&v=4';
           document.body.appendChild(frame);
 
           const timeout = window.setTimeout(function () {
@@ -1560,7 +1645,7 @@
       });
 
       function showScreen(target) {
-        [elements.unlockScreen, elements.identityScreen, elements.mainScreen].forEach(function (screen) {
+        [elements.unlockScreen, elements.identityScreen, elements.mainScreen, elements.cleaningScreen].forEach(function (screen) {
           screen.classList.toggle('is-visible', screen === target);
         });
       }
@@ -1697,16 +1782,21 @@
           'Part de ' + settings.personA + ' en pourcentage'
         );
         document.getElementById('form-currency').textContent = settings.currencySymbol;
-        document.getElementById('year-scope').textContent = state.data.summaries.currentYear;
+        document.getElementById('operations-year').textContent = state.data.summaries.currentYear;
+        document.getElementById('rent-year').textContent = state.data.summaries.currentYear;
         renderSummary();
         renderMonthlyChart();
         renderTransactions();
+        renderCleanings();
       }
 
       function renderSummary() {
         const settings = state.data.settings;
         const view = getDashboardView();
-        const summary = view.summaries[state.scope];
+        const summary = view.summaries.all;
+        const yearOperations = state.data.dashboard && state.data.dashboard.current
+          ? state.data.dashboard.current.summaries.year
+          : state.data.summaries.year;
         const amount = Math.abs(summary.balanceA);
         const balanceParty = document.getElementById('balance-party');
 
@@ -1718,19 +1808,13 @@
           balanceParty.textContent = settings.personA + ' doit à ' + settings.personB;
         }
 
-        document.getElementById('balance-amount').textContent = formatMoney(amount, false);
+        document.getElementById('balance-amount').textContent = formatDashboardMoney(amount);
         const filterLabel = dashboardFilterLabel();
-        document.getElementById('balance-detail').textContent = state.scope === 'all'
-          ? filterLabel + ' depuis le début.'
-          : filterLabel + ' en ' + state.data.summaries.currentYear + '.';
-        document.getElementById('summary-expenses').textContent = formatMoney(summary.expenses, true);
-        document.getElementById('summary-rent').textContent = formatMoney(summary.rent, true);
-        document.getElementById('summary-net').textContent = formatMoney(summary.net, true);
-
-        document.querySelectorAll('[data-scope]').forEach(function (button) {
-          button.classList.toggle('is-active', button.dataset.scope === state.scope);
-          button.setAttribute('aria-pressed', String(button.dataset.scope === state.scope));
-        });
+        const allocated = Number(summary.cleaningAllocated) || 0;
+        document.getElementById('balance-detail').textContent = filterLabel + ' depuis le début.' +
+          (allocated ? ' Inclut ' + formatDashboardMoney(allocated) + ' de ménages alloués à Sandrine.' : '');
+        document.getElementById('summary-expenses').textContent = formatDashboardMoney(yearOperations.expenses);
+        document.getElementById('summary-rent').textContent = formatDashboardMoney(yearOperations.rent);
         document.querySelectorAll('[data-expense-filter]').forEach(function (button) {
           const active = state.expenseFilters[button.dataset.expenseFilter];
           button.classList.toggle('is-active', active);
@@ -1766,8 +1850,8 @@
           const expenseHeight = chartHeight(expenses, maximum);
           const revenueHeight = chartHeight(revenue, maximum);
           const label = formatMonth(item.month);
-          const accessible = label + ' : dépenses ' + formatMoney(expenses, true) +
-            ', revenus ' + formatMoney(revenue, true);
+          const accessible = label + ' : dépenses ' + formatDashboardMoney(expenses) +
+            ', revenus ' + formatDashboardMoney(revenue);
           return (
             '<div class="month-group" aria-label="' + escapeHtml(accessible) + '" title="' + escapeHtml(accessible) + '">' +
               '<div class="bar-area" aria-hidden="true">' +
@@ -1809,10 +1893,7 @@
 
       function renderTransactions() {
         const list = document.getElementById('transaction-list');
-        const year = state.data.summaries.currentYear;
-        const transactions = state.data.recent.filter(function (transaction) {
-          return state.scope === 'all' || transaction.date.slice(0, 4) === year;
-        });
+        const transactions = state.data.recent;
         document.getElementById('transaction-count').textContent =
           transactions.length + (transactions.length === 1 ? ' opération' : ' opérations');
 
@@ -1842,13 +1923,18 @@
             const splitCopy = transaction.type !== 'SETTLEMENT' && shareA !== 50
               ? ' · Répartition ' + shareA + '/' + (100 - shareA)
               : '';
+            const cleaningCopy = transaction.type === 'RENT' && transaction.cleaner
+              ? ' · Ménage ' + (transaction.cleaner === 'SANDRINE' ? 'Sandrine' : 'autre') +
+                ' ' + formatMoney(transaction.cleaningAmount, true) +
+                (transaction.cleaner === 'SANDRINE' ? ' · ' + cleaningStatusLabel(transaction.cleaningStatus) : '')
+              : '';
             return (
               '<button class="transaction-row' + (isVoid ? ' is-void' : '') + '" ' +
               (isVoid ? 'disabled ' : '') + 'data-id="' + escapeHtml(transaction.id) + '" type="button">' +
               '<span class="transaction-icon ' + typeClass + '" aria-hidden="true">' + icon + '</span>' +
               '<span class="transaction-main"><span class="transaction-title">' +
               escapeHtml(isVoid ? 'Annulée · ' + title : title) + '</span>' +
-              '<span class="transaction-meta">' + escapeHtml(displayType + ' · ' + personCopy + splitCopy) + '</span></span>' +
+              '<span class="transaction-meta">' + escapeHtml(displayType + ' · ' + personCopy + splitCopy + cleaningCopy) + '</span></span>' +
               '<span class="transaction-money"><span class="transaction-amount">' + sign +
               escapeHtml(formatMoney(Math.abs(Number(transaction.amount)), true)) + '</span>' +
               '<span class="transaction-date">' + escapeHtml(formatDate(transaction.date)) + '</span></span></button>'
@@ -1863,13 +1949,102 @@
         });
       }
 
+      function renderCleanings() {
+        const list = document.getElementById('cleaning-list');
+        const rents = Array.isArray(state.data.cleanings)
+          ? state.data.cleanings
+          : (state.data.recent || []).filter(function (item) { return item.type === 'RENT' && item.status === 'ACTIVE'; });
+        const pending = rents.filter(function (item) {
+          return !item.cleaner || (item.cleaner === 'SANDRINE' && (!item.cleaningStatus || item.cleaningStatus === 'PENDING'));
+        });
+        const allocated = rents.reduce(function (total, item) {
+          return total + (item.cleaner === 'SANDRINE' && item.cleaningStatus === 'ALLOCATED'
+            ? Number(item.cleaningAmount) || 0
+            : 0);
+        }, 0);
+
+        document.getElementById('cleaning-card-note').textContent = pending.length
+          ? pending.length + (pending.length === 1 ? ' ménage à traiter' : ' ménages à traiter')
+          : 'Tous les ménages sont à jour';
+        document.getElementById('cleaning-summary-title').textContent = pending.length
+          ? pending.length + (pending.length === 1 ? ' ménage à traiter' : ' ménages à traiter')
+          : 'Aucun ménage à traiter';
+        document.getElementById('cleaning-summary-detail').textContent = allocated
+          ? formatDashboardMoney(allocated) + ' alloués à Sandrine et déduits de sa dette.'
+          : 'Les ménages alloués seront déduits de la dette de Sandrine.';
+
+        if (!rents.length) {
+          list.innerHTML = '<div class="empty-state">Aucun loyer enregistré pour le moment.</div>';
+          return;
+        }
+
+        list.innerHTML = rents.map(function (rent) {
+          const title = rent.description || rent.category || 'Loyer';
+          const cleaner = rent.cleaner || '';
+          const amount = Number(rent.cleaningAmount) || 0;
+          let controls = '';
+          if (!cleaner) {
+            controls = '<button class="cleaning-edit" data-cleaning-edit="' + escapeHtml(rent.id) + '" type="button">Renseigner le ménage</button>';
+          } else if (cleaner === 'OTHER') {
+            controls = '<button class="cleaning-edit" data-cleaning-edit="' + escapeHtml(rent.id) + '" type="button">Modifier</button>';
+          } else {
+            controls = '<div class="cleaning-statuses" role="group" aria-label="Statut du ménage">' +
+              cleaningStatusButton(rent, 'PENDING', 'À traiter') +
+              cleaningStatusButton(rent, 'PAID', 'Payé') +
+              cleaningStatusButton(rent, 'ALLOCATED', 'Alloué') +
+              '</div>';
+          }
+          const cleanerText = !cleaner
+            ? 'Ménage non renseigné'
+            : cleaner === 'SANDRINE'
+              ? 'Ménage par Sandrine'
+              : 'Ménage par une autre personne';
+          return '<article class="cleaning-row">' +
+            '<div class="cleaning-row-top"><div><div class="cleaning-row-title">' + escapeHtml(title) + '</div>' +
+            '<div class="cleaning-row-meta">' + escapeHtml(formatDate(rent.date) + ' · Reçu par ' + rent.person + ' · ' + cleanerText) + '</div></div>' +
+            '<div class="cleaning-amount">' + (amount ? escapeHtml(formatMoney(amount, true)) : '—') + '</div></div>' + controls + '</article>';
+        }).join('');
+
+        list.querySelectorAll('[data-cleaning-status]').forEach(function (button) {
+          button.addEventListener('click', function () {
+            updateCleaningStatus(button.dataset.cleaningId, button.dataset.cleaningStatus);
+          });
+        });
+        list.querySelectorAll('[data-cleaning-edit]').forEach(function (button) {
+          button.addEventListener('click', function () { openTransaction(button.dataset.cleaningEdit); });
+        });
+      }
+
+      function cleaningStatusButton(rent, status, label) {
+        const active = (rent.cleaningStatus || 'PENDING') === status;
+        return '<button class="cleaning-status-button' + (active ? ' is-active' : '') + '" ' +
+          'data-cleaning-id="' + escapeHtml(rent.id) + '" data-cleaning-status="' + status + '" type="button">' + label + '</button>';
+      }
+
+      function cleaningStatusLabel(status) {
+        return status === 'PAID' ? 'Payé' : status === 'ALLOCATED' ? 'Alloué' : 'À traiter';
+      }
+
+      async function updateCleaningStatus(id, status) {
+        setLoading(true);
+        try {
+          state.data = await server.updateCleaningStatus(state.accessKey, id, status, state.deviceKey);
+          writeStorage(STORAGE_KEYS.data, JSON.stringify(state.data));
+          renderApp();
+          showScreen(elements.cleaningScreen);
+          showToast(status === 'PAID' ? 'Ménage marqué comme payé.' : status === 'ALLOCATED'
+            ? 'Ménage alloué et solde mis à jour.'
+            : 'Ménage remis à traiter.', false);
+        } catch (error) {
+          showToast(error.message, true);
+        } finally {
+          setLoading(false);
+        }
+      }
+
       function openTransaction(id) {
         state.editId = id || null;
-        const transaction = id
-          ? state.data.recent.find(function (item) {
-              return item.id === id;
-            })
-          : null;
+        const transaction = id ? findTransactionById(id) : null;
 
         elements.form.reset();
         document.getElementById('transaction-title').textContent = transaction
@@ -1883,10 +2058,14 @@
         document.getElementById('amount').value = transaction ? String(transaction.amount) : '';
         document.getElementById('transaction-date').value = transaction ? transaction.date : today();
         document.getElementById('description').value = transaction ? transaction.description : '';
+        document.getElementById('cleaning-amount').value = transaction && Number(transaction.cleaningAmount) > 0
+          ? String(transaction.cleaningAmount)
+          : '200';
         const storedShareA = transaction ? Number(transaction.shareA) : 0.5;
         setShare(Number.isFinite(storedShareA) ? storedShareA * 100 : 50);
         setType(transaction ? transaction.type : 'EXPENSE');
         setPerson(transaction ? transaction.personKey : state.deviceKey);
+        setCleaner(transaction && transaction.cleaner ? transaction.cleaner : 'SANDRINE');
         populateCategories(transaction ? transaction.category : '');
 
         elements.modalBackdrop.classList.add('is-open');
@@ -1916,8 +2095,18 @@
         document.getElementById('category-field').hidden = type === 'SETTLEMENT';
         document.getElementById('settlement-field').hidden = type !== 'SETTLEMENT';
         document.getElementById('share-field').hidden = type === 'SETTLEMENT';
+        document.getElementById('rent-cleaning-field').hidden = type !== 'RENT';
         populateCategories(document.getElementById('category').value);
         updateFormHelper();
+      }
+
+      function setCleaner(value) {
+        state.selectedCleaner = value === 'OTHER' ? 'OTHER' : 'SANDRINE';
+        document.querySelectorAll('[data-cleaner]').forEach(function (button) {
+          const active = button.dataset.cleaner === state.selectedCleaner;
+          button.classList.toggle('is-active', active);
+          button.setAttribute('aria-pressed', String(active));
+        });
       }
 
       function setPerson(key) {
@@ -1987,6 +2176,15 @@
           document.getElementById('amount').focus();
           return;
         }
+        const rawCleaningAmount = document.getElementById('cleaning-amount').value.trim().replace(',', '.');
+        const cleaningAmount = state.selectedType === 'RENT' ? Number(rawCleaningAmount) : 0;
+        if (state.selectedType === 'RENT' && (!Number.isFinite(cleaningAmount) || cleaningAmount <= 0)) {
+          showToast('Saisissez un montant de ménage valide.', true);
+          document.getElementById('cleaning-amount').focus();
+          return;
+        }
+
+        const editingTransaction = state.editId ? findTransactionById(state.editId) : null;
 
         const payload = {
           type: state.selectedType,
@@ -1999,6 +2197,11 @@
             ? 0.5
             : Number(document.getElementById('share-a').value) / 100,
           enteredByKey: state.deviceKey,
+          cleaner: state.selectedType === 'RENT' ? state.selectedCleaner : '',
+          cleaningAmount: cleaningAmount,
+          cleaningStatus: state.selectedType === 'RENT' && editingTransaction
+            ? (editingTransaction.cleaningStatus || 'PENDING')
+            : 'PENDING',
         };
 
         const wasEditing = Boolean(state.editId);
@@ -2042,6 +2245,11 @@
         return key === 'A' ? state.data.settings.personA : state.data.settings.personB;
       }
 
+      function findTransactionById(id) {
+        const candidates = (state.data.recent || []).concat(state.data.cleanings || []);
+        return candidates.find(function (item) { return item.id === id; }) || null;
+      }
+
       function typeLabel(type) {
         return type === 'EXPENSE' ? 'Dépense' : type === 'RENT' ? 'Loyer' : 'Remboursement';
       }
@@ -2058,6 +2266,20 @@
           }).format(amount);
         } catch (error) {
           return (settings.currencySymbol || '€') + amount.toFixed(2);
+        }
+      }
+
+      function formatDashboardMoney(value) {
+        const settings = state.data ? state.data.settings : { currency: 'EUR' };
+        try {
+          return new Intl.NumberFormat('fr-FR', {
+            style: 'currency',
+            currency: settings.currency,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+          }).format(Math.round(Number(value) || 0));
+        } catch (error) {
+          return (settings.currencySymbol || '€') + String(Math.round(Number(value) || 0));
         }
       }
 
@@ -2209,6 +2431,7 @@
               id: 'demo-2', date: year + '-' + month + '-03', type: 'RENT', amount: 850,
               person: settings.personA, personKey: 'A', counterparty: '', counterpartyKey: '',
               category: 'Location saisonnière', description: "Location du mois d'août", shareA: 0.5, shareB: 0.5,
+              cleaner: 'SANDRINE', cleaningAmount: 200, cleaningStatus: 'PENDING',
               enteredBy: settings.personB, enteredByKey: 'B', createdAt: stamp,
               lastEditedBy: settings.personB, lastEditedByKey: 'B', updatedAt: stamp, status: 'ACTIVE',
             },
@@ -2241,6 +2464,11 @@
           description: payload.description || '',
           shareA: Number(payload.shareA),
           shareB: 1 - Number(payload.shareA),
+          cleaner: payload.type === 'RENT' ? payload.cleaner : '',
+          cleaningAmount: payload.type === 'RENT' ? Number(payload.cleaningAmount) : 0,
+          cleaningStatus: payload.type === 'RENT'
+            ? (payload.cleaner === 'SANDRINE' ? (payload.cleaningStatus || 'PENDING') : 'NOT_APPLICABLE')
+            : '',
           enteredBy: payload.enteredByKey === 'A' ? settings.personA : settings.personB,
           enteredByKey: payload.enteredByKey,
           createdAt: now,
@@ -2280,6 +2508,7 @@
             current: dashboardData(currentTransactions),
             renovation: dashboardData(renovationTransactions),
           },
+          cleanings: active.filter(function (item) { return item.type === 'RENT'; }),
           recent: demoState.transactions.slice(),
         };
       }
@@ -2315,7 +2544,7 @@
       }
 
       function computeClientSummary(transactions) {
-        const result = { expenses: 0, rent: 0, net: 0, balanceA: 0, count: transactions.length };
+        const result = { expenses: 0, rent: 0, net: 0, balanceA: 0, cleaningAllocated: 0, count: transactions.length };
         transactions.forEach(function (item) {
           const amount = Number(item.amount);
           const shareA = Number(item.shareA);
@@ -2325,6 +2554,10 @@
           } else if (item.type === 'RENT') {
             result.rent += amount;
             result.balanceA += item.personKey === 'A' ? -amount * (1 - shareA) : amount * shareA;
+            if (item.cleaner === 'SANDRINE' && item.cleaningStatus === 'ALLOCATED') {
+              result.balanceA -= Number(item.cleaningAmount) || 0;
+              result.cleaningAllocated = (result.cleaningAllocated || 0) + (Number(item.cleaningAmount) || 0);
+            }
           } else if (item.type === 'SETTLEMENT') {
             result.balanceA += item.personKey === 'A' ? amount : -amount;
           }
@@ -2358,6 +2591,13 @@
       document.getElementById('open-add').addEventListener('click', function () {
         openTransaction(null);
       });
+      document.getElementById('open-cleanings').addEventListener('click', function () {
+        renderCleanings();
+        showScreen(elements.cleaningScreen);
+      });
+      document.getElementById('close-cleanings').addEventListener('click', function () {
+        showScreen(elements.mainScreen);
+      });
       document.getElementById('share-a').addEventListener('input', function (event) {
         setShare(event.target.value);
       });
@@ -2381,11 +2621,9 @@
           setPerson(button.dataset.person);
         });
       });
-      document.querySelectorAll('[data-scope]').forEach(function (button) {
+      document.querySelectorAll('[data-cleaner]').forEach(function (button) {
         button.addEventListener('click', function () {
-          state.scope = button.dataset.scope;
-          renderSummary();
-          renderTransactions();
+          setCleaner(button.dataset.cleaner);
         });
       });
       document.querySelectorAll('[data-expense-filter]').forEach(function (button) {
