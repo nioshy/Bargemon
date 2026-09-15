@@ -1,0 +1,2848 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f6faff" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Bargemon" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/Bargemon/bargemon-icon-v4.png" />
+    <link rel="apple-touch-icon-precomposed" href="/Bargemon/bargemon-icon-v4.png" />
+    <link rel="icon" type="image/png" href="./app-icon-photo.png?v=3" />
+    <link rel="manifest" href="/Bargemon/manifest.webmanifest?v=4" />
+    <title>Comptes de la maison de Bargemon</title>
+    <style>
+      :root {
+        --ink: #173653;
+        --ink-soft: #687f95;
+        --paper: #f6faff;
+        --paper-deep: #eaf2fa;
+        --card: #ffffff;
+        --accent: #6f9fc8;
+        --accent-deep: #2f6898;
+        --tint: #e2eff9;
+        --line: rgba(23, 54, 83, 0.11);
+        --danger: #a94a5b;
+        --shadow: 0 18px 55px rgba(47, 104, 152, 0.1);
+        --radius-lg: 28px;
+        --radius-md: 18px;
+        --safe-top: env(safe-area-inset-top, 0px);
+        --safe-bottom: env(safe-area-inset-bottom, 0px);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      html {
+        min-height: 100%;
+        background: var(--paper);
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 96% 0%, rgba(111, 159, 200, 0.15), transparent 30rem),
+          linear-gradient(180deg, #fbfdff 0%, var(--paper) 48%, #eef5fb 100%);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      button {
+        color: inherit;
+      }
+
+      button:focus-visible,
+      input:focus-visible,
+      select:focus-visible,
+      textarea:focus-visible {
+        outline: 3px solid rgba(111, 159, 200, 0.35);
+        outline-offset: 2px;
+      }
+
+      .screen {
+        display: none;
+      }
+
+      .screen.is-visible {
+        display: block;
+      }
+
+      .center-screen {
+        min-height: 100vh;
+        padding: calc(30px + var(--safe-top)) 22px calc(30px + var(--safe-bottom));
+        place-items: center;
+      }
+
+      .center-screen.is-visible {
+        display: grid;
+      }
+
+      .onboarding-card {
+        width: min(100%, 430px);
+        padding: 34px 26px 28px;
+        border: 1px solid rgba(23, 54, 83, 0.08);
+        border-radius: var(--radius-lg);
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: var(--shadow);
+        text-align: center;
+      }
+
+      .house-mark {
+        display: grid;
+        width: 74px;
+        height: 74px;
+        margin: 0 auto 22px;
+        border-radius: 24px 24px 28px 28px;
+        place-items: center;
+        color: #fff;
+        background: linear-gradient(145deg, var(--accent-deep), #79acd2);
+        box-shadow: 0 12px 30px rgba(47, 104, 152, 0.2);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 34px;
+        font-weight: 700;
+      }
+
+      .eyebrow {
+        margin: 0 0 7px;
+        color: var(--accent-deep);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      p {
+        margin-top: 0;
+      }
+
+      h1,
+      h2 {
+        font-family: Georgia, "Times New Roman", serif;
+        font-weight: 500;
+        letter-spacing: -0.025em;
+      }
+
+      .onboarding-card h1 {
+        margin-bottom: 12px;
+        font-size: clamp(34px, 10vw, 48px);
+        line-height: 1;
+      }
+
+      .supporting-copy {
+        margin: 0 auto 25px;
+        color: var(--ink-soft);
+        font-size: 15px;
+        line-height: 1.55;
+      }
+
+      .field {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 18px;
+        text-align: left;
+      }
+
+      .field label,
+      .field-label {
+        color: var(--ink);
+        font-size: 13px;
+        font-weight: 750;
+      }
+
+      .input,
+      select,
+      textarea {
+        width: 100%;
+        min-height: 52px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        color: var(--ink);
+        background: #fff;
+        padding: 13px 14px;
+        transition: border-color 150ms ease, box-shadow 150ms ease;
+      }
+
+      .input:focus,
+      select:focus,
+      textarea:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(111, 159, 200, 0.12);
+      }
+
+      textarea {
+        min-height: 88px;
+        resize: vertical;
+      }
+
+      .button {
+        display: inline-flex;
+        min-height: 52px;
+        border: 0;
+        border-radius: 15px;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 18px;
+        cursor: pointer;
+        font-weight: 800;
+        transition: transform 120ms ease, opacity 120ms ease, background 120ms ease;
+      }
+
+      .button:active {
+        transform: scale(0.985);
+      }
+
+      .button:disabled {
+        cursor: wait;
+        opacity: 0.58;
+      }
+
+      .button-primary {
+        width: 100%;
+        color: #fff;
+        background: var(--ink);
+        box-shadow: 0 10px 25px rgba(47, 104, 152, 0.18);
+      }
+
+      .button-secondary {
+        border: 1px solid var(--line);
+        background: #fff;
+      }
+
+      .button-danger {
+        color: var(--danger);
+        background: transparent;
+      }
+
+      .identity-options {
+        display: grid;
+        gap: 12px;
+      }
+
+      .identity-choice {
+        display: grid;
+        min-height: 78px;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        background: #fff;
+        grid-template-columns: 46px 1fr auto;
+        align-items: center;
+        gap: 13px;
+        padding: 13px 16px;
+        cursor: pointer;
+        text-align: left;
+      }
+
+      .identity-choice:hover {
+        border-color: rgba(111, 159, 200, 0.72);
+      }
+
+      .avatar {
+        display: grid;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        place-items: center;
+        color: #fff;
+        background: var(--accent);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 19px;
+        font-weight: 700;
+      }
+
+      .identity-choice:nth-child(2) .avatar {
+        background: var(--ink);
+      }
+
+      .identity-name {
+        font-weight: 800;
+      }
+
+      .identity-note {
+        display: block;
+        margin-top: 2px;
+        color: var(--ink-soft);
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .main-shell {
+        width: min(100%, 760px);
+        margin: 0 auto;
+        padding: calc(22px + var(--safe-top)) 18px calc(100px + var(--safe-bottom));
+      }
+
+      .app-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 22px;
+      }
+
+      .app-header h1 {
+        margin: 0;
+        font-size: clamp(27px, 7vw, 38px);
+        line-height: 1.05;
+      }
+
+      .device-chip {
+        display: inline-flex;
+        min-height: 48px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        align-items: center;
+        gap: 8px;
+        padding: 5px 10px 5px 5px;
+        background: rgba(255, 255, 255, 0.82);
+        cursor: pointer;
+      }
+
+      .device-chip .avatar {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+      }
+
+      .device-chip-name {
+        display: none;
+        max-width: 88px;
+        overflow: hidden;
+        font-size: 13px;
+        font-weight: 800;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .balance-card {
+        position: relative;
+        overflow: hidden;
+        min-height: 225px;
+        border-radius: var(--radius-lg);
+        color: #fff;
+        background: linear-gradient(135deg, #245b88 0%, #4f88b5 100%);
+        padding: 25px;
+        box-shadow: 0 20px 50px rgba(47, 104, 152, 0.2);
+      }
+
+      .balance-card::before,
+      .balance-card::after {
+        position: absolute;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 50%;
+        content: "";
+      }
+
+      .balance-card::before {
+        width: 230px;
+        height: 230px;
+        top: -125px;
+        right: -60px;
+      }
+
+      .balance-card::after {
+        width: 145px;
+        height: 145px;
+        right: 12px;
+        bottom: -95px;
+      }
+
+      .balance-topline {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .balance-label {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.67);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .balance-copy {
+        position: relative;
+        z-index: 1;
+        margin-top: 24px;
+      }
+
+      .expense-filters {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 17px;
+      }
+
+      .filter-switch {
+        display: inline-flex;
+        min-height: 34px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 999px;
+        align-items: center;
+        gap: 7px;
+        padding: 5px 11px 5px 7px;
+        color: rgba(255, 255, 255, 0.72);
+        background: rgba(255, 255, 255, 0.08);
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: 800;
+      }
+
+      .filter-switch::before {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        content: "";
+        transition: background 160ms ease, box-shadow 160ms ease;
+      }
+
+      .filter-switch.is-active {
+        border-color: rgba(255, 255, 255, 0.48);
+        color: #fff;
+        background: rgba(255, 255, 255, 0.15);
+      }
+
+      .filter-switch.is-active::before {
+        background: #fff;
+        box-shadow: inset 0 0 0 5px var(--accent-deep);
+      }
+
+      .balance-party {
+        margin-bottom: 3px;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 16px;
+      }
+
+      .balance-amount {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(46px, 13vw, 66px);
+        font-weight: 500;
+        letter-spacing: -0.055em;
+        line-height: 1;
+      }
+
+      .balance-detail {
+        position: relative;
+        z-index: 1;
+        margin: 18px 0 0;
+        color: rgba(255, 255, 255, 0.58);
+        font-size: 12px;
+      }
+
+      .year-operations {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin: 12px 0 24px;
+        border: 1px solid var(--line);
+        border-radius: 17px;
+        background: rgba(255, 255, 255, 0.82);
+        padding: 13px 16px;
+      }
+
+      .year-overview-title {
+        grid-column: 1 / -1;
+        margin: 0 0 1px;
+        color: var(--accent-deep);
+        font-size: 13px;
+        font-weight: 850;
+        letter-spacing: 0.02em;
+        text-transform: none;
+      }
+
+      .year-operation {
+        min-width: 0;
+      }
+
+      .year-operation + .year-operation {
+        border-left: 1px solid var(--line);
+        padding-left: 16px;
+      }
+
+      .year-operation span {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--ink-soft);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+      }
+
+      .year-operation span span { display: inline; }
+
+      .year-operation strong {
+        display: block;
+        overflow: hidden;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(20px, 5vw, 25px);
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .cleaning-card {
+        display: flex;
+        width: 100%;
+        min-height: 70px;
+        margin: 0 0 14px;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        color: var(--ink);
+        background: rgba(255, 255, 255, 0.82);
+        padding: 14px 17px;
+        cursor: pointer;
+        text-align: left;
+      }
+
+      .cleaning-card-title,
+      .cleaning-card-note { display: block; }
+      .cleaning-card-title { font-size: 15px; font-weight: 850; }
+      .cleaning-card-note { margin-top: 3px; color: var(--ink-soft); font-size: 11px; }
+      .cleaning-card-arrow { color: var(--accent-deep); font-size: 22px; }
+
+      .subview-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 6px 0 22px;
+      }
+
+      .back-button {
+        display: grid;
+        flex: 0 0 auto;
+        width: 42px;
+        height: 42px;
+        border: 1px solid var(--line);
+        border-radius: 50%;
+        place-items: center;
+        color: var(--ink);
+        background: rgba(255, 255, 255, 0.86);
+        cursor: pointer;
+        font-size: 21px;
+      }
+
+      .subview-header h1 { margin: 0; font-size: 28px; }
+      .cleaning-summary { margin: 0 0 14px; border-radius: 18px; background: #e6f1fa; padding: 15px 17px; }
+      .cleaning-summary strong { display: block; font-size: 18px; }
+      .cleaning-summary span { display: block; margin-top: 4px; color: var(--ink-soft); font-size: 11px; }
+      .cleaning-list { display: grid; gap: 10px; }
+      .cleaning-row { border: 1px solid var(--line); border-radius: 19px; background: rgba(255,255,255,.88); padding: 15px; }
+      .cleaning-row-top { display: flex; justify-content: space-between; gap: 12px; }
+      .cleaning-row-title { font-size: 14px; font-weight: 850; }
+      .cleaning-row-meta { margin-top: 4px; color: var(--ink-soft); font-size: 11px; }
+      .cleaning-amount { white-space: nowrap; font-weight: 850; }
+      .cleaning-statuses { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 13px; }
+      .cleaning-status-button { min-height: 36px; border: 1px solid var(--line); border-radius: 11px; color: var(--ink-soft); background: #fff; cursor: pointer; font-size: 11px; font-weight: 800; }
+      .cleaning-status-button.is-active { border-color: var(--accent); color: #fff; background: var(--accent-deep); }
+      .cleaning-edit { width: 100%; min-height: 38px; margin-top: 12px; border: 1px solid var(--line); border-radius: 11px; color: var(--accent-deep); background: #fff; cursor: pointer; font-weight: 800; }
+
+      .field-heading-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+      .small-add-button { border: 0; color: var(--accent-deep); background: transparent; padding: 4px 0; cursor: pointer; font-weight: 800; }
+      .rental-fees-list { display: grid; gap: 8px; margin-top: 10px; }
+      .rental-fee-row { display: grid; grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr) 34px; align-items: center; gap: 7px; }
+      .rental-fee-row .input { min-width: 0; }
+      .remove-fee { width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 50%; color: var(--ink-soft); background: #fff; cursor: pointer; font-size: 18px; }
+
+      .trend-card {
+        margin: 0 0 14px;
+        border: 1px solid var(--line);
+        border-radius: 21px;
+        background: rgba(255, 255, 255, 0.86);
+        padding: 17px 15px 14px;
+      }
+
+      .trend-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 14px;
+      }
+
+      .trend-header h2 {
+        margin: 0;
+        font-size: 22px;
+      }
+
+      .trend-period {
+        margin: 0 0 3px;
+        color: var(--ink-soft);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .chart-legend {
+        display: grid;
+        flex: 0 0 auto;
+        gap: 5px;
+        color: var(--ink-soft);
+        font-size: 10px;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+      }
+
+      .legend-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 3px;
+        background: #9bbbd7;
+      }
+
+      .legend-dot.revenue {
+        background: var(--accent-deep);
+      }
+
+      .monthly-chart {
+        display: grid;
+        min-height: 132px;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        align-items: end;
+        gap: 7px;
+      }
+
+      .month-group {
+        display: grid;
+        min-width: 0;
+        grid-template-rows: 108px auto;
+        gap: 7px;
+      }
+
+      .bar-area {
+        display: flex;
+        min-width: 0;
+        border-bottom: 1px solid var(--line);
+        align-items: flex-end;
+        justify-content: center;
+        gap: 4px;
+      }
+
+      .chart-bar {
+        width: min(13px, 38%);
+        border-radius: 5px 5px 1px 1px;
+        background: #9bbbd7;
+        transition: height 220ms ease;
+      }
+
+      .chart-bar.revenue {
+        background: var(--accent-deep);
+      }
+
+      .month-label {
+        overflow: hidden;
+        color: var(--ink-soft);
+        font-size: 10px;
+        font-weight: 750;
+        text-align: center;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .chart-empty {
+        display: grid;
+        min-height: 120px;
+        place-items: center;
+        color: var(--ink-soft);
+        font-size: 12px;
+        text-align: center;
+      }
+
+      .add-card {
+        display: flex;
+        width: 100%;
+        min-height: 77px;
+        border: 0;
+        border-radius: 20px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        color: var(--ink);
+        border: 1px solid rgba(111, 159, 200, 0.12);
+        background: linear-gradient(135deg, #e6f1fa, #edf6fc);
+        padding: 15px 18px;
+        cursor: pointer;
+        text-align: left;
+      }
+
+      .add-card-title {
+        display: block;
+        margin-bottom: 3px;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 22px;
+      }
+
+      .add-card-note {
+        color: var(--ink-soft);
+        font-size: 12px;
+      }
+
+      .plus-disc {
+        display: grid;
+        flex: 0 0 auto;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        place-items: center;
+        color: #fff;
+        background: var(--ink);
+        font-size: 26px;
+        font-weight: 300;
+      }
+
+      .section-heading {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin: 28px 2px 12px;
+      }
+
+      .section-heading h2 {
+        margin: 0;
+        font-size: 25px;
+      }
+
+      .section-heading span {
+        color: var(--ink-soft);
+        font-size: 12px;
+      }
+
+      .transaction-list {
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 21px;
+        background: rgba(255, 255, 255, 0.86);
+      }
+
+      .transaction-row {
+        display: grid;
+        width: 100%;
+        min-height: 75px;
+        border: 0;
+        border-bottom: 1px solid var(--line);
+        grid-template-columns: 42px minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        background: transparent;
+        cursor: pointer;
+        text-align: left;
+      }
+
+      .transaction-row:last-child {
+        border-bottom: 0;
+      }
+
+      .transaction-row.is-void {
+        cursor: default;
+        opacity: 0.47;
+      }
+
+      .transaction-icon {
+        display: grid;
+        width: 40px;
+        height: 40px;
+        border-radius: 13px;
+        place-items: center;
+        color: #3f719c;
+        background: #eaf2fa;
+        font-size: 18px;
+        font-weight: 800;
+      }
+
+      .transaction-icon.rent {
+        color: var(--ink);
+        background: #dff0f8;
+      }
+
+      .transaction-icon.settlement {
+        color: #5e7195;
+        background: #e9eef8;
+      }
+
+      .transaction-main {
+        min-width: 0;
+      }
+
+      .transaction-title {
+        display: block;
+        overflow: hidden;
+        font-size: 14px;
+        font-weight: 800;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .transaction-meta {
+        display: block;
+        overflow: hidden;
+        margin-top: 4px;
+        color: var(--ink-soft);
+        font-size: 11px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .transaction-money {
+        text-align: right;
+      }
+
+      .transaction-amount {
+        display: block;
+        font-size: 14px;
+        font-weight: 850;
+        white-space: nowrap;
+      }
+
+      .transaction-date {
+        display: block;
+        margin-top: 4px;
+        color: var(--ink-soft);
+        font-size: 10px;
+      }
+
+      .empty-state {
+        padding: 35px 20px;
+        color: var(--ink-soft);
+        text-align: center;
+      }
+
+      .sync-note {
+        margin: 20px 0 0;
+        color: var(--ink-soft);
+        font-size: 11px;
+        text-align: center;
+      }
+
+      .modal-backdrop {
+        position: fixed;
+        z-index: 20;
+        inset: 0;
+        display: none;
+        align-items: flex-end;
+        justify-content: center;
+        background: rgba(15, 42, 67, 0.42);
+        backdrop-filter: blur(5px);
+      }
+
+      .modal-backdrop.is-open {
+        display: flex;
+      }
+
+      .transaction-modal {
+        width: min(100%, 620px);
+        max-height: calc(100vh - var(--safe-top) - 12px);
+        overflow-y: auto;
+        border-radius: 28px 28px 0 0;
+        background: var(--paper);
+        padding: 12px 20px calc(22px + var(--safe-bottom));
+        box-shadow: 0 -20px 70px rgba(23, 54, 83, 0.2);
+      }
+
+      .modal-handle {
+        width: 42px;
+        height: 5px;
+        margin: 0 auto 13px;
+        border-radius: 999px;
+        background: rgba(23, 54, 83, 0.18);
+      }
+
+      .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 18px;
+      }
+
+      .modal-header h2 {
+        margin: 0;
+        font-size: 29px;
+      }
+
+      .icon-button {
+        display: grid;
+        width: 44px;
+        height: 44px;
+        border: 1px solid var(--line);
+        border-radius: 50%;
+        place-items: center;
+        background: rgba(255, 255, 255, 0.72);
+        cursor: pointer;
+        font-size: 22px;
+      }
+
+      .segmented {
+        display: grid;
+        border-radius: 15px;
+        background: var(--paper-deep);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 3px;
+        padding: 4px;
+      }
+
+      .segmented.two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .segment-button {
+        min-height: 45px;
+        border: 0;
+        border-radius: 12px;
+        background: transparent;
+        padding: 8px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .segment-button.is-active {
+        background: #fff;
+        box-shadow: 0 3px 12px rgba(47, 104, 152, 0.09);
+      }
+
+      .amount-wrap {
+        position: relative;
+      }
+
+      .amount-symbol {
+        position: absolute;
+        top: 50%;
+        left: 15px;
+        color: var(--ink-soft);
+        transform: translateY(-50%);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 25px;
+      }
+
+      .amount-input {
+        height: 66px;
+        padding-left: 42px;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 30px;
+        font-weight: 600;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .helper {
+        margin: -8px 0 18px;
+        color: var(--ink-soft);
+        font-size: 11px;
+        line-height: 1.45;
+      }
+
+      .share-field {
+        gap: 12px;
+        border: 1px solid var(--line);
+        border-radius: 17px;
+        background: rgba(255, 255, 255, 0.72);
+        padding: 15px;
+      }
+
+      .share-heading,
+      .share-values {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+      }
+
+      .share-reset {
+        min-height: 32px;
+        border: 1px solid rgba(111, 159, 200, 0.22);
+        border-radius: 999px;
+        color: var(--accent-deep);
+        background: var(--tint);
+        padding: 5px 11px;
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: 800;
+      }
+
+      .share-party {
+        min-width: 0;
+        color: var(--ink-soft);
+        font-size: 11px;
+        line-height: 1.3;
+      }
+
+      .share-party:last-child {
+        text-align: right;
+      }
+
+      .share-party strong {
+        display: block;
+        margin-top: 2px;
+        color: var(--ink);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 22px;
+        font-weight: 600;
+      }
+
+      .share-range {
+        width: 100%;
+        height: 28px;
+        margin: -2px 0;
+        accent-color: var(--accent-deep);
+        cursor: pointer;
+      }
+
+      .share-note {
+        margin: 0;
+        color: var(--ink-soft);
+        font-size: 11px;
+        line-height: 1.4;
+      }
+
+      .settlement-note {
+        min-height: 52px;
+        border: 1px dashed rgba(47, 104, 152, 0.25);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.45);
+        padding: 14px;
+        color: var(--ink-soft);
+        font-size: 13px;
+      }
+
+      .form-actions {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 10px;
+        margin-top: 6px;
+      }
+
+      .void-wrap {
+        display: none;
+        justify-content: center;
+        margin-top: 10px;
+      }
+
+      .void-wrap.is-visible {
+        display: flex;
+      }
+
+      .loading-overlay {
+        position: fixed;
+        z-index: 50;
+        inset: 0;
+        display: none;
+        place-items: center;
+        background: rgba(246, 250, 255, 0.8);
+        backdrop-filter: blur(5px);
+      }
+
+      .loading-overlay.is-visible {
+        display: grid;
+      }
+
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(47, 104, 152, 0.16);
+        border-top-color: var(--ink);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .toast {
+        position: fixed;
+        z-index: 80;
+        right: 18px;
+        bottom: calc(20px + var(--safe-bottom));
+        left: 18px;
+        display: none;
+        max-width: 500px;
+        margin: auto;
+        border-radius: 14px;
+        color: #fff;
+        background: #234f75;
+        padding: 13px 16px;
+        box-shadow: var(--shadow);
+        font-size: 13px;
+        font-weight: 700;
+        text-align: center;
+      }
+
+      .toast.is-visible {
+        display: block;
+      }
+
+      .toast.is-error {
+        background: var(--danger);
+      }
+
+      .connection-warning {
+        display: none;
+        margin-bottom: 12px;
+        border-radius: 12px;
+        color: #684a24;
+        background: #f4e4bd;
+        padding: 10px 12px;
+        font-size: 12px;
+        font-weight: 700;
+        text-align: center;
+      }
+
+      .connection-warning.is-visible {
+        display: block;
+      }
+
+      .demo-badge {
+        display: none;
+        position: fixed;
+        z-index: 10;
+        right: 12px;
+        bottom: 12px;
+        border-radius: 999px;
+        color: #fff;
+        background: var(--accent-deep);
+        padding: 6px 9px;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+      }
+
+      body.demo-mode .demo-badge {
+        display: block;
+      }
+
+      @media (min-width: 560px) {
+        .main-shell {
+          padding-right: 28px;
+          padding-left: 28px;
+        }
+
+        .device-chip-name {
+          display: block;
+        }
+
+        .transaction-modal {
+          margin-bottom: 18px;
+          border-radius: 28px;
+        }
+
+        .modal-backdrop {
+          align-items: center;
+          padding: 24px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <script id="app-host-origin" type="application/json"><?!= appHostOriginJson ?></script>
+    <section id="unlock-screen" class="screen center-screen" aria-labelledby="unlock-title">
+      <div class="onboarding-card">
+        <div class="house-mark" aria-hidden="true">M</div>
+        <h1 id="unlock-title">Dépenses maison</h1>
+        <p class="supporting-copy">
+          Saisissez la phrase secrète définie dans le Google Sheet central. Cette opération ne sera nécessaire qu'une fois sur ce téléphone.
+        </p>
+        <form id="unlock-form">
+          <div class="field">
+            <label for="access-key">Phrase secrète</label>
+            <input
+              id="access-key"
+              class="input"
+              type="password"
+              autocomplete="off"
+              autocapitalize="none"
+              spellcheck="false"
+              required
+            />
+          </div>
+          <button id="unlock-button" class="button button-primary" type="submit">Ouvrir les comptes</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="identity-screen" class="screen center-screen" aria-labelledby="identity-title">
+      <div class="onboarding-card">
+        <div class="house-mark" aria-hidden="true">M</div>
+        <p class="eyebrow">Configuration unique</p>
+        <h1 id="identity-title">Qui utilise ce téléphone&nbsp;?</h1>
+        <p class="supporting-copy">
+          Cela permet d'indiquer qui saisit chaque opération. Vous choisirez toujours séparément qui a payé ou reçu l'argent.
+        </p>
+        <div id="identity-options" class="identity-options"></div>
+        <button id="identity-cancel" class="button button-danger" type="button" hidden>Annuler</button>
+      </div>
+    </section>
+
+    <main id="main-screen" class="screen">
+      <div class="main-shell">
+        <div id="connection-warning" class="connection-warning" role="status">
+          Vous êtes hors ligne. Les totaux restent visibles, mais une connexion est nécessaire pour enregistrer.
+        </div>
+
+        <header class="app-header">
+          <div>
+            <h1 id="app-name">Maison de France</h1>
+          </div>
+          <button id="device-chip" class="device-chip" type="button" aria-label="Changer la personne utilisant ce téléphone">
+            <span id="device-avatar" class="avatar" aria-hidden="true">M</span>
+            <span id="device-name" class="device-chip-name">Sandrine</span>
+          </button>
+        </header>
+
+        <section class="balance-card" aria-labelledby="balance-heading">
+          <div class="balance-topline">
+            <p id="balance-heading" class="balance-label">Solde</p>
+          </div>
+          <div class="expense-filters" role="group" aria-label="Types de dépenses affichés">
+            <button class="filter-switch is-active" data-expense-filter="current" type="button" aria-pressed="true">
+              Dépenses courantes
+            </button>
+            <button class="filter-switch is-active" data-expense-filter="renovation" type="button" aria-pressed="true">
+              Rénovations
+            </button>
+          </div>
+          <div class="balance-copy">
+            <p id="balance-party" class="balance-party">Tout est équilibré</p>
+            <p id="balance-amount" class="balance-amount">€0</p>
+          </div>
+          <p id="balance-detail" class="balance-detail">D'après les dépenses, loyers et remboursements partagés.</p>
+        </section>
+
+        <section class="year-operations" aria-label="Opérations courantes de l'année">
+          <h2 class="year-overview-title">Aperçu <span id="overview-year"></span></h2>
+          <div class="year-operation">
+            <span>Dépenses courantes</span>
+            <strong id="summary-expenses">€0</strong>
+          </div>
+          <div class="year-operation">
+            <span>Loyers</span>
+            <strong id="summary-rent">€0</strong>
+          </div>
+          <div class="year-operation">
+            <span>Solde</span>
+            <strong id="summary-year-balance">€0</strong>
+          </div>
+        </section>
+
+        <section class="trend-card" aria-labelledby="trend-title">
+          <div class="trend-header">
+            <div>
+              <p class="trend-period">6 derniers mois</p>
+              <h2 id="trend-title">Dépenses et revenus</h2>
+            </div>
+            <div class="chart-legend" aria-label="Légende">
+              <span class="legend-item"><span class="legend-dot" aria-hidden="true"></span>Dépenses</span>
+              <span class="legend-item"><span class="legend-dot revenue" aria-hidden="true"></span>Revenus</span>
+            </div>
+          </div>
+          <div id="monthly-chart" class="monthly-chart" role="img" aria-label="Dépenses et revenus des six derniers mois"></div>
+        </section>
+
+        <button id="open-add" class="add-card" type="button">
+          <span>
+            <span class="add-card-title">Ajouter une opération</span>
+            <span class="add-card-note">Dépense, loyer ou remboursement</span>
+          </span>
+          <span class="plus-disc" aria-hidden="true">+</span>
+        </button>
+
+        <button id="open-cleanings" class="cleaning-card" type="button">
+          <span>
+            <span class="cleaning-card-title">Suivi des ménages</span>
+            <span id="cleaning-card-note" class="cleaning-card-note">Voir les ménages liés aux loyers</span>
+          </span>
+          <span class="cleaning-card-arrow" aria-hidden="true">→</span>
+        </button>
+
+        <div class="section-heading">
+          <h2>Activité récente</h2>
+          <span id="transaction-count">0 opération</span>
+        </div>
+        <section id="transaction-list" class="transaction-list" aria-label="Opérations récentes"></section>
+        <p class="sync-note">Enregistré dans votre Google Sheet central · Aucune opération n'est supprimée définitivement</p>
+      </div>
+    </main>
+
+    <main id="cleaning-screen" class="screen">
+      <div class="main-shell">
+        <header class="subview-header">
+          <button id="close-cleanings" class="back-button" type="button" aria-label="Retour">←</button>
+          <div>
+            <p class="eyebrow">Loyers</p>
+            <h1>Suivi des ménages</h1>
+          </div>
+        </header>
+        <section class="cleaning-summary" aria-live="polite">
+          <strong id="cleaning-summary-title">Aucun ménage à traiter</strong>
+          <span id="cleaning-summary-detail">Les ménages effectués par Sandrine apparaîtront ici.</span>
+        </section>
+        <section id="cleaning-list" class="cleaning-list" aria-label="Ménages liés aux loyers"></section>
+        <p class="sync-note">« Alloué » diminue directement la dette de Sandrine du montant indiqué.</p>
+      </div>
+    </main>
+
+    <div id="transaction-backdrop" class="modal-backdrop" aria-hidden="true">
+      <section
+        id="transaction-modal"
+        class="transaction-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="transaction-title"
+      >
+        <div class="modal-handle" aria-hidden="true"></div>
+        <div class="modal-header">
+          <h2 id="transaction-title">Ajouter une opération</h2>
+          <button id="close-modal" class="icon-button" type="button" aria-label="Fermer">×</button>
+        </div>
+
+        <form id="transaction-form">
+          <div class="field">
+            <span class="field-label">Type</span>
+            <div id="type-selector" class="segmented" role="group" aria-label="Type d'opération">
+              <button class="segment-button is-active" data-type="EXPENSE" type="button">Dépense</button>
+              <button class="segment-button" data-type="RENT" type="button">Loyer</button>
+              <button class="segment-button" data-type="SETTLEMENT" type="button">Remboursement</button>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="amount">Montant</label>
+              <div class="amount-wrap">
+                <span id="form-currency" class="amount-symbol">€</span>
+                <input
+                  id="amount"
+                  class="input amount-input"
+                  type="text"
+                  inputmode="decimal"
+                  autocomplete="off"
+                  placeholder="0.00"
+                  required
+                />
+              </div>
+            </div>
+            <div id="single-date-field" class="field">
+              <label for="transaction-date">Date</label>
+              <input id="transaction-date" class="input" type="date" required />
+            </div>
+          </div>
+
+          <div id="rent-period-field" class="field" hidden>
+            <span class="field-label">Période de location</span>
+            <div class="form-grid">
+              <div class="field">
+                <label for="rent-start-date">Date de début</label>
+                <input id="rent-start-date" class="input" type="date" />
+              </div>
+              <div class="field">
+                <label for="rent-end-date">Date de fin</label>
+                <input id="rent-end-date" class="input" type="date" />
+              </div>
+            </div>
+            <p class="share-note">Le loyer est comptabilisé à la date de fin.</p>
+          </div>
+
+          <div class="field">
+            <span id="person-field-label" class="field-label">Payé par</span>
+            <div id="person-selector" class="segmented two" role="group" aria-labelledby="person-field-label">
+              <button id="person-a-button" class="segment-button" data-person="A" type="button">Majbrit &amp; Bryan</button>
+              <button id="person-b-button" class="segment-button" data-person="B" type="button">Sandrine</button>
+            </div>
+          </div>
+
+          <div id="settlement-field" class="field" hidden>
+            <span class="field-label">Sens du remboursement</span>
+            <div id="settlement-note" class="settlement-note"></div>
+          </div>
+
+          <div id="category-field" class="field">
+            <label for="category">Catégorie</label>
+            <select id="category"></select>
+          </div>
+
+          <div id="rent-details-field" hidden>
+            <div class="form-grid">
+              <div class="field">
+                <label for="rental-source">Source</label>
+                <select id="rental-source">
+                  <option value="">Choisir…</option>
+                  <option value="AIRBNB">Airbnb</option>
+                  <option value="DIRECT">Location directe</option>
+                  <option value="ABRITEL">Abritel</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="tenant-name">Nom du locataire</label>
+                <input id="tenant-name" class="input" type="text" maxlength="120" autocomplete="off" />
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="field-heading-row">
+                <span class="field-label">Frais liés à la location <span style="font-weight: 500; color: var(--ink-soft)">(facultatif)</span></span>
+                <button id="add-rental-fee" class="small-add-button" type="button">+ Ajouter</button>
+              </div>
+              <div id="rental-fees-list" class="rental-fees-list"></div>
+              <p class="share-note">Les frais renseignés sont déduits du loyer brut dans les comptes.</p>
+            </div>
+          </div>
+
+          <div id="rent-cleaning-field" class="field" hidden>
+            <span class="field-label">Ménage effectué par</span>
+            <div class="segmented two" role="group" aria-label="Personne ayant effectué le ménage">
+              <button class="segment-button is-active" data-cleaner="SANDRINE" type="button">Sandrine</button>
+              <button class="segment-button" data-cleaner="OTHER" type="button">Autre</button>
+            </div>
+            <div class="field" style="margin-top: 12px">
+              <label for="cleaning-amount">Montant du ménage</label>
+              <div class="amount-wrap">
+                <span class="amount-symbol">€</span>
+                <input id="cleaning-amount" class="input amount-input" type="text" inputmode="decimal" value="200" />
+              </div>
+            </div>
+            <p class="share-note">Pour Sandrine, le statut pourra ensuite être défini comme payé ou alloué dans le suivi des ménages.</p>
+          </div>
+
+          <div class="field">
+            <label for="description">Description <span style="font-weight: 500; color: var(--ink-soft)">(facultatif)</span></label>
+            <textarea id="description" maxlength="240" placeholder="À quoi correspond cette opération ?"></textarea>
+          </div>
+
+          <div id="share-field" class="field share-field">
+            <div class="share-heading">
+              <span class="field-label">Répartition</span>
+              <button id="reset-share" class="share-reset" type="button">Rétablir 50 / 50</button>
+            </div>
+            <div class="share-values" aria-live="polite">
+              <span class="share-party">
+                <span id="share-a-name">Majbrit &amp; Bryan</span>
+                <strong id="share-a-value">50&nbsp;%</strong>
+              </span>
+              <span class="share-party">
+                <span id="share-b-name">Sandrine</span>
+                <strong id="share-b-value">50&nbsp;%</strong>
+              </span>
+            </div>
+            <input
+              id="share-a"
+              class="share-range"
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              value="50"
+              aria-label="Part de Majbrit et Bryan en pourcentage"
+            />
+            <p class="share-note">50 / 50 est proposé automatiquement. Déplacez le curseur seulement si cette opération doit être répartie autrement.</p>
+          </div>
+
+          <div class="form-actions">
+            <button id="cancel-transaction" class="button button-secondary" type="button">Annuler</button>
+            <button id="save-transaction" class="button button-primary" type="submit">Enregistrer</button>
+          </div>
+          <div id="void-wrap" class="void-wrap">
+            <button id="void-transaction" class="button button-danger" type="button">Annuler cette opération</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <div id="loading-overlay" class="loading-overlay" aria-live="polite" aria-label="Chargement">
+      <div class="spinner" aria-hidden="true"></div>
+    </div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <div class="demo-badge">Aperçu local</div>
+
+    <script>
+      'use strict';
+
+      const STORAGE_KEYS = {
+        access: 'maison-expenses-access-v1',
+        device: 'maison-expenses-device-v1',
+        data: 'maison-expenses-data-v1',
+      };
+
+      const APP_HOST_ORIGIN = readConfiguredHostOrigin();
+      const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwcCvGGNSGLV4BKohoHkLHKLJkd6gGzkur4T9bPKlG9kbZOyivgx7Q_ap8kcW3cufM2NA/exec';
+      const isAppsScript = Boolean(window.google && google.script && google.script.run);
+      const isGithubApp = window.location.hostname.toLowerCase().endsWith('github.io');
+      const isDemoMode = !isAppsScript && !isGithubApp;
+      let bridgeWindow = null;
+      let bridgeOrigin = '';
+      let bridgeReadyPromise = null;
+      let bridgeSequence = 0;
+      const bridgePending = {};
+
+      const state = {
+        accessKey: readStorage(STORAGE_KEYS.access),
+        deviceKey: readStorage(STORAGE_KEYS.device),
+        data: null,
+        expenseFilters: {
+          current: true,
+          renovation: true,
+        },
+        hostCachedData: null,
+        editId: null,
+        selectedType: 'EXPENSE',
+        selectedPerson: '',
+        selectedCleaner: 'SANDRINE',
+        identityChange: false,
+        toastTimer: null,
+      };
+
+      if (isDemoMode) document.body.classList.add('demo-mode');
+
+      const elements = {
+        unlockScreen: document.getElementById('unlock-screen'),
+        identityScreen: document.getElementById('identity-screen'),
+        mainScreen: document.getElementById('main-screen'),
+        cleaningScreen: document.getElementById('cleaning-screen'),
+        loading: document.getElementById('loading-overlay'),
+        toast: document.getElementById('toast'),
+        modalBackdrop: document.getElementById('transaction-backdrop'),
+        form: document.getElementById('transaction-form'),
+      };
+
+      const demoState = createDemoState();
+
+      const server = {
+        testAccess: function (key) {
+          if (isDemoMode) return Promise.resolve(demoState.settings);
+          return apiCall('testAccess', [key]);
+        },
+        getAppData: function (key) {
+          if (isDemoMode) return Promise.resolve(buildDemoData());
+          return apiCall('getAppData', [key]);
+        },
+        saveTransaction: function (key, payload) {
+          if (isDemoMode) {
+            demoState.transactions.unshift(demoTransaction(payload));
+            return Promise.resolve(buildDemoData());
+          }
+          return apiCall('saveTransaction', [key, payload]);
+        },
+        updateTransaction: function (key, id, payload) {
+          if (isDemoMode) {
+            const index = demoState.transactions.findIndex(function (item) {
+              return item.id === id;
+            });
+            if (index >= 0) {
+              const original = demoState.transactions[index];
+              demoState.transactions[index] = Object.assign({}, original, demoTransaction(payload), {
+                id: id,
+                createdAt: original.createdAt,
+                enteredBy: original.enteredBy,
+                enteredByKey: original.enteredByKey,
+              });
+            }
+            return Promise.resolve(buildDemoData());
+          }
+          return apiCall('updateTransaction', [key, id, payload]);
+        },
+        voidTransaction: function (key, id, actorKey) {
+          if (isDemoMode) {
+            const transaction = demoState.transactions.find(function (item) {
+              return item.id === id;
+            });
+            if (transaction) {
+              transaction.status = 'VOID';
+              transaction.lastEditedByKey = actorKey;
+              transaction.updatedAt = new Date().toISOString();
+            }
+            return Promise.resolve(buildDemoData());
+          }
+          return apiCall('voidTransaction', [key, id, actorKey]);
+        },
+        updateCleaningStatus: function (key, id, status, actorKey) {
+          if (isDemoMode) {
+            const transaction = demoState.transactions.find(function (item) { return item.id === id; });
+            if (transaction) transaction.cleaningStatus = status;
+            return Promise.resolve(buildDemoData());
+          }
+          return apiCall('updateCleaningStatus', [key, id, status, actorKey]);
+        },
+      };
+
+      function apiCall(method, args) {
+        if (isAppsScript) {
+          return gasCall(function (runner) {
+            runner[method].apply(runner, args);
+          });
+        }
+        return bridgeCall(method, args);
+      }
+
+      function gasCall(invoke) {
+        return new Promise(function (resolve, reject) {
+          const runner = google.script.run
+            .withSuccessHandler(resolve)
+            .withFailureHandler(function (error) {
+              reject(new Error(error && error.message ? error.message : "Impossible de joindre le Google Sheet."));
+            });
+          invoke(runner);
+        });
+      }
+
+      function isGoogleBridgeOrigin(origin) {
+        try {
+          const host = new URL(origin).hostname;
+          return host === 'script.google.com' || host.endsWith('.googleusercontent.com');
+        } catch (error) {
+          return false;
+        }
+      }
+
+      function ensureBridge() {
+        if (bridgeWindow) return Promise.resolve();
+        if (bridgeReadyPromise) return bridgeReadyPromise;
+
+        bridgeReadyPromise = new Promise(function (resolve, reject) {
+          const frame = document.createElement('iframe');
+          frame.title = 'Synchronisation Google Sheet';
+          frame.setAttribute('aria-hidden', 'true');
+          frame.tabIndex = -1;
+          frame.style.cssText = 'position:fixed;width:1px;height:1px;right:0;bottom:0;border:0;opacity:0;pointer-events:none;';
+          frame.src = APPS_SCRIPT_URL + '?mode=bridge&v=4';
+          document.body.appendChild(frame);
+
+          const timeout = window.setTimeout(function () {
+            reject(new Error('La connexion au Google Sheet prend trop de temps. Réessayez dans quelques instants.'));
+          }, 15000);
+
+          function ready(event) {
+            if (!isGoogleBridgeOrigin(event.origin)) return;
+            if (!event.data || event.data.type !== 'maison-expenses-api-ready') return;
+            window.clearTimeout(timeout);
+            bridgeWindow = event.source;
+            bridgeOrigin = event.origin;
+            window.removeEventListener('message', ready);
+            resolve();
+          }
+          window.addEventListener('message', ready);
+        });
+        return bridgeReadyPromise;
+      }
+
+      function bridgeCall(method, args) {
+        return ensureBridge().then(function () {
+          return new Promise(function (resolve, reject) {
+            const id = 'request-' + Date.now() + '-' + (++bridgeSequence);
+            const timer = window.setTimeout(function () {
+              delete bridgePending[id];
+              reject(new Error('Le Google Sheet ne répond pas. Vérifiez votre connexion puis réessayez.'));
+            }, 30000);
+            bridgePending[id] = { resolve: resolve, reject: reject, timer: timer };
+            bridgeWindow.postMessage({
+              type: 'maison-expenses-api-request',
+              id: id,
+              method: method,
+              args: args,
+            }, bridgeOrigin);
+          });
+        });
+      }
+
+      window.addEventListener('message', function (event) {
+        if (!bridgeWindow || event.source !== bridgeWindow || event.origin !== bridgeOrigin) return;
+        const response = event.data;
+        if (!response || response.type !== 'maison-expenses-api-response') return;
+        const pending = bridgePending[response.id];
+        if (!pending) return;
+        window.clearTimeout(pending.timer);
+        delete bridgePending[response.id];
+        if (response.error) pending.reject(new Error(response.error));
+        else pending.resolve(response.result);
+      });
+
+      function showScreen(target) {
+        [elements.unlockScreen, elements.identityScreen, elements.mainScreen, elements.cleaningScreen].forEach(function (screen) {
+          screen.classList.toggle('is-visible', screen === target);
+        });
+      }
+
+      function setLoading(isLoading) {
+        elements.loading.classList.toggle('is-visible', isLoading);
+      }
+
+      function showToast(message, isError) {
+        window.clearTimeout(state.toastTimer);
+        elements.toast.textContent = message;
+        elements.toast.classList.toggle('is-error', Boolean(isError));
+        elements.toast.classList.add('is-visible');
+        state.toastTimer = window.setTimeout(function () {
+          elements.toast.classList.remove('is-visible');
+        }, isError ? 5000 : 2600);
+      }
+
+      async function bootstrap() {
+        const hostState = await readHostStorage();
+        if (hostState) {
+          state.accessKey = hostState.access || state.accessKey;
+          state.deviceKey = hostState.device || state.deviceKey;
+          state.hostCachedData = parseCachedData(hostState.data);
+        }
+        if (isDemoMode && !state.accessKey) {
+          state.accessKey = 'local-preview';
+          writeStorage(STORAGE_KEYS.access, state.accessKey);
+        }
+        if (!state.accessKey) {
+          showScreen(elements.unlockScreen);
+          return;
+        }
+        const cachedData = readCachedData();
+        if (cachedData) {
+          state.data = cachedData;
+          if (state.deviceKey === 'A' || state.deviceKey === 'B') {
+            renderApp();
+            showScreen(elements.mainScreen);
+          } else {
+            openIdentity(false);
+          }
+          refreshData(true, false);
+          return;
+        }
+        await refreshData(true, true);
+      }
+
+      async function refreshData(initial, showBusy) {
+        const shouldShowBusy = showBusy !== false;
+        if (shouldShowBusy) setLoading(true);
+        try {
+          state.data = await server.getAppData(state.accessKey);
+          writeStorage(STORAGE_KEYS.data, JSON.stringify(state.data));
+          if (state.deviceKey !== 'A' && state.deviceKey !== 'B') {
+            openIdentity(false);
+          } else {
+            renderApp();
+            showScreen(elements.mainScreen);
+          }
+        } catch (error) {
+          if (initial && isInvalidAccessError(error)) {
+            state.accessKey = '';
+            removeStorage(STORAGE_KEYS.access);
+            showScreen(elements.unlockScreen);
+          } else if (initial) {
+            const cachedData = readCachedData();
+            if (cachedData) {
+              state.data = cachedData;
+              if (state.deviceKey === 'A' || state.deviceKey === 'B') {
+                renderApp();
+                showScreen(elements.mainScreen);
+              } else {
+                openIdentity(false);
+              }
+            } else {
+              showScreen(elements.unlockScreen);
+            }
+          }
+          showToast(error.message, true);
+        } finally {
+          if (shouldShowBusy) setLoading(false);
+        }
+      }
+
+      function openIdentity(change) {
+        state.identityChange = Boolean(change);
+        const settings = state.data.settings;
+        const options = document.getElementById('identity-options');
+        options.innerHTML = [
+          identityButton('A', settings.personA),
+          identityButton('B', settings.personB),
+        ].join('');
+        options.querySelectorAll('[data-device]').forEach(function (button) {
+          button.addEventListener('click', function () {
+            chooseIdentity(button.dataset.device);
+          });
+        });
+        document.getElementById('identity-cancel').hidden = !change;
+        showScreen(elements.identityScreen);
+      }
+
+      function identityButton(key, name) {
+        return (
+          '<button class="identity-choice" data-device="' + key + '" type="button">' +
+          '<span class="avatar" aria-hidden="true">' + escapeHtml(initial(name)) + '</span>' +
+          '<span><span class="identity-name">' + escapeHtml(name) + '</span>' +
+          '<span class="identity-note">Opérations saisies sur ce téléphone</span></span>' +
+          '<span aria-hidden="true">→</span></button>'
+        );
+      }
+
+      function chooseIdentity(key) {
+        state.deviceKey = key;
+        writeStorage(STORAGE_KEYS.device, key);
+        renderApp();
+        showScreen(elements.mainScreen);
+        showToast('Ce téléphone est attribué à ' + personName(key) + '.', false);
+      }
+
+      function renderApp() {
+        const settings = state.data.settings;
+        const deviceName = personName(state.deviceKey);
+        document.title = settings.appName;
+        document.getElementById('app-name').textContent = settings.appName;
+        document.getElementById('device-name').textContent = deviceName;
+        document.getElementById('device-avatar').textContent = initial(deviceName);
+        document.getElementById('person-a-button').textContent = settings.personA;
+        document.getElementById('person-b-button').textContent = settings.personB;
+        document.getElementById('share-a-name').textContent = settings.personA;
+        document.getElementById('share-b-name').textContent = settings.personB;
+        document.getElementById('share-a').setAttribute(
+          'aria-label',
+          'Part de ' + settings.personA + ' en pourcentage'
+        );
+        document.getElementById('form-currency').textContent = settings.currencySymbol;
+        document.getElementById('overview-year').textContent = state.data.summaries.currentYear;
+        renderSummary();
+        renderMonthlyChart();
+        renderTransactions();
+        renderCleanings();
+      }
+
+      function renderSummary() {
+        const settings = state.data.settings;
+        const view = getDashboardView();
+        const summary = view.summaries.all;
+        const yearOperations = state.data.dashboard && state.data.dashboard.current
+          ? state.data.dashboard.current.summaries.year
+          : state.data.summaries.year;
+        const amount = Math.abs(summary.balanceA);
+        const balanceParty = document.getElementById('balance-party');
+
+        if (amount < 0.005) {
+          balanceParty.textContent = 'Tout est équilibré';
+        } else if (summary.balanceA > 0) {
+          balanceParty.textContent = settings.personB + ' doit à ' + settings.personA;
+        } else {
+          balanceParty.textContent = settings.personA + ' doit à ' + settings.personB;
+        }
+
+        document.getElementById('balance-amount').textContent = formatDashboardMoney(amount);
+        const filterLabel = dashboardFilterLabel();
+        const allocated = Number(summary.cleaningAllocated) || 0;
+        document.getElementById('balance-detail').textContent = filterLabel + ' depuis le début.' +
+          (allocated ? ' Inclut ' + formatDashboardMoney(allocated) + ' de ménages alloués à Sandrine.' : '');
+        document.getElementById('summary-expenses').textContent = formatDashboardMoney(
+          Number(yearOperations.expenses || 0) + Number(yearOperations.rentalFees || 0)
+        );
+        document.getElementById('summary-rent').textContent = formatDashboardMoney(yearOperations.rent);
+        document.getElementById('summary-year-balance').textContent = formatDashboardMoney(yearOperations.net);
+        document.querySelectorAll('[data-expense-filter]').forEach(function (button) {
+          const active = state.expenseFilters[button.dataset.expenseFilter];
+          button.classList.toggle('is-active', active);
+          button.setAttribute('aria-pressed', String(active));
+        });
+      }
+
+      function renderMonthlyChart() {
+        const chart = document.getElementById('monthly-chart');
+        const series = getDashboardView().monthly;
+        if (!series.length) {
+          chart.innerHTML = '<div class="chart-empty">Aucune donnée mensuelle disponible.</div>';
+          return;
+        }
+
+        const maximum = Math.max.apply(null, series.reduce(function (values, item) {
+          values.push(Math.max(0, Number(item.expenses) || 0));
+          values.push(Math.max(0, Number(item.revenue) || 0));
+          return values;
+        }, [1]));
+        const hasValues = series.some(function (item) {
+          return Number(item.expenses) !== 0 || Number(item.revenue) !== 0;
+        });
+
+        if (!hasValues) {
+          chart.innerHTML = '<div class="chart-empty">Aucune dépense ou revenu daté sur cette période.</div>';
+          return;
+        }
+
+        chart.innerHTML = series.map(function (item) {
+          const expenses = Number(item.expenses) || 0;
+          const revenue = Number(item.revenue) || 0;
+          const expenseHeight = chartHeight(expenses, maximum);
+          const revenueHeight = chartHeight(revenue, maximum);
+          const label = formatMonth(item.month);
+          const accessible = label + ' : dépenses ' + formatDashboardMoney(expenses) +
+            ', revenus ' + formatDashboardMoney(revenue);
+          return (
+            '<div class="month-group" aria-label="' + escapeHtml(accessible) + '" title="' + escapeHtml(accessible) + '">' +
+              '<div class="bar-area" aria-hidden="true">' +
+                '<span class="chart-bar expense" style="height:' + expenseHeight + '%"></span>' +
+                '<span class="chart-bar revenue" style="height:' + revenueHeight + '%"></span>' +
+              '</div>' +
+              '<span class="month-label">' + escapeHtml(label) + '</span>' +
+            '</div>'
+          );
+        }).join('');
+      }
+
+      function dashboardViewKey() {
+        if (state.expenseFilters.current && state.expenseFilters.renovation) return 'all';
+        return state.expenseFilters.renovation ? 'renovation' : 'current';
+      }
+
+      function getDashboardView() {
+        const key = dashboardViewKey();
+        if (state.data.dashboard && state.data.dashboard[key]) return state.data.dashboard[key];
+        return {
+          summaries: state.data.summaries,
+          monthly: Array.isArray(state.data.monthly) ? state.data.monthly : [],
+        };
+      }
+
+      function dashboardFilterLabel() {
+        const key = dashboardViewKey();
+        if (key === 'current') return 'Dépenses courantes, loyers et remboursements partagés';
+        if (key === 'renovation') return 'Dépenses de rénovation partagées';
+        return 'Toutes les dépenses, tous les loyers et remboursements partagés';
+      }
+
+      function chartHeight(value, maximum) {
+        const amount = Number(value) || 0;
+        if (amount <= 0) return 0;
+        return Math.max(4, Math.min(100, Math.round((amount / maximum) * 100)));
+      }
+
+      function renderTransactions() {
+        const list = document.getElementById('transaction-list');
+        const transactions = state.data.recent;
+        document.getElementById('transaction-count').textContent =
+          transactions.length + (transactions.length === 1 ? ' opération' : ' opérations');
+
+        if (!transactions.length) {
+          list.innerHTML = '<div class="empty-state">Aucune opération pour le moment. Ajoutez la première ci-dessus.</div>';
+          return;
+        }
+
+        list.innerHTML = transactions
+          .map(function (transaction) {
+            const isVoid = transaction.status !== 'ACTIVE';
+            const isExpenseRefund = transaction.type === 'EXPENSE' && Number(transaction.amount) < 0;
+            const typeClass = transaction.type.toLowerCase();
+            const icon = isExpenseRefund ? '↩' : transaction.type === 'EXPENSE' ? '−' : transaction.type === 'RENT' ? '+' : '→';
+            const title = transaction.type === 'RENT' && transaction.tenantName
+              ? transaction.tenantName
+              : transaction.description || transaction.category || typeLabel(transaction.type);
+            const personCopy = isExpenseRefund
+              ? 'Remboursement reçu par ' + transaction.person
+              : transaction.type === 'EXPENSE'
+              ? 'Payé par ' + transaction.person
+              : transaction.type === 'RENT'
+                ? 'Reçu par ' + transaction.person
+                : transaction.person + ' a remboursé ' + transaction.counterparty;
+            const sign = isExpenseRefund ? '+' : transaction.type === 'EXPENSE' ? '−' : transaction.type === 'RENT' ? '+' : '';
+            const displayType = isExpenseRefund ? 'Avoir' : typeLabel(transaction.type);
+            const storedShareA = Number(transaction.shareA);
+            const shareA = Number.isFinite(storedShareA) ? Math.round(storedShareA * 100) : 50;
+            const splitCopy = transaction.type !== 'SETTLEMENT' && shareA !== 50
+              ? ' · Répartition ' + shareA + '/' + (100 - shareA)
+              : '';
+            const cleaningCopy = transaction.type === 'RENT' && transaction.cleaner
+              ? ' · Ménage ' + (transaction.cleaner === 'SANDRINE' ? 'Sandrine' : 'autre') +
+                ' ' + formatMoney(transaction.cleaningAmount, true) +
+                (transaction.cleaner === 'SANDRINE' ? ' · ' + cleaningStatusLabel(transaction.cleaningStatus) : '')
+              : '';
+            const rentalCopy = transaction.type === 'RENT'
+              ? (transaction.rentalSource ? ' · ' + rentalSourceLabel(transaction.rentalSource) : '') +
+                (Number(transaction.rentalFeesTotal) > 0 ? ' · Frais ' + formatMoney(transaction.rentalFeesTotal, true) : '')
+              : '';
+            return (
+              '<button class="transaction-row' + (isVoid ? ' is-void' : '') + '" ' +
+              (isVoid ? 'disabled ' : '') + 'data-id="' + escapeHtml(transaction.id) + '" type="button">' +
+              '<span class="transaction-icon ' + typeClass + '" aria-hidden="true">' + icon + '</span>' +
+              '<span class="transaction-main"><span class="transaction-title">' +
+              escapeHtml(isVoid ? 'Annulée · ' + title : title) + '</span>' +
+              '<span class="transaction-meta">' + escapeHtml(displayType + ' · ' + personCopy + rentalCopy + splitCopy + cleaningCopy) + '</span></span>' +
+              '<span class="transaction-money"><span class="transaction-amount">' + sign +
+              escapeHtml(formatMoney(Math.abs(Number(transaction.amount)), true)) + '</span>' +
+              '<span class="transaction-date">' + escapeHtml(formatTransactionPeriod(transaction)) + '</span></span></button>'
+            );
+          })
+          .join('');
+
+        list.querySelectorAll('[data-id]:not(:disabled)').forEach(function (button) {
+          button.addEventListener('click', function () {
+            openTransaction(button.dataset.id);
+          });
+        });
+      }
+
+      function renderCleanings() {
+        const list = document.getElementById('cleaning-list');
+        const rents = Array.isArray(state.data.cleanings)
+          ? state.data.cleanings
+          : (state.data.recent || []).filter(function (item) { return item.type === 'RENT' && item.status === 'ACTIVE'; });
+        const pending = rents.filter(function (item) {
+          return !item.cleaner || (item.cleaner === 'SANDRINE' && (!item.cleaningStatus || item.cleaningStatus === 'PENDING'));
+        });
+        const allocated = rents.reduce(function (total, item) {
+          return total + (item.cleaner === 'SANDRINE' && item.cleaningStatus === 'ALLOCATED'
+            ? Number(item.cleaningAmount) || 0
+            : 0);
+        }, 0);
+
+        document.getElementById('cleaning-card-note').textContent = pending.length
+          ? pending.length + (pending.length === 1 ? ' ménage à traiter' : ' ménages à traiter')
+          : 'Tous les ménages sont à jour';
+        document.getElementById('cleaning-summary-title').textContent = pending.length
+          ? pending.length + (pending.length === 1 ? ' ménage à traiter' : ' ménages à traiter')
+          : 'Aucun ménage à traiter';
+        document.getElementById('cleaning-summary-detail').textContent = allocated
+          ? formatDashboardMoney(allocated) + ' alloués à Sandrine et déduits de sa dette.'
+          : 'Les ménages alloués seront déduits de la dette de Sandrine.';
+
+        if (!rents.length) {
+          list.innerHTML = '<div class="empty-state">Aucun loyer enregistré pour le moment.</div>';
+          return;
+        }
+
+        list.innerHTML = rents.map(function (rent) {
+          const title = rent.tenantName || rent.description || rent.category || 'Loyer';
+          const cleaner = rent.cleaner || '';
+          const amount = Number(rent.cleaningAmount) || 0;
+          let controls = '';
+          if (!cleaner) {
+            controls = '<button class="cleaning-edit" data-cleaning-edit="' + escapeHtml(rent.id) + '" type="button">Renseigner le ménage</button>';
+          } else if (cleaner === 'OTHER') {
+            controls = '<button class="cleaning-edit" data-cleaning-edit="' + escapeHtml(rent.id) + '" type="button">Modifier</button>';
+          } else {
+            controls = '<div class="cleaning-statuses" role="group" aria-label="Statut du ménage">' +
+              cleaningStatusButton(rent, 'PENDING', 'À traiter') +
+              cleaningStatusButton(rent, 'PAID', 'Payé') +
+              cleaningStatusButton(rent, 'ALLOCATED', 'Alloué') +
+              '</div>';
+          }
+          const cleanerText = !cleaner
+            ? 'Ménage non renseigné'
+            : cleaner === 'SANDRINE'
+              ? 'Ménage par Sandrine'
+              : 'Ménage par une autre personne';
+          return '<article class="cleaning-row">' +
+            '<div class="cleaning-row-top"><div><div class="cleaning-row-title">' + escapeHtml(title) + '</div>' +
+            '<div class="cleaning-row-meta">' + escapeHtml(formatTransactionPeriod(rent) + ' · Reçu par ' + rent.person + ' · ' + cleanerText) + '</div></div>' +
+            '<div class="cleaning-amount">' + (amount ? escapeHtml(formatMoney(amount, true)) : '—') + '</div></div>' + controls + '</article>';
+        }).join('');
+
+        list.querySelectorAll('[data-cleaning-status]').forEach(function (button) {
+          button.addEventListener('click', function () {
+            updateCleaningStatus(button.dataset.cleaningId, button.dataset.cleaningStatus);
+          });
+        });
+        list.querySelectorAll('[data-cleaning-edit]').forEach(function (button) {
+          button.addEventListener('click', function () { openTransaction(button.dataset.cleaningEdit); });
+        });
+      }
+
+      function cleaningStatusButton(rent, status, label) {
+        const active = (rent.cleaningStatus || 'PENDING') === status;
+        return '<button class="cleaning-status-button' + (active ? ' is-active' : '') + '" ' +
+          'data-cleaning-id="' + escapeHtml(rent.id) + '" data-cleaning-status="' + status + '" type="button">' + label + '</button>';
+      }
+
+      function cleaningStatusLabel(status) {
+        return status === 'PAID' ? 'Payé' : status === 'ALLOCATED' ? 'Alloué' : 'À traiter';
+      }
+
+      async function updateCleaningStatus(id, status) {
+        setLoading(true);
+        try {
+          state.data = await server.updateCleaningStatus(state.accessKey, id, status, state.deviceKey);
+          writeStorage(STORAGE_KEYS.data, JSON.stringify(state.data));
+          renderApp();
+          showScreen(elements.cleaningScreen);
+          showToast(status === 'PAID' ? 'Ménage marqué comme payé.' : status === 'ALLOCATED'
+            ? 'Ménage alloué et solde mis à jour.'
+            : 'Ménage remis à traiter.', false);
+        } catch (error) {
+          showToast(error.message, true);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      function openTransaction(id) {
+        state.editId = id || null;
+        const transaction = id ? findTransactionById(id) : null;
+
+        elements.form.reset();
+        document.getElementById('transaction-title').textContent = transaction
+          ? "Modifier l'opération"
+          : 'Ajouter une opération';
+        document.getElementById('save-transaction').textContent = transaction
+          ? 'Enregistrer les modifications'
+          : 'Enregistrer';
+        document.getElementById('void-wrap').classList.toggle('is-visible', Boolean(transaction));
+
+        document.getElementById('amount').value = transaction ? String(transaction.amount) : '';
+        document.getElementById('transaction-date').value = transaction ? transaction.date : today();
+        document.getElementById('rent-start-date').value = transaction
+          ? (transaction.rentStartDate || transaction.date)
+          : today();
+        document.getElementById('rent-end-date').value = transaction
+          ? (transaction.rentEndDate || transaction.date)
+          : today();
+        document.getElementById('rental-source').value = transaction ? (transaction.rentalSource || '') : '';
+        document.getElementById('tenant-name').value = transaction ? (transaction.tenantName || '') : '';
+        renderRentalFees(transaction && Array.isArray(transaction.rentalFees) ? transaction.rentalFees : []);
+        document.getElementById('description').value = transaction ? transaction.description : '';
+        document.getElementById('cleaning-amount').value = transaction && Number(transaction.cleaningAmount) > 0
+          ? String(transaction.cleaningAmount)
+          : '200';
+        const storedShareA = transaction ? Number(transaction.shareA) : 0.5;
+        setShare(Number.isFinite(storedShareA) ? storedShareA * 100 : 50);
+        setType(transaction ? transaction.type : 'EXPENSE');
+        setPerson(transaction ? transaction.personKey : state.deviceKey);
+        setCleaner(transaction && transaction.cleaner ? transaction.cleaner : 'SANDRINE');
+        populateCategories(transaction ? transaction.category : '');
+
+        elements.modalBackdrop.classList.add('is-open');
+        elements.modalBackdrop.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        window.setTimeout(function () {
+          document.getElementById('amount').focus();
+        }, 80);
+      }
+
+      function closeTransaction() {
+        elements.modalBackdrop.classList.remove('is-open');
+        elements.modalBackdrop.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        state.editId = null;
+      }
+
+      function setType(type) {
+        state.selectedType = type;
+        document.querySelectorAll('[data-type]').forEach(function (button) {
+          const active = button.dataset.type === type;
+          button.classList.toggle('is-active', active);
+          button.setAttribute('aria-pressed', String(active));
+        });
+        document.getElementById('person-field-label').textContent =
+          type === 'EXPENSE' ? 'Payé par' : type === 'RENT' ? 'Reçu par' : 'Remboursé par';
+        document.getElementById('category-field').hidden = type === 'SETTLEMENT';
+        document.getElementById('settlement-field').hidden = type !== 'SETTLEMENT';
+        document.getElementById('share-field').hidden = type === 'SETTLEMENT';
+        document.getElementById('rent-cleaning-field').hidden = type !== 'RENT';
+        document.getElementById('rent-period-field').hidden = type !== 'RENT';
+        document.getElementById('rent-details-field').hidden = type !== 'RENT';
+        document.getElementById('single-date-field').hidden = type === 'RENT';
+        document.getElementById('transaction-date').required = type !== 'RENT';
+        document.getElementById('rent-start-date').required = type === 'RENT';
+        document.getElementById('rent-end-date').required = type === 'RENT';
+        document.getElementById('rental-source').required = type === 'RENT';
+        document.getElementById('tenant-name').required = type === 'RENT';
+        populateCategories(document.getElementById('category').value);
+        updateFormHelper();
+      }
+
+      function renderRentalFees(fees) {
+        const list = document.getElementById('rental-fees-list');
+        list.innerHTML = '';
+        (fees || []).forEach(function (fee) { addRentalFeeRow(fee); });
+      }
+
+      function addRentalFeeRow(fee) {
+        const list = document.getElementById('rental-fees-list');
+        const row = document.createElement('div');
+        row.className = 'rental-fee-row';
+        row.innerHTML =
+          '<div class="amount-wrap"><span class="amount-symbol">€</span>' +
+          '<input class="input amount-input rental-fee-amount" type="text" inputmode="decimal" placeholder="0" value="' +
+          escapeHtml(fee && fee.amount !== undefined ? String(fee.amount) : '') + '"></div>' +
+          '<input class="input rental-fee-label" type="text" maxlength="120" placeholder="Ex. commission Airbnb" value="' +
+          escapeHtml(fee && fee.label ? fee.label : '') + '">' +
+          '<button class="remove-fee" type="button" aria-label="Supprimer ce frais">×</button>';
+        row.querySelector('.remove-fee').addEventListener('click', function () { row.remove(); });
+        list.appendChild(row);
+        if (!fee) row.querySelector('.rental-fee-amount').focus();
+      }
+
+      function collectRentalFees() {
+        const fees = [];
+        document.querySelectorAll('.rental-fee-row').forEach(function (row, index) {
+          const label = row.querySelector('.rental-fee-label').value.trim();
+          const rawAmount = row.querySelector('.rental-fee-amount').value.trim().replace(',', '.');
+          if (!label && !rawAmount) return;
+          const amount = Number(rawAmount);
+          if (!label || !Number.isFinite(amount) || amount <= 0) {
+            throw new Error('Complétez le libellé et le montant du frais n°' + (index + 1) + '.');
+          }
+          fees.push({ label: label, amount: amount });
+        });
+        return fees;
+      }
+
+      function setCleaner(value) {
+        state.selectedCleaner = value === 'OTHER' ? 'OTHER' : 'SANDRINE';
+        document.querySelectorAll('[data-cleaner]').forEach(function (button) {
+          const active = button.dataset.cleaner === state.selectedCleaner;
+          button.classList.toggle('is-active', active);
+          button.setAttribute('aria-pressed', String(active));
+        });
+      }
+
+      function setPerson(key) {
+        state.selectedPerson = key;
+        document.querySelectorAll('[data-person]').forEach(function (button) {
+          const active = button.dataset.person === key;
+          button.classList.toggle('is-active', active);
+          button.setAttribute('aria-pressed', String(active));
+        });
+        updateFormHelper();
+      }
+
+      function updateFormHelper() {
+        if (!state.data) return;
+        if (state.selectedType === 'SETTLEMENT') {
+          document.getElementById('settlement-note').textContent =
+            personName(state.selectedPerson) + ' rembourse ' + personName(state.selectedPerson === 'A' ? 'B' : 'A') + '.';
+        }
+      }
+
+      function setShare(value) {
+        const numericValue = Number(value);
+        const shareA = Number.isFinite(numericValue)
+          ? Math.max(0, Math.min(100, Math.round(numericValue)))
+          : 50;
+        document.getElementById('share-a').value = String(shareA);
+        document.getElementById('share-a-value').textContent = shareA + ' %';
+        document.getElementById('share-b-value').textContent = (100 - shareA) + ' %';
+      }
+
+      function populateCategories(selected) {
+        if (!state.data) return;
+        const select = document.getElementById('category');
+        const categories = state.selectedType === 'RENT'
+          ? state.data.settings.rentCategories
+          : state.data.settings.expenseCategories;
+        select.innerHTML = categories
+          .map(function (category) {
+            return '<option value="' + escapeHtml(category) + '">' + escapeHtml(category) + '</option>';
+          })
+          .join('');
+        if (selected && categories.indexOf(selected) === -1) {
+          const option = document.createElement('option');
+          option.value = selected;
+          option.textContent = selected;
+          select.appendChild(option);
+        }
+        if (selected) select.value = selected;
+      }
+
+      async function submitTransaction(event) {
+        event.preventDefault();
+        if (!state.selectedPerson) {
+          showToast("Choisissez qui a payé ou reçu l'argent.", true);
+          return;
+        }
+
+        const rawAmount = document.getElementById('amount').value.trim().replace(',', '.');
+        const amount = Number(rawAmount);
+        if (!Number.isFinite(amount) || amount === 0) {
+          showToast('Saisissez un montant valide différent de zéro.', true);
+          document.getElementById('amount').focus();
+          return;
+        }
+        if (amount < 0 && state.selectedType !== 'EXPENSE') {
+          showToast('Un montant négatif est réservé aux remboursements de dépenses.', true);
+          document.getElementById('amount').focus();
+          return;
+        }
+        let rentStartDate = '';
+        let rentEndDate = '';
+        let rentalSource = '';
+        let tenantName = '';
+        let rentalFees = [];
+        if (state.selectedType === 'RENT') {
+          rentStartDate = document.getElementById('rent-start-date').value;
+          rentEndDate = document.getElementById('rent-end-date').value;
+          rentalSource = document.getElementById('rental-source').value;
+          tenantName = document.getElementById('tenant-name').value.trim();
+          if (!rentStartDate || !rentEndDate || rentStartDate > rentEndDate) {
+            showToast('Saisissez une période de location valide.', true);
+            return;
+          }
+          if (!rentalSource) {
+            showToast('Choisissez la source de la location.', true);
+            document.getElementById('rental-source').focus();
+            return;
+          }
+          if (!tenantName) {
+            showToast('Saisissez le nom du locataire.', true);
+            document.getElementById('tenant-name').focus();
+            return;
+          }
+          try {
+            rentalFees = collectRentalFees();
+          } catch (error) {
+            showToast(error.message, true);
+            return;
+          }
+        }
+        const rawCleaningAmount = document.getElementById('cleaning-amount').value.trim().replace(',', '.');
+        const cleaningAmount = state.selectedType === 'RENT' ? Number(rawCleaningAmount) : 0;
+        if (state.selectedType === 'RENT' && (!Number.isFinite(cleaningAmount) || cleaningAmount <= 0)) {
+          showToast('Saisissez un montant de ménage valide.', true);
+          document.getElementById('cleaning-amount').focus();
+          return;
+        }
+
+        const editingTransaction = state.editId ? findTransactionById(state.editId) : null;
+
+        const payload = {
+          type: state.selectedType,
+          amount: amount,
+          date: state.selectedType === 'RENT' ? rentEndDate : document.getElementById('transaction-date').value,
+          rentStartDate: rentStartDate,
+          rentEndDate: rentEndDate,
+          rentalSource: rentalSource,
+          tenantName: tenantName,
+          rentalFees: rentalFees,
+          personKey: state.selectedPerson,
+          category: state.selectedType === 'SETTLEMENT' ? '' : document.getElementById('category').value,
+          description: document.getElementById('description').value.trim(),
+          shareA: state.selectedType === 'SETTLEMENT'
+            ? 0.5
+            : Number(document.getElementById('share-a').value) / 100,
+          enteredByKey: state.deviceKey,
+          cleaner: state.selectedType === 'RENT' ? state.selectedCleaner : '',
+          cleaningAmount: cleaningAmount,
+          cleaningStatus: state.selectedType === 'RENT' && editingTransaction
+            ? (editingTransaction.cleaningStatus || 'PENDING')
+            : 'PENDING',
+        };
+
+        const wasEditing = Boolean(state.editId);
+        setLoading(true);
+        try {
+          state.data = state.editId
+            ? await server.updateTransaction(state.accessKey, state.editId, payload)
+            : await server.saveTransaction(state.accessKey, payload);
+          closeTransaction();
+          renderApp();
+          showToast(wasEditing ? 'Modifications enregistrées.' : 'Opération enregistrée.', false);
+        } catch (error) {
+          showToast(error.message, true);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      async function voidCurrentTransaction() {
+        if (!state.editId) return;
+        const confirmed = window.confirm(
+          "Annuler cette opération ? Elle ne comptera plus dans les totaux, mais restera visible dans le journal d'audit."
+        );
+        if (!confirmed) return;
+
+        setLoading(true);
+        try {
+          state.data = await server.voidTransaction(state.accessKey, state.editId, state.deviceKey);
+          closeTransaction();
+          renderApp();
+          showToast('Opération annulée.', false);
+        } catch (error) {
+          showToast(error.message, true);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      function personName(key) {
+        if (!state.data) return key === 'A' ? 'Majbrit & Bryan' : 'Sandrine';
+        return key === 'A' ? state.data.settings.personA : state.data.settings.personB;
+      }
+
+      function findTransactionById(id) {
+        const candidates = (state.data.recent || []).concat(state.data.cleanings || []);
+        return candidates.find(function (item) { return item.id === id; }) || null;
+      }
+
+      function typeLabel(type) {
+        return type === 'EXPENSE' ? 'Dépense' : type === 'RENT' ? 'Loyer' : 'Remboursement';
+      }
+
+      function rentalSourceLabel(value) {
+        return value === 'AIRBNB' ? 'Airbnb' : value === 'DIRECT' ? 'Location directe' : value === 'ABRITEL' ? 'Abritel' : value;
+      }
+
+      function formatMoney(value, compact) {
+        const settings = state.data ? state.data.settings : { currency: 'EUR' };
+        const amount = Number(value) || 0;
+        try {
+          return new Intl.NumberFormat('fr-FR', {
+            style: 'currency',
+            currency: settings.currency,
+            minimumFractionDigits: compact && Math.abs(amount) >= 1000 ? 0 : 2,
+            maximumFractionDigits: 2,
+          }).format(amount);
+        } catch (error) {
+          return (settings.currencySymbol || '€') + amount.toFixed(2);
+        }
+      }
+
+      function formatDashboardMoney(value) {
+        const settings = state.data ? state.data.settings : { currency: 'EUR' };
+        try {
+          return new Intl.NumberFormat('fr-FR', {
+            style: 'currency',
+            currency: settings.currency,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+          }).format(Math.round(Number(value) || 0));
+        } catch (error) {
+          return (settings.currencySymbol || '€') + String(Math.round(Number(value) || 0));
+        }
+      }
+
+      function formatDate(value) {
+        const date = new Date(value + 'T12:00:00');
+        if (Number.isNaN(date.getTime())) return value;
+        return new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' }).format(date);
+      }
+
+      function formatTransactionPeriod(transaction) {
+        if (transaction && transaction.type === 'RENT' && transaction.rentStartDate && transaction.rentEndDate) {
+          return formatDate(transaction.rentStartDate) + ' – ' + formatDate(transaction.rentEndDate);
+        }
+        return formatDate(transaction && transaction.date || '');
+      }
+
+      function formatMonth(value) {
+        const match = /^(\d{4})-(\d{2})$/.exec(String(value || ''));
+        if (!match) return value;
+        const date = new Date(Number(match[1]), Number(match[2]) - 1, 1, 12, 0, 0);
+        return new Intl.DateTimeFormat('fr-FR', { month: 'short' })
+          .format(date)
+          .replace('.', '');
+      }
+
+      function today() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        return year + '-' + month + '-' + day;
+      }
+
+      function initial(value) {
+        return String(value || '?').trim().charAt(0).toUpperCase();
+      }
+
+      function escapeHtml(value) {
+        return String(value == null ? '' : value).replace(/[&<>"]/g, function (character) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[character];
+        });
+      }
+
+      function readStorage(key) {
+        try {
+          return window.localStorage.getItem(key) || '';
+        } catch (error) {
+          return '';
+        }
+      }
+
+      function writeStorage(key, value) {
+        try {
+          window.localStorage.setItem(key, value);
+        } catch (error) {
+          // Private browsing may block storage; the app still works for this session.
+        }
+        sendHostStorageMessage('set', key, value);
+      }
+
+      function removeStorage(key) {
+        try {
+          window.localStorage.removeItem(key);
+        } catch (error) {
+          // Nothing else to do.
+        }
+        sendHostStorageMessage('remove', key, '');
+      }
+
+      function readConfiguredHostOrigin() {
+        const element = document.getElementById('app-host-origin');
+        if (!element) return '';
+        try {
+          const value = JSON.parse(element.textContent || '""');
+          return /^https:\/\//i.test(value) ? String(value).replace(/\/$/, '') : '';
+        } catch (error) {
+          return '';
+        }
+      }
+
+      function readHostStorage() {
+        if (!APP_HOST_ORIGIN || window.top === window) return Promise.resolve(null);
+        return new Promise(function (resolve) {
+          let finished = false;
+          function finish(value) {
+            if (finished) return;
+            finished = true;
+            window.removeEventListener('message', receive);
+            resolve(value);
+          }
+          function receive(event) {
+            if (event.origin !== APP_HOST_ORIGIN) return;
+            if (!event.data || event.data.type !== 'maison-expenses-storage-state') return;
+            finish(event.data.state || null);
+          }
+          window.addEventListener('message', receive);
+          window.top.postMessage({ type: 'maison-expenses-storage-get' }, APP_HOST_ORIGIN);
+          window.setTimeout(function () { finish(null); }, 700);
+        });
+      }
+
+      function sendHostStorageMessage(action, key, value) {
+        if (!APP_HOST_ORIGIN || window.top === window) return;
+        window.top.postMessage({
+          type: 'maison-expenses-storage-' + action,
+          key: key,
+          value: value,
+        }, APP_HOST_ORIGIN);
+      }
+
+      function readCachedData() {
+        return parseCachedData(readStorage(STORAGE_KEYS.data)) || state.hostCachedData;
+      }
+
+      function parseCachedData(text) {
+        if (!text) return null;
+        try {
+          const data = JSON.parse(text);
+          return data && data.settings && data.summaries ? data : null;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function isInvalidAccessError(error) {
+        return /phrase secrète n'est pas reconnue/i.test(String(error && error.message || ''));
+      }
+
+      function createDemoState() {
+        const current = new Date();
+        const year = current.getFullYear();
+        const month = String(current.getMonth() + 1).padStart(2, '0');
+        const stamp = new Date().toISOString();
+        const settings = {
+          appName: 'Maison de France',
+          personA: 'Majbrit & Bryan',
+          personB: 'Sandrine',
+          defaultShareA: 0.5,
+          defaultShareB: 0.5,
+          currency: 'EUR',
+          currencySymbol: '€',
+          expenseCategories: ['Rénovations', 'Énergie et eau', 'Jardin', 'Mobilier', 'Impôts', 'Ménage', 'Autre'],
+          rentCategories: ['Location saisonnière', 'Location longue durée', 'Caution', 'Autre revenu'],
+        };
+        return {
+          settings: settings,
+          transactions: [
+            {
+              id: 'demo-1', date: year + '-' + month + '-08', type: 'EXPENSE', amount: 126.4,
+              person: settings.personB, personKey: 'B', counterparty: '', counterpartyKey: '',
+              category: 'Rénovations', description: 'Robinet et raccords de cuisine', shareA: 0.5, shareB: 0.5,
+              enteredBy: settings.personA, enteredByKey: 'A', createdAt: stamp,
+              lastEditedBy: settings.personA, lastEditedByKey: 'A', updatedAt: stamp, status: 'ACTIVE',
+            },
+            {
+              id: 'demo-2', date: year + '-' + month + '-03', type: 'RENT', amount: 850,
+              person: settings.personA, personKey: 'A', counterparty: '', counterpartyKey: '',
+              category: 'Location saisonnière', description: "Location du mois d'août", shareA: 0.5, shareB: 0.5,
+              cleaner: 'SANDRINE', cleaningAmount: 200, cleaningStatus: 'PENDING',
+              rentStartDate: year + '-' + month + '-01', rentEndDate: year + '-' + month + '-03',
+              rentalSource: 'AIRBNB', tenantName: 'Camille Martin',
+              rentalFees: [{ label: 'Commission Airbnb', amount: 85 }], rentalFeesTotal: 85,
+              enteredBy: settings.personB, enteredByKey: 'B', createdAt: stamp,
+              lastEditedBy: settings.personB, lastEditedByKey: 'B', updatedAt: stamp, status: 'ACTIVE',
+            },
+            {
+              id: 'demo-3', date: year + '-' + month + '-01', type: 'EXPENSE', amount: 74.2,
+              person: settings.personA, personKey: 'A', counterparty: '', counterpartyKey: '',
+              category: 'Jardin', description: 'Plantes et terreau', shareA: 0.5, shareB: 0.5,
+              enteredBy: settings.personA, enteredByKey: 'A', createdAt: stamp,
+              lastEditedBy: settings.personA, lastEditedByKey: 'A', updatedAt: stamp, status: 'ACTIVE',
+            },
+          ],
+        };
+      }
+
+      function demoTransaction(payload) {
+        const settings = demoState.settings;
+        const now = new Date().toISOString();
+        const person = payload.personKey === 'A' ? settings.personA : settings.personB;
+        const otherKey = payload.personKey === 'A' ? 'B' : 'A';
+        return {
+          id: 'demo-' + Date.now(),
+          date: payload.date,
+          type: payload.type,
+          amount: Number(payload.amount),
+          person: person,
+          personKey: payload.personKey,
+          counterparty: payload.type === 'SETTLEMENT' ? (otherKey === 'A' ? settings.personA : settings.personB) : '',
+          counterpartyKey: payload.type === 'SETTLEMENT' ? otherKey : '',
+          category: payload.category || '',
+          description: payload.description || '',
+          shareA: Number(payload.shareA),
+          shareB: 1 - Number(payload.shareA),
+          cleaner: payload.type === 'RENT' ? payload.cleaner : '',
+          cleaningAmount: payload.type === 'RENT' ? Number(payload.cleaningAmount) : 0,
+          cleaningStatus: payload.type === 'RENT'
+            ? (payload.cleaner === 'SANDRINE' ? (payload.cleaningStatus || 'PENDING') : 'NOT_APPLICABLE')
+            : '',
+          rentStartDate: payload.type === 'RENT' ? payload.rentStartDate : '',
+          rentEndDate: payload.type === 'RENT' ? payload.rentEndDate : '',
+          rentalSource: payload.type === 'RENT' ? payload.rentalSource : '',
+          tenantName: payload.type === 'RENT' ? payload.tenantName : '',
+          rentalFees: payload.type === 'RENT' ? (payload.rentalFees || []) : [],
+          rentalFeesTotal: payload.type === 'RENT'
+            ? (payload.rentalFees || []).reduce(function (total, fee) { return total + (Number(fee.amount) || 0); }, 0)
+            : 0,
+          enteredBy: payload.enteredByKey === 'A' ? settings.personA : settings.personB,
+          enteredByKey: payload.enteredByKey,
+          createdAt: now,
+          lastEditedBy: payload.enteredByKey === 'A' ? settings.personA : settings.personB,
+          lastEditedByKey: payload.enteredByKey,
+          updatedAt: now,
+          status: 'ACTIVE',
+        };
+      }
+
+      function buildDemoData() {
+        const year = String(new Date().getFullYear());
+        const active = demoState.transactions.filter(function (item) {
+          return item.status === 'ACTIVE';
+        });
+        const currentTransactions = active.filter(function (item) { return !isClientRenovationExpense(item); });
+        const renovationTransactions = active.filter(isClientRenovationExpense);
+        function dashboardData(transactions) {
+          return {
+            summaries: {
+              all: computeClientSummary(transactions),
+              year: computeClientSummary(transactions.filter(function (item) { return item.date.slice(0, 4) === year; })),
+            },
+            monthly: computeClientMonthlySeries(transactions, 6),
+          };
+        }
+        return {
+          settings: demoState.settings,
+          summaries: {
+            all: computeClientSummary(active),
+            year: computeClientSummary(active.filter(function (item) { return item.date.slice(0, 4) === year; })),
+            currentYear: year,
+          },
+          monthly: computeClientMonthlySeries(active, 6),
+          dashboard: {
+            all: dashboardData(active),
+            current: dashboardData(currentTransactions),
+            renovation: dashboardData(renovationTransactions),
+          },
+          cleanings: active.filter(function (item) { return item.type === 'RENT'; }),
+          recent: demoState.transactions.slice(),
+        };
+      }
+
+      function isClientRenovationExpense(item) {
+        if (!item || item.type !== 'EXPENSE') return false;
+        const category = String(item.category || '')
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .trim()
+          .toLowerCase();
+        return category === 'renovation' || category === 'renovations' || category === 'travaux';
+      }
+
+      function computeClientMonthlySeries(transactions, monthCount) {
+        const now = new Date();
+        const buckets = [];
+        const byMonth = {};
+        for (let offset = monthCount - 1; offset >= 0; offset -= 1) {
+          const date = new Date(now.getFullYear(), now.getMonth() - offset, 1, 12, 0, 0);
+          const key = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+          const bucket = { month: key, expenses: 0, revenue: 0 };
+          buckets.push(bucket);
+          byMonth[key] = bucket;
+        }
+        transactions.forEach(function (item) {
+          const bucket = byMonth[String(item.date || '').slice(0, 7)];
+          if (!bucket) return;
+          if (item.type === 'EXPENSE') bucket.expenses += Number(item.amount) || 0;
+          if (item.type === 'RENT') {
+            bucket.revenue += Number(item.amount) || 0;
+            bucket.expenses += Math.max(0, Number(item.rentalFeesTotal) || 0);
+          }
+        });
+        return buckets;
+      }
+
+      function computeClientSummary(transactions) {
+        const result = { expenses: 0, rent: 0, rentalFees: 0, net: 0, balanceA: 0, cleaningAllocated: 0, count: transactions.length };
+        transactions.forEach(function (item) {
+          const amount = Number(item.amount);
+          const shareA = Number(item.shareA);
+          if (item.type === 'EXPENSE') {
+            result.expenses += amount;
+            result.balanceA += item.personKey === 'A' ? amount * (1 - shareA) : -amount * shareA;
+          } else if (item.type === 'RENT') {
+            result.rent += amount;
+            const rentalFees = Math.max(0, Number(item.rentalFeesTotal) || 0);
+            const netRent = amount - rentalFees;
+            result.rentalFees += rentalFees;
+            result.balanceA += item.personKey === 'A' ? -netRent * (1 - shareA) : netRent * shareA;
+            if (item.cleaner === 'SANDRINE' && item.cleaningStatus === 'ALLOCATED') {
+              result.balanceA -= Number(item.cleaningAmount) || 0;
+              result.cleaningAllocated = (result.cleaningAllocated || 0) + (Number(item.cleaningAmount) || 0);
+            }
+          } else if (item.type === 'SETTLEMENT') {
+            result.balanceA += item.personKey === 'A' ? amount : -amount;
+          }
+        });
+        result.net = result.rent - result.expenses - result.rentalFees;
+        return result;
+      }
+
+      document.getElementById('unlock-form').addEventListener('submit', async function (event) {
+        event.preventDefault();
+        const key = document.getElementById('access-key').value.trim();
+        if (!key) return;
+        setLoading(true);
+        try {
+          await server.testAccess(key);
+          state.accessKey = key;
+          writeStorage(STORAGE_KEYS.access, key);
+          await refreshData(true);
+        } catch (error) {
+          showToast(error.message, true);
+          setLoading(false);
+        }
+      });
+
+      document.getElementById('identity-cancel').addEventListener('click', function () {
+        showScreen(elements.mainScreen);
+      });
+      document.getElementById('device-chip').addEventListener('click', function () {
+        openIdentity(true);
+      });
+      document.getElementById('open-add').addEventListener('click', function () {
+        openTransaction(null);
+      });
+      document.getElementById('open-cleanings').addEventListener('click', function () {
+        renderCleanings();
+        showScreen(elements.cleaningScreen);
+      });
+      document.getElementById('close-cleanings').addEventListener('click', function () {
+        showScreen(elements.mainScreen);
+      });
+      document.getElementById('share-a').addEventListener('input', function (event) {
+        setShare(event.target.value);
+      });
+      document.getElementById('reset-share').addEventListener('click', function () {
+        setShare(50);
+      });
+      document.getElementById('add-rental-fee').addEventListener('click', function () {
+        addRentalFeeRow(null);
+      });
+      document.getElementById('close-modal').addEventListener('click', closeTransaction);
+      document.getElementById('cancel-transaction').addEventListener('click', closeTransaction);
+      document.getElementById('void-transaction').addEventListener('click', voidCurrentTransaction);
+      elements.form.addEventListener('submit', submitTransaction);
+      elements.modalBackdrop.addEventListener('click', function (event) {
+        if (event.target === elements.modalBackdrop) closeTransaction();
+      });
+      document.querySelectorAll('[data-type]').forEach(function (button) {
+        button.addEventListener('click', function () {
+          setType(button.dataset.type);
+        });
+      });
+      document.querySelectorAll('[data-person]').forEach(function (button) {
+        button.addEventListener('click', function () {
+          setPerson(button.dataset.person);
+        });
+      });
+      document.querySelectorAll('[data-cleaner]').forEach(function (button) {
+        button.addEventListener('click', function () {
+          setCleaner(button.dataset.cleaner);
+        });
+      });
+      document.querySelectorAll('[data-expense-filter]').forEach(function (button) {
+        button.addEventListener('click', function () {
+          const key = button.dataset.expenseFilter;
+          const otherKey = key === 'current' ? 'renovation' : 'current';
+          if (state.expenseFilters[key] && !state.expenseFilters[otherKey]) return;
+          state.expenseFilters[key] = !state.expenseFilters[key];
+          renderSummary();
+          renderMonthlyChart();
+        });
+      });
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && elements.modalBackdrop.classList.contains('is-open')) {
+          closeTransaction();
+        }
+      });
+      window.addEventListener('online', updateConnectionState);
+      window.addEventListener('offline', updateConnectionState);
+
+      function updateConnectionState() {
+        document.getElementById('connection-warning').classList.toggle('is-visible', !navigator.onLine);
+      }
+
+      updateConnectionState();
+      bootstrap();
+    </script>
+  </body>
+</html>
