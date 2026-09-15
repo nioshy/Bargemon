@@ -457,13 +457,23 @@
 
       .year-operations {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 12px;
         margin: 12px 0 24px;
         border: 1px solid var(--line);
         border-radius: 17px;
         background: rgba(255, 255, 255, 0.82);
         padding: 13px 16px;
+      }
+
+      .year-overview-title {
+        grid-column: 1 / -1;
+        margin: 0 0 1px;
+        color: var(--accent-deep);
+        font-size: 13px;
+        font-weight: 850;
+        letter-spacing: 0.02em;
+        text-transform: none;
       }
 
       .year-operation {
@@ -556,6 +566,13 @@
       .cleaning-status-button { min-height: 36px; border: 1px solid var(--line); border-radius: 11px; color: var(--ink-soft); background: #fff; cursor: pointer; font-size: 11px; font-weight: 800; }
       .cleaning-status-button.is-active { border-color: var(--accent); color: #fff; background: var(--accent-deep); }
       .cleaning-edit { width: 100%; min-height: 38px; margin-top: 12px; border: 1px solid var(--line); border-radius: 11px; color: var(--accent-deep); background: #fff; cursor: pointer; font-weight: 800; }
+
+      .field-heading-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+      .small-add-button { border: 0; color: var(--accent-deep); background: transparent; padding: 4px 0; cursor: pointer; font-weight: 800; }
+      .rental-fees-list { display: grid; gap: 8px; margin-top: 10px; }
+      .rental-fee-row { display: grid; grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr) 34px; align-items: center; gap: 7px; }
+      .rental-fee-row .input { min-width: 0; }
+      .remove-fee { width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 50%; color: var(--ink-soft); background: #fff; cursor: pointer; font-size: 18px; }
 
       .trend-card {
         margin: 0 0 14px;
@@ -1246,13 +1263,18 @@
         </section>
 
         <section class="year-operations" aria-label="Opérations courantes de l'année">
+          <h2 class="year-overview-title">Aperçu <span id="overview-year"></span></h2>
           <div class="year-operation">
-            <span>Dépenses courantes <span id="operations-year"></span></span>
+            <span>Dépenses courantes</span>
             <strong id="summary-expenses">€0</strong>
           </div>
           <div class="year-operation">
-            <span>Loyers <span id="rent-year"></span></span>
+            <span>Loyers</span>
             <strong id="summary-rent">€0</strong>
+          </div>
+          <div class="year-operation">
+            <span>Solde</span>
+            <strong id="summary-year-balance">€0</strong>
           </div>
         </section>
 
@@ -1270,20 +1292,20 @@
           <div id="monthly-chart" class="monthly-chart" role="img" aria-label="Dépenses et revenus des six derniers mois"></div>
         </section>
 
-        <button id="open-cleanings" class="cleaning-card" type="button">
-          <span>
-            <span class="cleaning-card-title">Suivi des ménages</span>
-            <span id="cleaning-card-note" class="cleaning-card-note">Voir les ménages liés aux loyers</span>
-          </span>
-          <span class="cleaning-card-arrow" aria-hidden="true">→</span>
-        </button>
-
         <button id="open-add" class="add-card" type="button">
           <span>
             <span class="add-card-title">Ajouter une opération</span>
             <span class="add-card-note">Dépense, loyer ou remboursement</span>
           </span>
           <span class="plus-disc" aria-hidden="true">+</span>
+        </button>
+
+        <button id="open-cleanings" class="cleaning-card" type="button">
+          <span>
+            <span class="cleaning-card-title">Suivi des ménages</span>
+            <span id="cleaning-card-note" class="cleaning-card-note">Voir les ménages liés aux loyers</span>
+          </span>
+          <span class="cleaning-card-arrow" aria-hidden="true">→</span>
         </button>
 
         <div class="section-heading">
@@ -1353,10 +1375,25 @@
                 />
               </div>
             </div>
-            <div class="field">
+            <div id="single-date-field" class="field">
               <label for="transaction-date">Date</label>
               <input id="transaction-date" class="input" type="date" required />
             </div>
+          </div>
+
+          <div id="rent-period-field" class="field" hidden>
+            <span class="field-label">Période de location</span>
+            <div class="form-grid">
+              <div class="field">
+                <label for="rent-start-date">Date de début</label>
+                <input id="rent-start-date" class="input" type="date" />
+              </div>
+              <div class="field">
+                <label for="rent-end-date">Date de fin</label>
+                <input id="rent-end-date" class="input" type="date" />
+              </div>
+            </div>
+            <p class="share-note">Le loyer est comptabilisé à la date de fin.</p>
           </div>
 
           <div class="field">
@@ -1377,6 +1414,33 @@
             <select id="category"></select>
           </div>
 
+          <div id="rent-details-field" hidden>
+            <div class="form-grid">
+              <div class="field">
+                <label for="rental-source">Source</label>
+                <select id="rental-source">
+                  <option value="">Choisir…</option>
+                  <option value="AIRBNB">Airbnb</option>
+                  <option value="DIRECT">Location directe</option>
+                  <option value="ABRITEL">Abritel</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="tenant-name">Nom du locataire</label>
+                <input id="tenant-name" class="input" type="text" maxlength="120" autocomplete="off" />
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="field-heading-row">
+                <span class="field-label">Frais liés à la location <span style="font-weight: 500; color: var(--ink-soft)">(facultatif)</span></span>
+                <button id="add-rental-fee" class="small-add-button" type="button">+ Ajouter</button>
+              </div>
+              <div id="rental-fees-list" class="rental-fees-list"></div>
+              <p class="share-note">Les frais renseignés sont déduits du loyer brut dans les comptes.</p>
+            </div>
+          </div>
+
           <div id="rent-cleaning-field" class="field" hidden>
             <span class="field-label">Ménage effectué par</span>
             <div class="segmented two" role="group" aria-label="Personne ayant effectué le ménage">
@@ -1387,7 +1451,7 @@
               <label for="cleaning-amount">Montant du ménage</label>
               <div class="amount-wrap">
                 <span class="amount-symbol">€</span>
-                <input id="cleaning-amount" class="input" type="text" inputmode="decimal" value="200" />
+                <input id="cleaning-amount" class="input amount-input" type="text" inputmode="decimal" value="200" />
               </div>
             </div>
             <p class="share-note">Pour Sandrine, le statut pourra ensuite être défini comme payé ou alloué dans le suivi des ménages.</p>
@@ -1782,8 +1846,7 @@
           'Part de ' + settings.personA + ' en pourcentage'
         );
         document.getElementById('form-currency').textContent = settings.currencySymbol;
-        document.getElementById('operations-year').textContent = state.data.summaries.currentYear;
-        document.getElementById('rent-year').textContent = state.data.summaries.currentYear;
+        document.getElementById('overview-year').textContent = state.data.summaries.currentYear;
         renderSummary();
         renderMonthlyChart();
         renderTransactions();
@@ -1813,8 +1876,11 @@
         const allocated = Number(summary.cleaningAllocated) || 0;
         document.getElementById('balance-detail').textContent = filterLabel + ' depuis le début.' +
           (allocated ? ' Inclut ' + formatDashboardMoney(allocated) + ' de ménages alloués à Sandrine.' : '');
-        document.getElementById('summary-expenses').textContent = formatDashboardMoney(yearOperations.expenses);
+        document.getElementById('summary-expenses').textContent = formatDashboardMoney(
+          Number(yearOperations.expenses || 0) + Number(yearOperations.rentalFees || 0)
+        );
         document.getElementById('summary-rent').textContent = formatDashboardMoney(yearOperations.rent);
+        document.getElementById('summary-year-balance').textContent = formatDashboardMoney(yearOperations.net);
         document.querySelectorAll('[data-expense-filter]').forEach(function (button) {
           const active = state.expenseFilters[button.dataset.expenseFilter];
           button.classList.toggle('is-active', active);
@@ -1908,7 +1974,9 @@
             const isExpenseRefund = transaction.type === 'EXPENSE' && Number(transaction.amount) < 0;
             const typeClass = transaction.type.toLowerCase();
             const icon = isExpenseRefund ? '↩' : transaction.type === 'EXPENSE' ? '−' : transaction.type === 'RENT' ? '+' : '→';
-            const title = transaction.description || transaction.category || typeLabel(transaction.type);
+            const title = transaction.type === 'RENT' && transaction.tenantName
+              ? transaction.tenantName
+              : transaction.description || transaction.category || typeLabel(transaction.type);
             const personCopy = isExpenseRefund
               ? 'Remboursement reçu par ' + transaction.person
               : transaction.type === 'EXPENSE'
@@ -1928,16 +1996,20 @@
                 ' ' + formatMoney(transaction.cleaningAmount, true) +
                 (transaction.cleaner === 'SANDRINE' ? ' · ' + cleaningStatusLabel(transaction.cleaningStatus) : '')
               : '';
+            const rentalCopy = transaction.type === 'RENT'
+              ? (transaction.rentalSource ? ' · ' + rentalSourceLabel(transaction.rentalSource) : '') +
+                (Number(transaction.rentalFeesTotal) > 0 ? ' · Frais ' + formatMoney(transaction.rentalFeesTotal, true) : '')
+              : '';
             return (
               '<button class="transaction-row' + (isVoid ? ' is-void' : '') + '" ' +
               (isVoid ? 'disabled ' : '') + 'data-id="' + escapeHtml(transaction.id) + '" type="button">' +
               '<span class="transaction-icon ' + typeClass + '" aria-hidden="true">' + icon + '</span>' +
               '<span class="transaction-main"><span class="transaction-title">' +
               escapeHtml(isVoid ? 'Annulée · ' + title : title) + '</span>' +
-              '<span class="transaction-meta">' + escapeHtml(displayType + ' · ' + personCopy + splitCopy + cleaningCopy) + '</span></span>' +
+              '<span class="transaction-meta">' + escapeHtml(displayType + ' · ' + personCopy + rentalCopy + splitCopy + cleaningCopy) + '</span></span>' +
               '<span class="transaction-money"><span class="transaction-amount">' + sign +
               escapeHtml(formatMoney(Math.abs(Number(transaction.amount)), true)) + '</span>' +
-              '<span class="transaction-date">' + escapeHtml(formatDate(transaction.date)) + '</span></span></button>'
+              '<span class="transaction-date">' + escapeHtml(formatTransactionPeriod(transaction)) + '</span></span></button>'
             );
           })
           .join('');
@@ -1979,7 +2051,7 @@
         }
 
         list.innerHTML = rents.map(function (rent) {
-          const title = rent.description || rent.category || 'Loyer';
+          const title = rent.tenantName || rent.description || rent.category || 'Loyer';
           const cleaner = rent.cleaner || '';
           const amount = Number(rent.cleaningAmount) || 0;
           let controls = '';
@@ -2001,7 +2073,7 @@
               : 'Ménage par une autre personne';
           return '<article class="cleaning-row">' +
             '<div class="cleaning-row-top"><div><div class="cleaning-row-title">' + escapeHtml(title) + '</div>' +
-            '<div class="cleaning-row-meta">' + escapeHtml(formatDate(rent.date) + ' · Reçu par ' + rent.person + ' · ' + cleanerText) + '</div></div>' +
+            '<div class="cleaning-row-meta">' + escapeHtml(formatTransactionPeriod(rent) + ' · Reçu par ' + rent.person + ' · ' + cleanerText) + '</div></div>' +
             '<div class="cleaning-amount">' + (amount ? escapeHtml(formatMoney(amount, true)) : '—') + '</div></div>' + controls + '</article>';
         }).join('');
 
@@ -2057,6 +2129,15 @@
 
         document.getElementById('amount').value = transaction ? String(transaction.amount) : '';
         document.getElementById('transaction-date').value = transaction ? transaction.date : today();
+        document.getElementById('rent-start-date').value = transaction
+          ? (transaction.rentStartDate || transaction.date)
+          : today();
+        document.getElementById('rent-end-date').value = transaction
+          ? (transaction.rentEndDate || transaction.date)
+          : today();
+        document.getElementById('rental-source').value = transaction ? (transaction.rentalSource || '') : '';
+        document.getElementById('tenant-name').value = transaction ? (transaction.tenantName || '') : '';
+        renderRentalFees(transaction && Array.isArray(transaction.rentalFees) ? transaction.rentalFees : []);
         document.getElementById('description').value = transaction ? transaction.description : '';
         document.getElementById('cleaning-amount').value = transaction && Number(transaction.cleaningAmount) > 0
           ? String(transaction.cleaningAmount)
@@ -2096,8 +2177,53 @@
         document.getElementById('settlement-field').hidden = type !== 'SETTLEMENT';
         document.getElementById('share-field').hidden = type === 'SETTLEMENT';
         document.getElementById('rent-cleaning-field').hidden = type !== 'RENT';
+        document.getElementById('rent-period-field').hidden = type !== 'RENT';
+        document.getElementById('rent-details-field').hidden = type !== 'RENT';
+        document.getElementById('single-date-field').hidden = type === 'RENT';
+        document.getElementById('transaction-date').required = type !== 'RENT';
+        document.getElementById('rent-start-date').required = type === 'RENT';
+        document.getElementById('rent-end-date').required = type === 'RENT';
+        document.getElementById('rental-source').required = type === 'RENT';
+        document.getElementById('tenant-name').required = type === 'RENT';
         populateCategories(document.getElementById('category').value);
         updateFormHelper();
+      }
+
+      function renderRentalFees(fees) {
+        const list = document.getElementById('rental-fees-list');
+        list.innerHTML = '';
+        (fees || []).forEach(function (fee) { addRentalFeeRow(fee); });
+      }
+
+      function addRentalFeeRow(fee) {
+        const list = document.getElementById('rental-fees-list');
+        const row = document.createElement('div');
+        row.className = 'rental-fee-row';
+        row.innerHTML =
+          '<div class="amount-wrap"><span class="amount-symbol">€</span>' +
+          '<input class="input amount-input rental-fee-amount" type="text" inputmode="decimal" placeholder="0" value="' +
+          escapeHtml(fee && fee.amount !== undefined ? String(fee.amount) : '') + '"></div>' +
+          '<input class="input rental-fee-label" type="text" maxlength="120" placeholder="Ex. commission Airbnb" value="' +
+          escapeHtml(fee && fee.label ? fee.label : '') + '">' +
+          '<button class="remove-fee" type="button" aria-label="Supprimer ce frais">×</button>';
+        row.querySelector('.remove-fee').addEventListener('click', function () { row.remove(); });
+        list.appendChild(row);
+        if (!fee) row.querySelector('.rental-fee-amount').focus();
+      }
+
+      function collectRentalFees() {
+        const fees = [];
+        document.querySelectorAll('.rental-fee-row').forEach(function (row, index) {
+          const label = row.querySelector('.rental-fee-label').value.trim();
+          const rawAmount = row.querySelector('.rental-fee-amount').value.trim().replace(',', '.');
+          if (!label && !rawAmount) return;
+          const amount = Number(rawAmount);
+          if (!label || !Number.isFinite(amount) || amount <= 0) {
+            throw new Error('Complétez le libellé et le montant du frais n°' + (index + 1) + '.');
+          }
+          fees.push({ label: label, amount: amount });
+        });
+        return fees;
       }
 
       function setCleaner(value) {
@@ -2176,6 +2302,37 @@
           document.getElementById('amount').focus();
           return;
         }
+        let rentStartDate = '';
+        let rentEndDate = '';
+        let rentalSource = '';
+        let tenantName = '';
+        let rentalFees = [];
+        if (state.selectedType === 'RENT') {
+          rentStartDate = document.getElementById('rent-start-date').value;
+          rentEndDate = document.getElementById('rent-end-date').value;
+          rentalSource = document.getElementById('rental-source').value;
+          tenantName = document.getElementById('tenant-name').value.trim();
+          if (!rentStartDate || !rentEndDate || rentStartDate > rentEndDate) {
+            showToast('Saisissez une période de location valide.', true);
+            return;
+          }
+          if (!rentalSource) {
+            showToast('Choisissez la source de la location.', true);
+            document.getElementById('rental-source').focus();
+            return;
+          }
+          if (!tenantName) {
+            showToast('Saisissez le nom du locataire.', true);
+            document.getElementById('tenant-name').focus();
+            return;
+          }
+          try {
+            rentalFees = collectRentalFees();
+          } catch (error) {
+            showToast(error.message, true);
+            return;
+          }
+        }
         const rawCleaningAmount = document.getElementById('cleaning-amount').value.trim().replace(',', '.');
         const cleaningAmount = state.selectedType === 'RENT' ? Number(rawCleaningAmount) : 0;
         if (state.selectedType === 'RENT' && (!Number.isFinite(cleaningAmount) || cleaningAmount <= 0)) {
@@ -2189,7 +2346,12 @@
         const payload = {
           type: state.selectedType,
           amount: amount,
-          date: document.getElementById('transaction-date').value,
+          date: state.selectedType === 'RENT' ? rentEndDate : document.getElementById('transaction-date').value,
+          rentStartDate: rentStartDate,
+          rentEndDate: rentEndDate,
+          rentalSource: rentalSource,
+          tenantName: tenantName,
+          rentalFees: rentalFees,
           personKey: state.selectedPerson,
           category: state.selectedType === 'SETTLEMENT' ? '' : document.getElementById('category').value,
           description: document.getElementById('description').value.trim(),
@@ -2254,6 +2416,10 @@
         return type === 'EXPENSE' ? 'Dépense' : type === 'RENT' ? 'Loyer' : 'Remboursement';
       }
 
+      function rentalSourceLabel(value) {
+        return value === 'AIRBNB' ? 'Airbnb' : value === 'DIRECT' ? 'Location directe' : value === 'ABRITEL' ? 'Abritel' : value;
+      }
+
       function formatMoney(value, compact) {
         const settings = state.data ? state.data.settings : { currency: 'EUR' };
         const amount = Number(value) || 0;
@@ -2287,6 +2453,13 @@
         const date = new Date(value + 'T12:00:00');
         if (Number.isNaN(date.getTime())) return value;
         return new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' }).format(date);
+      }
+
+      function formatTransactionPeriod(transaction) {
+        if (transaction && transaction.type === 'RENT' && transaction.rentStartDate && transaction.rentEndDate) {
+          return formatDate(transaction.rentStartDate) + ' – ' + formatDate(transaction.rentEndDate);
+        }
+        return formatDate(transaction && transaction.date || '');
       }
 
       function formatMonth(value) {
@@ -2432,6 +2605,9 @@
               person: settings.personA, personKey: 'A', counterparty: '', counterpartyKey: '',
               category: 'Location saisonnière', description: "Location du mois d'août", shareA: 0.5, shareB: 0.5,
               cleaner: 'SANDRINE', cleaningAmount: 200, cleaningStatus: 'PENDING',
+              rentStartDate: year + '-' + month + '-01', rentEndDate: year + '-' + month + '-03',
+              rentalSource: 'AIRBNB', tenantName: 'Camille Martin',
+              rentalFees: [{ label: 'Commission Airbnb', amount: 85 }], rentalFeesTotal: 85,
               enteredBy: settings.personB, enteredByKey: 'B', createdAt: stamp,
               lastEditedBy: settings.personB, lastEditedByKey: 'B', updatedAt: stamp, status: 'ACTIVE',
             },
@@ -2469,6 +2645,14 @@
           cleaningStatus: payload.type === 'RENT'
             ? (payload.cleaner === 'SANDRINE' ? (payload.cleaningStatus || 'PENDING') : 'NOT_APPLICABLE')
             : '',
+          rentStartDate: payload.type === 'RENT' ? payload.rentStartDate : '',
+          rentEndDate: payload.type === 'RENT' ? payload.rentEndDate : '',
+          rentalSource: payload.type === 'RENT' ? payload.rentalSource : '',
+          tenantName: payload.type === 'RENT' ? payload.tenantName : '',
+          rentalFees: payload.type === 'RENT' ? (payload.rentalFees || []) : [],
+          rentalFeesTotal: payload.type === 'RENT'
+            ? (payload.rentalFees || []).reduce(function (total, fee) { return total + (Number(fee.amount) || 0); }, 0)
+            : 0,
           enteredBy: payload.enteredByKey === 'A' ? settings.personA : settings.personB,
           enteredByKey: payload.enteredByKey,
           createdAt: now,
@@ -2538,13 +2722,16 @@
           const bucket = byMonth[String(item.date || '').slice(0, 7)];
           if (!bucket) return;
           if (item.type === 'EXPENSE') bucket.expenses += Number(item.amount) || 0;
-          if (item.type === 'RENT') bucket.revenue += Number(item.amount) || 0;
+          if (item.type === 'RENT') {
+            bucket.revenue += Number(item.amount) || 0;
+            bucket.expenses += Math.max(0, Number(item.rentalFeesTotal) || 0);
+          }
         });
         return buckets;
       }
 
       function computeClientSummary(transactions) {
-        const result = { expenses: 0, rent: 0, net: 0, balanceA: 0, cleaningAllocated: 0, count: transactions.length };
+        const result = { expenses: 0, rent: 0, rentalFees: 0, net: 0, balanceA: 0, cleaningAllocated: 0, count: transactions.length };
         transactions.forEach(function (item) {
           const amount = Number(item.amount);
           const shareA = Number(item.shareA);
@@ -2553,7 +2740,10 @@
             result.balanceA += item.personKey === 'A' ? amount * (1 - shareA) : -amount * shareA;
           } else if (item.type === 'RENT') {
             result.rent += amount;
-            result.balanceA += item.personKey === 'A' ? -amount * (1 - shareA) : amount * shareA;
+            const rentalFees = Math.max(0, Number(item.rentalFeesTotal) || 0);
+            const netRent = amount - rentalFees;
+            result.rentalFees += rentalFees;
+            result.balanceA += item.personKey === 'A' ? -netRent * (1 - shareA) : netRent * shareA;
             if (item.cleaner === 'SANDRINE' && item.cleaningStatus === 'ALLOCATED') {
               result.balanceA -= Number(item.cleaningAmount) || 0;
               result.cleaningAllocated = (result.cleaningAllocated || 0) + (Number(item.cleaningAmount) || 0);
@@ -2562,7 +2752,7 @@
             result.balanceA += item.personKey === 'A' ? amount : -amount;
           }
         });
-        result.net = result.rent - result.expenses;
+        result.net = result.rent - result.expenses - result.rentalFees;
         return result;
       }
 
@@ -2603,6 +2793,9 @@
       });
       document.getElementById('reset-share').addEventListener('click', function () {
         setShare(50);
+      });
+      document.getElementById('add-rental-fee').addEventListener('click', function () {
+        addRentalFeeRow(null);
       });
       document.getElementById('close-modal').addEventListener('click', closeTransaction);
       document.getElementById('cancel-transaction').addEventListener('click', closeTransaction);
