@@ -51,7 +51,8 @@
         background:
           radial-gradient(circle at 96% 0%, rgba(111, 159, 200, 0.15), transparent 30rem),
           linear-gradient(180deg, #fbfdff 0%, var(--paper) 48%, #eef5fb 100%);
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-family: "Avenir Next", Avenir, "Segoe UI", Roboto, Arial, sans-serif;
+        font-variant-numeric: tabular-nums lining-nums;
         -webkit-font-smoothing: antialiased;
       }
 
@@ -112,7 +113,7 @@
         color: #fff;
         background: linear-gradient(145deg, var(--accent-deep), #79acd2);
         box-shadow: 0 12px 30px rgba(47, 104, 152, 0.2);
-        font-family: Georgia, "Times New Roman", serif;
+        font-family: inherit;
         font-size: 34px;
         font-weight: 700;
       }
@@ -134,9 +135,9 @@
 
       h1,
       h2 {
-        font-family: Georgia, "Times New Roman", serif;
-        font-weight: 500;
-        letter-spacing: -0.025em;
+        font-family: "Avenir Next", Avenir, "Segoe UI", Roboto, Arial, sans-serif;
+        font-weight: 750;
+        letter-spacing: -0.02em;
       }
 
       .onboarding-card h1 {
@@ -262,7 +263,7 @@
         place-items: center;
         color: #fff;
         background: var(--accent);
-        font-family: Georgia, "Times New Roman", serif;
+        font-family: inherit;
         font-size: 19px;
         font-weight: 700;
       }
@@ -334,35 +335,18 @@
       .balance-card {
         position: relative;
         overflow: hidden;
-        min-height: 225px;
-        border-radius: var(--radius-lg);
-        color: #fff;
-        background: linear-gradient(135deg, #245b88 0%, #4f88b5 100%);
-        padding: 25px;
-        box-shadow: 0 20px 50px rgba(47, 104, 152, 0.2);
+        min-height: 0;
+        margin: 0 0 14px;
+        border: 1px solid var(--line);
+        border-radius: 17px;
+        color: var(--ink);
+        background: rgba(255, 255, 255, 0.82);
+        padding: 14px 16px;
+        box-shadow: none;
       }
 
       .balance-card::before,
-      .balance-card::after {
-        position: absolute;
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        border-radius: 50%;
-        content: "";
-      }
-
-      .balance-card::before {
-        width: 230px;
-        height: 230px;
-        top: -125px;
-        right: -60px;
-      }
-
-      .balance-card::after {
-        width: 145px;
-        height: 145px;
-        right: 12px;
-        bottom: -95px;
-      }
+      .balance-card::after { display: none; }
 
       .balance-topline {
         position: relative;
@@ -375,7 +359,7 @@
 
       .balance-label {
         margin: 0;
-        color: rgba(255, 255, 255, 0.67);
+        color: var(--ink-soft);
         font-size: 11px;
         font-weight: 800;
         letter-spacing: 0.12em;
@@ -385,81 +369,41 @@
       .balance-copy {
         position: relative;
         z-index: 1;
-        margin-top: 24px;
-      }
-
-      .expense-filters {
-        position: relative;
-        z-index: 1;
         display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 17px;
-      }
-
-      .filter-switch {
-        display: inline-flex;
-        min-height: 34px;
-        border: 1px solid rgba(255, 255, 255, 0.25);
-        border-radius: 999px;
-        align-items: center;
-        gap: 7px;
-        padding: 5px 11px 5px 7px;
-        color: rgba(255, 255, 255, 0.72);
-        background: rgba(255, 255, 255, 0.08);
-        cursor: pointer;
-        font-size: 11px;
-        font-weight: 800;
-      }
-
-      .filter-switch::before {
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.2);
-        content: "";
-        transition: background 160ms ease, box-shadow 160ms ease;
-      }
-
-      .filter-switch.is-active {
-        border-color: rgba(255, 255, 255, 0.48);
-        color: #fff;
-        background: rgba(255, 255, 255, 0.15);
-      }
-
-      .filter-switch.is-active::before {
-        background: #fff;
-        box-shadow: inset 0 0 0 5px var(--accent-deep);
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 14px;
+        margin-top: 5px;
       }
 
       .balance-party {
-        margin-bottom: 3px;
-        color: rgba(255, 255, 255, 0.8);
-        font-size: 16px;
+        margin: 0;
+        color: var(--ink-soft);
+        font-size: 13px;
       }
 
       .balance-amount {
         margin: 0;
-        font-family: Georgia, "Times New Roman", serif;
-        font-size: clamp(46px, 13vw, 66px);
-        font-weight: 500;
-        letter-spacing: -0.055em;
+        font-family: inherit;
+        font-size: clamp(22px, 6vw, 29px);
+        font-weight: 800;
+        letter-spacing: -0.025em;
         line-height: 1;
       }
 
       .balance-detail {
         position: relative;
         z-index: 1;
-        margin: 18px 0 0;
-        color: rgba(255, 255, 255, 0.58);
-        font-size: 12px;
+        margin: 6px 0 0;
+        color: var(--ink-soft);
+        font-size: 10px;
       }
 
       .year-operations {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 12px;
-        margin: 12px 0 24px;
+        margin: 12px 0 14px;
         border: 1px solid var(--line);
         border-radius: 17px;
         background: rgba(255, 255, 255, 0.82);
@@ -500,7 +444,7 @@
       .year-operation strong {
         display: block;
         overflow: hidden;
-        font-family: Georgia, "Times New Roman", serif;
+        font-family: inherit;
         font-size: clamp(20px, 5vw, 25px);
         font-weight: 600;
         letter-spacing: -0.03em;
@@ -530,6 +474,28 @@
       .cleaning-card-title { font-size: 15px; font-weight: 850; }
       .cleaning-card-note { margin-top: 3px; color: var(--ink-soft); font-size: 11px; }
       .cleaning-card-arrow { color: var(--accent-deep); font-size: 22px; }
+
+      .report-card { margin-bottom: 14px; }
+      .report-controls { display: grid; gap: 14px; margin-bottom: 16px; padding: 16px; border: 1px solid var(--line); border-radius: 18px; background: rgba(255,255,255,.84); }
+      .report-control-label { display:block; margin-bottom:7px; color:var(--ink-soft); font-size:10px; font-weight:800; letter-spacing:.07em; text-transform:uppercase; }
+      .report-period { width: 100%; min-height: 44px; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); background: #fff; padding: 0 12px; }
+      .report-categories { display: flex; flex-wrap: wrap; gap: 8px; }
+      .report-chip { min-height: 36px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-soft); background: #fff; padding: 6px 12px; cursor: pointer; font-size: 12px; font-weight: 750; }
+      .report-chip.is-active { border-color: var(--accent-deep); color: #fff; background: var(--accent-deep); }
+      .report-total { margin: 0 0 14px; border-radius: 18px; color: #fff; background: linear-gradient(135deg,#245b88,#4f88b5); padding: 16px 18px; }
+      .report-total span { display:block; color:rgba(255,255,255,.72); font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; }
+      .report-total strong { display:block; margin-top:3px; font-size:29px; font-weight:800; }
+      .report-chart { display:grid; gap:12px; margin-bottom:16px; padding:17px; border:1px solid var(--line); border-radius:18px; background:rgba(255,255,255,.84); }
+      .report-bar-row { display:grid; grid-template-columns:minmax(96px,1fr) 2fr auto; align-items:center; gap:10px; font-size:11px; }
+      .report-bar-track { height:10px; overflow:hidden; border-radius:999px; background:#e7eff6; }
+      .report-bar-fill { height:100%; border-radius:999px; background:linear-gradient(90deg,#79acd2,#2f6898); }
+      .report-bar-value { min-width:64px; text-align:right; font-weight:800; }
+      .report-table-wrap { overflow:hidden; border:1px solid var(--line); border-radius:18px; background:rgba(255,255,255,.86); }
+      .report-table { width:100%; border-collapse:collapse; font-size:12px; }
+      .report-table th,.report-table td { padding:12px 14px; border-bottom:1px solid var(--line); text-align:left; }
+      .report-table th { color:var(--ink-soft); font-size:10px; letter-spacing:.07em; text-transform:uppercase; }
+      .report-table th:last-child,.report-table td:last-child { text-align:right; }
+      .report-table tr:last-child td { border-bottom:0; }
 
       .subview-header {
         display: flex;
@@ -631,9 +597,10 @@
       }
 
       .monthly-chart {
+        position: relative;
         display: grid;
-        min-height: 132px;
-        grid-template-columns: repeat(6, minmax(0, 1fr));
+        min-height: 146px;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
         align-items: end;
         gap: 7px;
       }
@@ -641,7 +608,7 @@
       .month-group {
         display: grid;
         min-width: 0;
-        grid-template-rows: 108px auto;
+        grid-template-rows: 118px auto;
         gap: 7px;
       }
 
@@ -655,7 +622,7 @@
       }
 
       .chart-bar {
-        width: min(13px, 38%);
+        width: min(9px, 42%);
         border-radius: 5px 5px 1px 1px;
         background: #9bbbd7;
         transition: height 220ms ease;
@@ -664,6 +631,23 @@
       .chart-bar.revenue {
         background: var(--accent-deep);
       }
+
+      .cumulative-line {
+        position: absolute;
+        z-index: 3;
+        top: 0;
+        right: 0;
+        left: 0;
+        width: 100%;
+        height: 118px;
+        overflow: visible;
+        pointer-events: none;
+      }
+
+      .cumulative-line .zero { stroke: rgba(23, 54, 83, 0.14); stroke-width: 1; stroke-dasharray: 5 5; }
+      .cumulative-line .balance { fill: none; stroke: #ef8d62; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+      .cumulative-line .point { fill: #fff; stroke: #ef8d62; stroke-width: 2; }
+      .legend-line { width: 16px; height: 0; border-top: 3px solid #ef8d62; border-radius: 9px; }
 
       .month-label {
         overflow: hidden;
@@ -704,7 +688,7 @@
       .add-card-title {
         display: block;
         margin-bottom: 3px;
-        font-family: Georgia, "Times New Roman", serif;
+        font-family: inherit;
         font-size: 22px;
       }
 
@@ -947,14 +931,14 @@
         left: 15px;
         color: var(--ink-soft);
         transform: translateY(-50%);
-        font-family: Georgia, "Times New Roman", serif;
+        font-family: inherit;
         font-size: 25px;
       }
 
       .amount-input {
         height: 66px;
         padding-left: 42px;
-        font-family: Georgia, "Times New Roman", serif;
+        font-family: inherit;
         font-size: 30px;
         font-weight: 600;
       }
@@ -1015,7 +999,7 @@
         display: block;
         margin-top: 2px;
         color: var(--ink);
-        font-family: Georgia, "Times New Roman", serif;
+        font-family: inherit;
         font-size: 22px;
         font-weight: 600;
       }
@@ -1243,24 +1227,13 @@
           </button>
         </header>
 
-        <section class="balance-card" aria-labelledby="balance-heading">
-          <div class="balance-topline">
-            <p id="balance-heading" class="balance-label">Solde</p>
-          </div>
-          <div class="expense-filters" role="group" aria-label="Types de dépenses affichés">
-            <button class="filter-switch is-active" data-expense-filter="current" type="button" aria-pressed="true">
-              Dépenses courantes
-            </button>
-            <button class="filter-switch is-active" data-expense-filter="renovation" type="button" aria-pressed="true">
-              Rénovations
-            </button>
-          </div>
-          <div class="balance-copy">
-            <p id="balance-party" class="balance-party">Tout est équilibré</p>
-            <p id="balance-amount" class="balance-amount">€0</p>
-          </div>
-          <p id="balance-detail" class="balance-detail">D'après les dépenses, loyers et remboursements partagés.</p>
-        </section>
+        <button id="open-add" class="add-card" type="button">
+          <span>
+            <span class="add-card-title">Ajouter une opération</span>
+            <span class="add-card-note">Dépense, loyer ou remboursement</span>
+          </span>
+          <span class="plus-disc" aria-hidden="true">+</span>
+        </button>
 
         <section class="year-operations" aria-label="Opérations courantes de l'année">
           <h2 class="year-overview-title">Aperçu <span id="overview-year"></span></h2>
@@ -1281,23 +1254,33 @@
         <section class="trend-card" aria-labelledby="trend-title">
           <div class="trend-header">
             <div>
-              <p class="trend-period">6 derniers mois</p>
+              <p class="trend-period">Année complète</p>
               <h2 id="trend-title">Dépenses et revenus</h2>
             </div>
             <div class="chart-legend" aria-label="Légende">
               <span class="legend-item"><span class="legend-dot" aria-hidden="true"></span>Dépenses</span>
               <span class="legend-item"><span class="legend-dot revenue" aria-hidden="true"></span>Revenus</span>
+              <span class="legend-item"><span class="legend-line" aria-hidden="true"></span>Solde cumulé</span>
             </div>
           </div>
-          <div id="monthly-chart" class="monthly-chart" role="img" aria-label="Dépenses et revenus des six derniers mois"></div>
+          <div id="monthly-chart" class="monthly-chart" role="img" aria-label="Dépenses, revenus et solde cumulé de l’année"></div>
         </section>
 
-        <button id="open-add" class="add-card" type="button">
+        <section class="balance-card" aria-labelledby="balance-heading">
+          <div class="balance-topline"><p id="balance-heading" class="balance-label">Solde entre les propriétaires</p></div>
+          <div class="balance-copy">
+            <p id="balance-party" class="balance-party">Tout est équilibré</p>
+            <p id="balance-amount" class="balance-amount">€0</p>
+          </div>
+          <p id="balance-detail" class="balance-detail">D'après les dépenses, loyers et remboursements partagés.</p>
+        </section>
+
+        <button id="open-report" class="cleaning-card report-card" type="button">
           <span>
-            <span class="add-card-title">Ajouter une opération</span>
-            <span class="add-card-note">Dépense, loyer ou remboursement</span>
+            <span class="cleaning-card-title">Compte rendu</span>
+            <span class="cleaning-card-note">Analyser les dépenses par période et catégorie</span>
           </span>
-          <span class="plus-disc" aria-hidden="true">+</span>
+          <span class="cleaning-card-arrow" aria-hidden="true">→</span>
         </button>
 
         <button id="open-cleanings" class="cleaning-card" type="button">
@@ -1314,6 +1297,39 @@
         </div>
         <section id="transaction-list" class="transaction-list" aria-label="Opérations récentes"></section>
         <p class="sync-note">Enregistré dans votre Google Sheet central · Aucune opération n'est supprimée définitivement</p>
+      </div>
+    </main>
+
+    <main id="report-screen" class="screen">
+      <div class="main-shell">
+        <header class="subview-header">
+          <button id="close-report" class="back-button" type="button" aria-label="Retour">←</button>
+          <div>
+            <p class="eyebrow">Analyse</p>
+            <h1>Compte rendu</h1>
+          </div>
+        </header>
+        <section class="report-controls" aria-label="Filtres du compte rendu">
+          <label>
+            <span class="report-control-label">Période</span>
+            <select id="report-period" class="report-period"></select>
+          </label>
+          <div>
+            <span class="report-control-label">Catégories</span>
+            <div id="report-categories" class="report-categories"></div>
+          </div>
+        </section>
+        <section class="report-total" aria-live="polite">
+          <span>Total sélectionné</span>
+          <strong id="report-total">0 €</strong>
+        </section>
+        <section id="report-chart" class="report-chart" aria-label="Graphique des dépenses par catégorie"></section>
+        <div class="report-table-wrap">
+          <table class="report-table">
+            <thead><tr><th>Catégorie</th><th>Opérations</th><th>Montant</th></tr></thead>
+            <tbody id="report-table-body"></tbody>
+          </table>
+        </div>
       </div>
     </main>
 
@@ -1531,10 +1547,8 @@
         accessKey: readStorage(STORAGE_KEYS.access),
         deviceKey: readStorage(STORAGE_KEYS.device),
         data: null,
-        expenseFilters: {
-          current: true,
-          renovation: true,
-        },
+        reportPeriod: 'all',
+        reportCategories: [],
         hostCachedData: null,
         editId: null,
         selectedType: 'EXPENSE',
@@ -1550,6 +1564,7 @@
         unlockScreen: document.getElementById('unlock-screen'),
         identityScreen: document.getElementById('identity-screen'),
         mainScreen: document.getElementById('main-screen'),
+        reportScreen: document.getElementById('report-screen'),
         cleaningScreen: document.getElementById('cleaning-screen'),
         loading: document.getElementById('loading-overlay'),
         toast: document.getElementById('toast'),
@@ -1709,7 +1724,7 @@
       });
 
       function showScreen(target) {
-        [elements.unlockScreen, elements.identityScreen, elements.mainScreen, elements.cleaningScreen].forEach(function (screen) {
+        [elements.unlockScreen, elements.identityScreen, elements.mainScreen, elements.reportScreen, elements.cleaningScreen].forEach(function (screen) {
           screen.classList.toggle('is-visible', screen === target);
         });
       }
@@ -1851,12 +1866,12 @@
         renderMonthlyChart();
         renderTransactions();
         renderCleanings();
+        prepareReport();
       }
 
       function renderSummary() {
         const settings = state.data.settings;
-        const view = getDashboardView();
-        const summary = view.summaries.all;
+        const summary = state.data.summaries.all;
         const yearOperations = state.data.dashboard && state.data.dashboard.current
           ? state.data.dashboard.current.summaries.year
           : state.data.summaries.year;
@@ -1872,25 +1887,19 @@
         }
 
         document.getElementById('balance-amount').textContent = formatDashboardMoney(amount);
-        const filterLabel = dashboardFilterLabel();
         const allocated = Number(summary.cleaningAllocated) || 0;
-        document.getElementById('balance-detail').textContent = filterLabel + ' depuis le début.' +
+        document.getElementById('balance-detail').textContent = 'Toutes les opérations partagées depuis le début.' +
           (allocated ? ' Inclut ' + formatDashboardMoney(allocated) + ' de ménages alloués à Sandrine.' : '');
         document.getElementById('summary-expenses').textContent = formatDashboardMoney(
           Number(yearOperations.expenses || 0) + Number(yearOperations.rentalFees || 0)
         );
         document.getElementById('summary-rent').textContent = formatDashboardMoney(yearOperations.rent);
         document.getElementById('summary-year-balance').textContent = formatDashboardMoney(yearOperations.net);
-        document.querySelectorAll('[data-expense-filter]').forEach(function (button) {
-          const active = state.expenseFilters[button.dataset.expenseFilter];
-          button.classList.toggle('is-active', active);
-          button.setAttribute('aria-pressed', String(active));
-        });
       }
 
       function renderMonthlyChart() {
         const chart = document.getElementById('monthly-chart');
-        const series = getDashboardView().monthly;
+        const series = Array.isArray(state.data.monthly) ? state.data.monthly : [];
         if (!series.length) {
           chart.innerHTML = '<div class="chart-empty">Aucune donnée mensuelle disponible.</div>';
           return;
@@ -1910,14 +1919,33 @@
           return;
         }
 
-        chart.innerHTML = series.map(function (item) {
+        let cumulative = 0;
+        const cumulativeValues = series.map(function (item) {
+          cumulative += (Number(item.revenue) || 0) - (Number(item.expenses) || 0);
+          return cumulative;
+        });
+        const lineMinimum = Math.min.apply(null, cumulativeValues.concat([0]));
+        const lineMaximum = Math.max.apply(null, cumulativeValues.concat([0]));
+        const lineSpan = Math.max(1, lineMaximum - lineMinimum);
+        const points = cumulativeValues.map(function (value, index) {
+          const x = series.length === 1 ? 50 : (index / (series.length - 1)) * 100;
+          const y = 8 + ((lineMaximum - value) / lineSpan) * 84;
+          return x.toFixed(2) + ',' + y.toFixed(2);
+        }).join(' ');
+        const zeroY = 8 + ((lineMaximum - 0) / lineSpan) * 84;
+        const lineSvg = '<svg class="cumulative-line" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' +
+          '<line class="zero" x1="0" y1="' + zeroY.toFixed(2) + '" x2="100" y2="' + zeroY.toFixed(2) + '"></line>' +
+          '<polyline class="balance" vector-effect="non-scaling-stroke" points="' + points + '"></polyline>' +
+          '</svg>';
+        chart.innerHTML = lineSvg + series.map(function (item, index) {
           const expenses = Number(item.expenses) || 0;
           const revenue = Number(item.revenue) || 0;
           const expenseHeight = chartHeight(expenses, maximum);
           const revenueHeight = chartHeight(revenue, maximum);
           const label = formatMonth(item.month);
           const accessible = label + ' : dépenses ' + formatDashboardMoney(expenses) +
-            ', revenus ' + formatDashboardMoney(revenue);
+            ', revenus ' + formatDashboardMoney(revenue) +
+            ', solde cumulé ' + formatDashboardMoney(cumulativeValues[index]);
           return (
             '<div class="month-group" aria-label="' + escapeHtml(accessible) + '" title="' + escapeHtml(accessible) + '">' +
               '<div class="bar-area" aria-hidden="true">' +
@@ -1930,31 +1958,91 @@
         }).join('');
       }
 
-      function dashboardViewKey() {
-        if (state.expenseFilters.current && state.expenseFilters.renovation) return 'all';
-        return state.expenseFilters.renovation ? 'renovation' : 'current';
-      }
-
-      function getDashboardView() {
-        const key = dashboardViewKey();
-        if (state.data.dashboard && state.data.dashboard[key]) return state.data.dashboard[key];
-        return {
-          summaries: state.data.summaries,
-          monthly: Array.isArray(state.data.monthly) ? state.data.monthly : [],
-        };
-      }
-
-      function dashboardFilterLabel() {
-        const key = dashboardViewKey();
-        if (key === 'current') return 'Dépenses courantes, loyers et remboursements partagés';
-        if (key === 'renovation') return 'Dépenses de rénovation partagées';
-        return 'Toutes les dépenses, tous les loyers et remboursements partagés';
-      }
-
       function chartHeight(value, maximum) {
         const amount = Number(value) || 0;
         if (amount <= 0) return 0;
         return Math.max(4, Math.min(100, Math.round((amount / maximum) * 100)));
+      }
+
+      function reportSource() {
+        return Array.isArray(state.data && state.data.reportTransactions)
+          ? state.data.reportTransactions
+          : [];
+      }
+
+      function prepareReport() {
+        const source = reportSource();
+        const years = Array.from(new Set(source.map(function (item) {
+          return String(item.date || '').slice(0, 4);
+        }).filter(function (year) { return /^\d{4}$/.test(year); }))).sort().reverse();
+        const categories = Array.from(new Set(source.map(function (item) {
+          return String(item.category || '').trim() || 'Autre';
+        }))).sort(function (a, b) { return a.localeCompare(b, 'fr'); });
+
+        if (!state.reportCategories.length) state.reportCategories = categories.slice();
+        state.reportCategories = state.reportCategories.filter(function (category) {
+          return categories.indexOf(category) !== -1;
+        });
+
+        const period = document.getElementById('report-period');
+        period.innerHTML = '<option value="all">Depuis le début</option>' + years.map(function (year) {
+          return '<option value="' + year + '">' + year + '</option>';
+        }).join('');
+        if (state.reportPeriod !== 'all' && years.indexOf(state.reportPeriod) === -1) state.reportPeriod = 'all';
+        period.value = state.reportPeriod;
+
+        const categoryHost = document.getElementById('report-categories');
+        categoryHost.innerHTML = categories.map(function (category) {
+          const active = state.reportCategories.indexOf(category) !== -1;
+          return '<button class="report-chip' + (active ? ' is-active' : '') + '" type="button" data-report-category="' +
+            escapeHtml(category) + '" aria-pressed="' + String(active) + '">' + escapeHtml(category) + '</button>';
+        }).join('');
+        categoryHost.querySelectorAll('[data-report-category]').forEach(function (button) {
+          button.addEventListener('click', function () {
+            const category = button.dataset.reportCategory;
+            const index = state.reportCategories.indexOf(category);
+            if (index === -1) state.reportCategories.push(category);
+            else state.reportCategories.splice(index, 1);
+            renderReport();
+          });
+        });
+        renderReport();
+      }
+
+      function renderReport() {
+        const source = reportSource().filter(function (item) {
+          const yearMatches = state.reportPeriod === 'all' || String(item.date || '').slice(0, 4) === state.reportPeriod;
+          const category = String(item.category || '').trim() || 'Autre';
+          return yearMatches && state.reportCategories.indexOf(category) !== -1;
+        });
+        const grouped = {};
+        source.forEach(function (item) {
+          const category = String(item.category || '').trim() || 'Autre';
+          if (!grouped[category]) grouped[category] = { category: category, amount: 0, count: 0 };
+          grouped[category].amount += Number(item.amount) || 0;
+          grouped[category].count += 1;
+        });
+        const rows = Object.keys(grouped).map(function (key) { return grouped[key]; }).sort(function (a, b) {
+          return b.amount - a.amount;
+        });
+        const total = rows.reduce(function (sum, row) { return sum + row.amount; }, 0);
+        const maximum = Math.max.apply(null, rows.map(function (row) { return row.amount; }).concat([1]));
+        document.getElementById('report-total').textContent = formatDashboardMoney(total);
+        document.getElementById('report-chart').innerHTML = rows.length ? rows.map(function (row) {
+          return '<div class="report-bar-row"><span>' + escapeHtml(row.category) + '</span>' +
+            '<span class="report-bar-track"><span class="report-bar-fill" style="display:block;width:' +
+            Math.max(2, Math.round((row.amount / maximum) * 100)) + '%"></span></span>' +
+            '<span class="report-bar-value">' + escapeHtml(formatDashboardMoney(row.amount)) + '</span></div>';
+        }).join('') : '<div class="chart-empty">Aucune dépense pour cette sélection.</div>';
+        document.getElementById('report-table-body').innerHTML = rows.length ? rows.map(function (row) {
+          return '<tr><td>' + escapeHtml(row.category) + '</td><td>' + row.count + '</td><td>' +
+            escapeHtml(formatDashboardMoney(row.amount)) + '</td></tr>';
+        }).join('') : '<tr><td colspan="3">Aucune dépense pour cette sélection.</td></tr>';
+        document.querySelectorAll('[data-report-category]').forEach(function (button) {
+          const active = state.reportCategories.indexOf(button.dataset.reportCategory) !== -1;
+          button.classList.toggle('is-active', active);
+          button.setAttribute('aria-pressed', String(active));
+        });
       }
 
       function renderTransactions() {
@@ -2676,7 +2764,7 @@
               all: computeClientSummary(transactions),
               year: computeClientSummary(transactions.filter(function (item) { return item.date.slice(0, 4) === year; })),
             },
-            monthly: computeClientMonthlySeries(transactions, 6),
+            monthly: computeClientMonthlySeries(transactions, 12),
           };
         }
         return {
@@ -2686,13 +2774,14 @@
             year: computeClientSummary(active.filter(function (item) { return item.date.slice(0, 4) === year; })),
             currentYear: year,
           },
-          monthly: computeClientMonthlySeries(active, 6),
+          monthly: computeClientMonthlySeries(active, 12),
           dashboard: {
             all: dashboardData(active),
             current: dashboardData(currentTransactions),
             renovation: dashboardData(renovationTransactions),
           },
           cleanings: active.filter(function (item) { return item.type === 'RENT'; }),
+          reportTransactions: active.filter(function (item) { return item.type === 'EXPENSE'; }),
           recent: demoState.transactions.slice(),
         };
       }
@@ -2712,7 +2801,9 @@
         const buckets = [];
         const byMonth = {};
         for (let offset = monthCount - 1; offset >= 0; offset -= 1) {
-          const date = new Date(now.getFullYear(), now.getMonth() - offset, 1, 12, 0, 0);
+          const date = monthCount === 12
+            ? new Date(now.getFullYear(), monthCount - offset - 1, 1, 12, 0, 0)
+            : new Date(now.getFullYear(), now.getMonth() - offset, 1, 12, 0, 0);
           const key = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
           const bucket = { month: key, expenses: 0, revenue: 0 };
           buckets.push(bucket);
@@ -2781,6 +2872,17 @@
       document.getElementById('open-add').addEventListener('click', function () {
         openTransaction(null);
       });
+      document.getElementById('open-report').addEventListener('click', function () {
+        prepareReport();
+        showScreen(elements.reportScreen);
+      });
+      document.getElementById('close-report').addEventListener('click', function () {
+        showScreen(elements.mainScreen);
+      });
+      document.getElementById('report-period').addEventListener('change', function (event) {
+        state.reportPeriod = event.target.value;
+        renderReport();
+      });
       document.getElementById('open-cleanings').addEventListener('click', function () {
         renderCleanings();
         showScreen(elements.cleaningScreen);
@@ -2817,16 +2919,6 @@
       document.querySelectorAll('[data-cleaner]').forEach(function (button) {
         button.addEventListener('click', function () {
           setCleaner(button.dataset.cleaner);
-        });
-      });
-      document.querySelectorAll('[data-expense-filter]').forEach(function (button) {
-        button.addEventListener('click', function () {
-          const key = button.dataset.expenseFilter;
-          const otherKey = key === 'current' ? 'renovation' : 'current';
-          if (state.expenseFilters[key] && !state.expenseFilters[otherKey]) return;
-          state.expenseFilters[key] = !state.expenseFilters[key];
-          renderSummary();
-          renderMonthlyChart();
         });
       });
       document.addEventListener('keydown', function (event) {
