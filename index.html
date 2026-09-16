@@ -482,7 +482,9 @@
       .report-categories { display: flex; flex-wrap: wrap; gap: 8px; }
       .report-category-group { width: 100%; padding-top: 4px; }
       .report-category-group + .report-category-group { margin-top: 10px; padding-top: 14px; border-top: 1px solid var(--line); }
-      .report-category-group-title { display: block; margin-bottom: 8px; color: var(--ink); font-size: .85rem; font-weight: 750; }
+      .report-category-group-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+      .report-category-group-title { color: var(--ink); font-size: .85rem; font-weight: 750; }
+      .report-group-toggle { border: 0; color: var(--accent-deep); background: transparent; padding: 7px 0 7px 8px; cursor: pointer; font-size: 12px; font-weight: 750; white-space: nowrap; }
       .report-category-group-items { display: flex; flex-wrap: wrap; gap: 8px; }
       .report-chip { min-height: 36px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-soft); background: #fff; padding: 6px 12px; cursor: pointer; font-size: 12px; font-weight: 750; }
       .report-chip.is-active { border-color: var(--accent-deep); color: #fff; background: var(--accent-deep); }
@@ -1561,6 +1563,7 @@
         data: null,
         reportPeriod: 'all',
         reportCategories: [],
+        reportSelectionInitialized: false,
         hostCachedData: null,
         editId: null,
         selectedType: 'EXPENSE',
@@ -1992,11 +1995,13 @@
           return String(item.category || '').trim() || 'Autre';
         }))).sort(function (a, b) { return a.localeCompare(b, 'fr'); });
 
-        if (!state.reportCategories.length) state.reportCategories = categories.slice();
+        if (!state.reportSelectionInitialized) {
+          state.reportCategories = categories.slice();
+          state.reportSelectionInitialized = true;
+        }
         state.reportCategories = state.reportCategories.filter(function (category) {
           return categories.indexOf(category) !== -1;
         });
-        if (!state.reportCategories.length) state.reportCategories = categories.slice();
 
         const period = document.getElementById('report-period');
         period.innerHTML = '<option value="all">Depuis le début</option>' + years.map(function (year) {
@@ -2014,13 +2019,13 @@
             return categories.indexOf(category) !== -1;
           });
           if (!available.length) return '';
-          return '<div class="report-category-group"><span class="report-category-group-title">' +
-            escapeHtml(group.label) + '</span><div class="report-category-group-items">' +
+          return '<div class="report-category-group"><div class="report-category-group-header"><span class="report-category-group-title">' +
+            escapeHtml(group.label) + '</span><button class="report-group-toggle" type="button" data-report-group-toggle></button></div><div class="report-category-group-items">' +
             available.map(reportCategoryButtonHtml).join('') + '</div></div>';
         }).join('');
         const legacy = categories.filter(function (category) { return configuredCategories.indexOf(category) === -1; });
         categoryHost.innerHTML = groupHtml + (legacy.length
-          ? '<div class="report-category-group"><span class="report-category-group-title">À reclasser</span><div class="report-category-group-items">' +
+          ? '<div class="report-category-group"><div class="report-category-group-header"><span class="report-category-group-title">À reclasser</span><button class="report-group-toggle" type="button" data-report-group-toggle></button></div><div class="report-category-group-items">' +
             legacy.map(reportCategoryButtonHtml).join('') + '</div></div>'
           : '');
         categoryHost.querySelectorAll('[data-report-category]').forEach(function (button) {
@@ -2029,6 +2034,24 @@
             const index = state.reportCategories.indexOf(category);
             if (index === -1) state.reportCategories.push(category);
             else state.reportCategories.splice(index, 1);
+            renderReport();
+          });
+        });
+        categoryHost.querySelectorAll('[data-report-group-toggle]').forEach(function (button) {
+          button.addEventListener('click', function () {
+            const categoriesInGroup = Array.from(button.closest('.report-category-group').querySelectorAll('[data-report-category]')).map(function (item) {
+              return item.dataset.reportCategory;
+            });
+            const hasSelection = categoriesInGroup.some(function (category) {
+              return state.reportCategories.indexOf(category) !== -1;
+            });
+            if (hasSelection) {
+              state.reportCategories = state.reportCategories.filter(function (category) {
+                return categoriesInGroup.indexOf(category) === -1;
+              });
+            } else {
+              state.reportCategories = state.reportCategories.concat(categoriesInGroup);
+            }
             renderReport();
           });
         });
@@ -2074,6 +2097,18 @@
           const active = state.reportCategories.indexOf(button.dataset.reportCategory) !== -1;
           button.classList.toggle('is-active', active);
           button.setAttribute('aria-pressed', String(active));
+        });
+        document.querySelectorAll('[data-report-group-toggle]').forEach(function (button) {
+          const group = button.closest('.report-category-group');
+          const categoriesInGroup = Array.from(group.querySelectorAll('[data-report-category]')).map(function (item) {
+            return item.dataset.reportCategory;
+          });
+          const hasSelection = categoriesInGroup.some(function (category) {
+            return state.reportCategories.indexOf(category) !== -1;
+          });
+          const action = hasSelection ? 'Tout désélectionner' : 'Tout sélectionner';
+          button.textContent = action;
+          button.setAttribute('aria-label', action + ' : ' + group.querySelector('.report-category-group-title').textContent);
         });
       }
 
