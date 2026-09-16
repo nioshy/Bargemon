@@ -480,6 +480,10 @@
       .report-control-label { display:block; margin-bottom:7px; color:var(--ink-soft); font-size:10px; font-weight:800; letter-spacing:.07em; text-transform:uppercase; }
       .report-period { width: 100%; min-height: 44px; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); background: #fff; padding: 0 12px; }
       .report-categories { display: flex; flex-wrap: wrap; gap: 8px; }
+      .report-category-group { width: 100%; padding-top: 4px; }
+      .report-category-group + .report-category-group { margin-top: 10px; padding-top: 14px; border-top: 1px solid var(--line); }
+      .report-category-group-title { display: block; margin-bottom: 8px; color: var(--ink); font-size: .85rem; font-weight: 750; }
+      .report-category-group-items { display: flex; flex-wrap: wrap; gap: 8px; }
       .report-chip { min-height: 36px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-soft); background: #fff; padding: 6px 12px; cursor: pointer; font-size: 12px; font-weight: 750; }
       .report-chip.is-active { border-color: var(--accent-deep); color: #fff; background: var(--accent-deep); }
       .report-total { margin: 0 0 14px; border-radius: 18px; color: #fff; background: linear-gradient(135deg,#245b88,#4f88b5); padding: 16px 18px; }
@@ -1425,8 +1429,16 @@
             <div id="settlement-note" class="settlement-note"></div>
           </div>
 
+          <div id="expense-family-field" class="field">
+            <span id="expense-family-label" class="field-label">Nature de la dépense</span>
+            <div class="segmented two" role="group" aria-labelledby="expense-family-label">
+              <button class="segment-button" data-expense-family="RENOVATION" type="button">Rénovation</button>
+              <button class="segment-button" data-expense-family="CURRENT" type="button">Dépense courante</button>
+            </div>
+          </div>
+
           <div id="category-field" class="field">
-            <label for="category">Catégorie</label>
+            <label for="category">Sous-catégorie</label>
             <select id="category"></select>
           </div>
 
@@ -1552,6 +1564,7 @@
         hostCachedData: null,
         editId: null,
         selectedType: 'EXPENSE',
+        selectedExpenseFamily: 'RENOVATION',
         selectedPerson: '',
         selectedCleaner: 'SANDRINE',
         identityChange: false,
@@ -1983,6 +1996,7 @@
         state.reportCategories = state.reportCategories.filter(function (category) {
           return categories.indexOf(category) !== -1;
         });
+        if (!state.reportCategories.length) state.reportCategories = categories.slice();
 
         const period = document.getElementById('report-period');
         period.innerHTML = '<option value="all">Depuis le début</option>' + years.map(function (year) {
@@ -1992,11 +2006,23 @@
         period.value = state.reportPeriod;
 
         const categoryHost = document.getElementById('report-categories');
-        categoryHost.innerHTML = categories.map(function (category) {
-          const active = state.reportCategories.indexOf(category) !== -1;
-          return '<button class="report-chip' + (active ? ' is-active' : '') + '" type="button" data-report-category="' +
-            escapeHtml(category) + '" aria-pressed="' + String(active) + '">' + escapeHtml(category) + '</button>';
+        const configuredGroups = expenseCategoryGroups();
+        const configuredCategories = [];
+        const groupHtml = configuredGroups.map(function (group) {
+          const available = group.categories.filter(function (category) {
+            configuredCategories.push(category);
+            return categories.indexOf(category) !== -1;
+          });
+          if (!available.length) return '';
+          return '<div class="report-category-group"><span class="report-category-group-title">' +
+            escapeHtml(group.label) + '</span><div class="report-category-group-items">' +
+            available.map(reportCategoryButtonHtml).join('') + '</div></div>';
         }).join('');
+        const legacy = categories.filter(function (category) { return configuredCategories.indexOf(category) === -1; });
+        categoryHost.innerHTML = groupHtml + (legacy.length
+          ? '<div class="report-category-group"><span class="report-category-group-title">À reclasser</span><div class="report-category-group-items">' +
+            legacy.map(reportCategoryButtonHtml).join('') + '</div></div>'
+          : '');
         categoryHost.querySelectorAll('[data-report-category]').forEach(function (button) {
           button.addEventListener('click', function () {
             const category = button.dataset.reportCategory;
@@ -2007,6 +2033,12 @@
           });
         });
         renderReport();
+      }
+
+      function reportCategoryButtonHtml(category) {
+        const active = state.reportCategories.indexOf(category) !== -1;
+        return '<button class="report-chip' + (active ? ' is-active' : '') + '" type="button" data-report-category="' +
+          escapeHtml(category) + '" aria-pressed="' + String(active) + '">' + escapeHtml(category) + '</button>';
       }
 
       function renderReport() {
@@ -2235,6 +2267,7 @@
         setType(transaction ? transaction.type : 'EXPENSE');
         setPerson(transaction ? transaction.personKey : state.deviceKey);
         setCleaner(transaction && transaction.cleaner ? transaction.cleaner : 'SANDRINE');
+        setExpenseFamily(expenseFamilyForCategory(transaction ? transaction.category : ''));
         populateCategories(transaction ? transaction.category : '');
 
         elements.modalBackdrop.classList.add('is-open');
@@ -2262,6 +2295,7 @@
         document.getElementById('person-field-label').textContent =
           type === 'EXPENSE' ? 'Payé par' : type === 'RENT' ? 'Reçu par' : 'Remboursé par';
         document.getElementById('category-field').hidden = type === 'SETTLEMENT';
+        document.getElementById('expense-family-field').hidden = type !== 'EXPENSE';
         document.getElementById('settlement-field').hidden = type !== 'SETTLEMENT';
         document.getElementById('share-field').hidden = type === 'SETTLEMENT';
         document.getElementById('rent-cleaning-field').hidden = type !== 'RENT';
@@ -2354,9 +2388,15 @@
       function populateCategories(selected) {
         if (!state.data) return;
         const select = document.getElementById('category');
-        const categories = state.selectedType === 'RENT'
-          ? state.data.settings.rentCategories
-          : state.data.settings.expenseCategories;
+        let categories;
+        if (state.selectedType === 'RENT') {
+          categories = state.data.settings.rentCategories;
+        } else {
+          const group = expenseCategoryGroups().filter(function (item) {
+            return item.key === state.selectedExpenseFamily;
+          })[0];
+          categories = group ? group.categories : state.data.settings.expenseCategories;
+        }
         select.innerHTML = categories
           .map(function (category) {
             return '<option value="' + escapeHtml(category) + '">' + escapeHtml(category) + '</option>';
@@ -2369,6 +2409,36 @@
           select.appendChild(option);
         }
         if (selected) select.value = selected;
+      }
+
+      function expenseCategoryGroups() {
+        const settings = state.data && state.data.settings ? state.data.settings : {};
+        if (Array.isArray(settings.expenseCategoryGroups) && settings.expenseCategoryGroups.length) {
+          return settings.expenseCategoryGroups;
+        }
+        return [
+          { key: 'RENOVATION', label: 'Rénovation', categories: ['Travaux intérieurs', 'Maçonnerie extérieure', 'Jardin et extérieurs', 'Piscine — rénovation et équipement', 'Mobilier et équipements'] },
+          { key: 'CURRENT', label: 'Dépenses courantes', categories: ['Eau, énergie et télécoms', 'Piscine — entretien courant', 'Ménage et entretien courant', 'Taxes, assurances et charges', 'Frais de location', 'Fournitures et consommables', 'Déplacements et livraisons', 'Autres dépenses courantes'] },
+        ];
+      }
+
+      function expenseFamilyForCategory(category) {
+        const value = String(category || '');
+        const groups = expenseCategoryGroups();
+        for (let index = 0; index < groups.length; index += 1) {
+          if (groups[index].categories.indexOf(value) !== -1) return groups[index].key;
+        }
+        return isClientRenovationExpense({ type: 'EXPENSE', category: value }) ? 'RENOVATION' : 'CURRENT';
+      }
+
+      function setExpenseFamily(value) {
+        state.selectedExpenseFamily = value === 'CURRENT' ? 'CURRENT' : 'RENOVATION';
+        document.querySelectorAll('[data-expense-family]').forEach(function (button) {
+          const active = button.dataset.expenseFamily === state.selectedExpenseFamily;
+          button.classList.toggle('is-active', active);
+          button.setAttribute('aria-pressed', String(active));
+        });
+        if (state.selectedType === 'EXPENSE') populateCategories('');
       }
 
       async function submitTransaction(event) {
@@ -2675,7 +2745,11 @@
           defaultShareB: 0.5,
           currency: 'EUR',
           currencySymbol: '€',
-          expenseCategories: ['Rénovations', 'Énergie et eau', 'Jardin', 'Mobilier', 'Impôts', 'Ménage', 'Autre'],
+          expenseCategories: ['Travaux intérieurs', 'Maçonnerie extérieure', 'Jardin et extérieurs', 'Piscine — rénovation et équipement', 'Mobilier et équipements', 'Eau, énergie et télécoms', 'Piscine — entretien courant', 'Ménage et entretien courant', 'Taxes, assurances et charges', 'Frais de location', 'Fournitures et consommables', 'Déplacements et livraisons', 'Autres dépenses courantes'],
+          expenseCategoryGroups: [
+            { key: 'RENOVATION', label: 'Rénovation', categories: ['Travaux intérieurs', 'Maçonnerie extérieure', 'Jardin et extérieurs', 'Piscine — rénovation et équipement', 'Mobilier et équipements'] },
+            { key: 'CURRENT', label: 'Dépenses courantes', categories: ['Eau, énergie et télécoms', 'Piscine — entretien courant', 'Ménage et entretien courant', 'Taxes, assurances et charges', 'Frais de location', 'Fournitures et consommables', 'Déplacements et livraisons', 'Autres dépenses courantes'] },
+          ],
           rentCategories: ['Location saisonnière', 'Location longue durée', 'Caution', 'Autre revenu'],
         };
         return {
@@ -2684,7 +2758,7 @@
             {
               id: 'demo-1', date: year + '-' + month + '-08', type: 'EXPENSE', amount: 126.4,
               person: settings.personB, personKey: 'B', counterparty: '', counterpartyKey: '',
-              category: 'Rénovations', description: 'Robinet et raccords de cuisine', shareA: 0.5, shareB: 0.5,
+              category: 'Travaux intérieurs', description: 'Robinet et raccords de cuisine', shareA: 0.5, shareB: 0.5,
               enteredBy: settings.personA, enteredByKey: 'A', createdAt: stamp,
               lastEditedBy: settings.personA, lastEditedByKey: 'A', updatedAt: stamp, status: 'ACTIVE',
             },
@@ -2702,7 +2776,7 @@
             {
               id: 'demo-3', date: year + '-' + month + '-01', type: 'EXPENSE', amount: 74.2,
               person: settings.personA, personKey: 'A', counterparty: '', counterpartyKey: '',
-              category: 'Jardin', description: 'Plantes et terreau', shareA: 0.5, shareB: 0.5,
+              category: 'Jardin et extérieurs', description: 'Plantes et terreau', shareA: 0.5, shareB: 0.5,
               enteredBy: settings.personA, enteredByKey: 'A', createdAt: stamp,
               lastEditedBy: settings.personA, lastEditedByKey: 'A', updatedAt: stamp, status: 'ACTIVE',
             },
@@ -2781,7 +2855,17 @@
             renovation: dashboardData(renovationTransactions),
           },
           cleanings: active.filter(function (item) { return item.type === 'RENT'; }),
-          reportTransactions: active.filter(function (item) { return item.type === 'EXPENSE'; }),
+          reportTransactions: active.filter(function (item) { return item.type === 'EXPENSE'; }).concat(
+            active.filter(function (item) {
+              return item.type === 'RENT' && Number(item.rentalFeesTotal) > 0;
+            }).map(function (item) {
+              return {
+                id: item.id + '-rental-fees', date: item.date, type: 'EXPENSE',
+                amount: Number(item.rentalFeesTotal), category: 'Frais de location',
+                description: 'Frais liés à la location',
+              };
+            })
+          ),
           recent: demoState.transactions.slice(),
         };
       }
@@ -2793,7 +2877,13 @@
           .replace(/[\u0300-\u036f]/g, '')
           .trim()
           .toLowerCase();
-        return category === 'renovation' || category === 'renovations' || category === 'travaux';
+        const renovationCategories = expenseCategoryGroups().filter(function (group) {
+          return group.key === 'RENOVATION';
+        }).reduce(function (all, group) { return all.concat(group.categories); }, []).map(function (label) {
+          return String(label).normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
+        });
+        return renovationCategories.indexOf(category) !== -1 ||
+          category === 'renovation' || category === 'renovations' || category === 'travaux';
       }
 
       function computeClientMonthlySeries(transactions, monthCount) {
@@ -2892,6 +2982,11 @@
       });
       document.getElementById('share-a').addEventListener('input', function (event) {
         setShare(event.target.value);
+      });
+      document.querySelectorAll('[data-expense-family]').forEach(function (button) {
+        button.addEventListener('click', function () {
+          setExpenseFamily(button.dataset.expenseFamily);
+        });
       });
       document.getElementById('reset-share').addEventListener('click', function () {
         setShare(50);
