@@ -1273,12 +1273,21 @@
         </section>
 
         <section class="balance-card" aria-labelledby="balance-heading">
-          <div class="balance-topline"><p id="balance-heading" class="balance-label">Solde entre les propriétaires</p></div>
+          <div class="balance-topline"><p id="balance-heading" class="balance-label">Solde des dépenses</p></div>
           <div class="balance-copy">
             <p id="balance-party" class="balance-party">Tout est équilibré</p>
             <p id="balance-amount" class="balance-amount">€0</p>
           </div>
-          <p id="balance-detail" class="balance-detail">D'après les dépenses, loyers et remboursements partagés.</p>
+          <p id="balance-detail" class="balance-detail">Dépenses, frais de location, remboursements et ménages alloués.</p>
+        </section>
+
+        <section class="balance-card rent-balance-card" aria-labelledby="rent-balance-heading">
+          <div class="balance-topline"><p id="rent-balance-heading" class="balance-label">Solde des loyers</p></div>
+          <div class="balance-copy">
+            <p id="rent-balance-party" class="balance-party">Tout est équilibré</p>
+            <p id="rent-balance-amount" class="balance-amount">€0</p>
+          </div>
+          <p class="balance-detail">Loyers bruts encaissés, répartis selon la part de chaque propriétaire. Sans effet sur le solde des dépenses.</p>
         </section>
 
         <button id="open-report" class="cleaning-card report-card" type="button">
@@ -1891,12 +1900,22 @@
         const yearOperations = state.data.dashboard && state.data.dashboard.current
           ? state.data.dashboard.current.summaries.year
           : state.data.summaries.year;
-        const amount = Math.abs(summary.balanceA);
+        const rentBalance = Number.isFinite(Number(summary.rentBalanceA))
+          ? Number(summary.rentBalanceA)
+          : (state.data.cleanings || []).reduce(function (balance, rent) {
+              const amount = Number(rent.amount) || 0;
+              const shareA = Number.isFinite(Number(rent.shareA)) ? Number(rent.shareA) : 0.5;
+              return balance + (rent.personKey === 'A' ? -amount * (1 - shareA) : amount * shareA);
+            }, 0);
+        const expenseBalance = Number.isFinite(Number(summary.expenseBalanceA))
+          ? Number(summary.expenseBalanceA)
+          : (Number(summary.balanceA) || 0) - rentBalance;
+        const amount = Math.abs(expenseBalance);
         const balanceParty = document.getElementById('balance-party');
 
         if (amount < 0.005) {
           balanceParty.textContent = 'Tout est équilibré';
-        } else if (summary.balanceA > 0) {
+        } else if (expenseBalance > 0) {
           balanceParty.textContent = settings.personB + ' doit à ' + settings.personA;
         } else {
           balanceParty.textContent = settings.personA + ' doit à ' + settings.personB;
@@ -1904,8 +1923,15 @@
 
         document.getElementById('balance-amount').textContent = formatDashboardMoney(amount);
         const allocated = Number(summary.cleaningAllocated) || 0;
-        document.getElementById('balance-detail').textContent = 'Toutes les opérations partagées depuis le début.' +
+        document.getElementById('balance-detail').textContent = 'Dépenses, frais de location et remboursements depuis le début.' +
           (allocated ? ' Inclut ' + formatDashboardMoney(allocated) + ' de ménages alloués à Sandrine.' : '');
+        const rentParty = document.getElementById('rent-balance-party');
+        rentParty.textContent = Math.abs(rentBalance) < 0.005
+          ? 'Tout est équilibré'
+          : rentBalance > 0
+            ? settings.personB + ' doit à ' + settings.personA
+            : settings.personA + ' doit à ' + settings.personB;
+        document.getElementById('rent-balance-amount').textContent = formatDashboardMoney(Math.abs(rentBalance));
         document.getElementById('summary-expenses').textContent = formatDashboardMoney(
           Number(yearOperations.expenses || 0) + Number(yearOperations.rentalFees || 0)
         );
@@ -2947,25 +2973,30 @@
       }
 
       function computeClientSummary(transactions) {
-        const result = { expenses: 0, rent: 0, rentalFees: 0, net: 0, balanceA: 0, cleaningAllocated: 0, count: transactions.length };
+        const result = { expenses: 0, rent: 0, rentalFees: 0, net: 0, balanceA: 0, expenseBalanceA: 0, rentBalanceA: 0, cleaningAllocated: 0, count: transactions.length };
         transactions.forEach(function (item) {
           const amount = Number(item.amount);
           const shareA = Number(item.shareA);
           if (item.type === 'EXPENSE') {
             result.expenses += amount;
             result.balanceA += item.personKey === 'A' ? amount * (1 - shareA) : -amount * shareA;
+            result.expenseBalanceA += item.personKey === 'A' ? amount * (1 - shareA) : -amount * shareA;
           } else if (item.type === 'RENT') {
             result.rent += amount;
             const rentalFees = Math.max(0, Number(item.rentalFeesTotal) || 0);
             const netRent = amount - rentalFees;
             result.rentalFees += rentalFees;
             result.balanceA += item.personKey === 'A' ? -netRent * (1 - shareA) : netRent * shareA;
+            result.rentBalanceA += item.personKey === 'A' ? -amount * (1 - shareA) : amount * shareA;
+            result.expenseBalanceA += item.personKey === 'A' ? rentalFees * (1 - shareA) : -rentalFees * shareA;
             if (item.cleaner === 'SANDRINE' && item.cleaningStatus === 'ALLOCATED') {
               result.balanceA -= Number(item.cleaningAmount) || 0;
+              result.expenseBalanceA -= Number(item.cleaningAmount) || 0;
               result.cleaningAllocated = (result.cleaningAllocated || 0) + (Number(item.cleaningAmount) || 0);
             }
           } else if (item.type === 'SETTLEMENT') {
             result.balanceA += item.personKey === 'A' ? amount : -amount;
+            result.expenseBalanceA += item.personKey === 'A' ? amount : -amount;
           }
         });
         result.net = result.rent - result.expenses - result.rentalFees;
