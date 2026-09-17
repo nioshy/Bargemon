@@ -302,6 +302,7 @@
         margin: 0;
         font-size: clamp(27px, 7vw, 38px);
         line-height: 1.05;
+        white-space: nowrap;
       }
 
       .device-chip {
@@ -1240,7 +1241,7 @@
 
         <header class="app-header">
           <div>
-            <h1 id="app-name">Maison de France</h1>
+            <h1 id="app-name">Bargemon</h1>
           </div>
           <button id="device-chip" class="device-chip" type="button" aria-label="Changer la personne utilisant ce téléphone">
             <span id="device-avatar" class="avatar" aria-hidden="true">M</span>
@@ -1901,7 +1902,7 @@
         const settings = state.data.settings;
         const deviceName = personName(state.deviceKey);
         document.title = settings.appName;
-        document.getElementById('app-name').textContent = settings.appName;
+        document.getElementById('app-name').textContent = 'Bargemon';
         document.getElementById('device-name').textContent = deviceName;
         document.getElementById('device-avatar').textContent = initial(deviceName);
         document.getElementById('person-a-button').textContent = settings.personA;
