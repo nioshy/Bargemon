@@ -493,6 +493,8 @@
       .report-total strong { display:block; margin-top:3px; font-size:29px; font-weight:800; }
       .report-chart { display:grid; gap:12px; margin-bottom:16px; padding:17px; border:1px solid var(--line); border-radius:18px; background:rgba(255,255,255,.84); }
       .report-bar-row { display:grid; grid-template-columns:minmax(96px,1fr) 2fr auto; align-items:center; gap:10px; font-size:11px; }
+      .report-bar-button { width:100%; border:0; border-radius:10px; color:inherit; background:transparent; padding:7px 4px; cursor:pointer; text-align:left; }
+      .report-bar-button:hover,.report-bar-button:focus-visible { background:var(--tint); }
       .report-bar-track { height:10px; overflow:hidden; border-radius:999px; background:#e7eff6; }
       .report-bar-fill { height:100%; border-radius:999px; background:linear-gradient(90deg,#79acd2,#2f6898); }
       .report-bar-value { min-width:64px; text-align:right; font-weight:800; }
@@ -502,6 +504,19 @@
       .report-table th { color:var(--ink-soft); font-size:10px; letter-spacing:.07em; text-transform:uppercase; }
       .report-table th:last-child,.report-table td:last-child { text-align:right; }
       .report-table tr:last-child td { border-bottom:0; }
+      .report-table tr[data-report-detail] { cursor:pointer; }
+      .report-table tr[data-report-detail]:hover { background:var(--tint); }
+      .report-table-category { border:0; color:var(--accent-deep); background:transparent; padding:2px 0; cursor:pointer; font-weight:750; text-align:left; }
+      .report-detail { margin-top:16px; border:1px solid var(--line); border-radius:18px; background:rgba(255,255,255,.9); overflow:hidden; }
+      .report-detail-header { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:17px 18px; border-bottom:1px solid var(--line); }
+      .report-detail-header h2 { margin:0 0 4px; font-size:19px; }
+      .report-detail-header p { margin:0; color:var(--ink-soft); font-size:12px; }
+      .report-detail-close { min-height:36px; border:1px solid var(--line); border-radius:10px; background:#fff; padding:6px 10px; cursor:pointer; font-size:12px; font-weight:750; }
+      .report-detail-row { display:grid; grid-template-columns:1fr auto; gap:6px 12px; padding:12px 18px; border-bottom:1px solid var(--line); }
+      .report-detail-row:last-child { border-bottom:0; }
+      .report-detail-title { font-size:13px; font-weight:750; overflow-wrap:anywhere; }
+      .report-detail-amount { font-size:13px; font-weight:800; white-space:nowrap; }
+      .report-detail-meta { grid-column:1 / -1; color:var(--ink-soft); font-size:11px; }
 
       .subview-header {
         display: flex;
@@ -1345,6 +1360,16 @@
             <tbody id="report-table-body"></tbody>
           </table>
         </div>
+        <section id="report-detail" class="report-detail" aria-live="polite" hidden>
+          <div class="report-detail-header">
+            <div>
+              <h2 id="report-detail-title">Détail des opérations</h2>
+              <p id="report-detail-summary"></p>
+            </div>
+            <button id="close-report-detail" class="report-detail-close" type="button">Fermer</button>
+          </div>
+          <div id="report-detail-list"></div>
+        </section>
       </div>
     </main>
 
@@ -1573,6 +1598,7 @@
         data: null,
         reportPeriod: 'all',
         reportCategories: [],
+        reportDetailCategory: '',
         reportSelectionInitialized: false,
         hostCachedData: null,
         editId: null,
@@ -1898,9 +1924,12 @@
       function renderSummary() {
         const settings = state.data.settings;
         const summary = state.data.summaries.all;
-        const yearOperations = state.data.dashboard && state.data.dashboard.current
-          ? state.data.dashboard.current.summaries.year
-          : state.data.summaries.year;
+        const currentYear = String(state.data.summaries.currentYear);
+        const currentYearExpenses = reportSource().reduce(function (total, item) {
+          return String(item.date || '').slice(0, 4) === currentYear &&
+            expenseFamilyForCategory(String(item.category || '').trim() || 'Autre') === 'CURRENT'
+              ? total + (Number(item.amount) || 0) : total;
+        }, 0);
         const rents = state.data.cleanings || [];
         const grossRentBalance = rents.reduce(function (balance, rent) {
           const amount = Number(rent.amount) || 0;
@@ -1939,18 +1968,15 @@
             ? settings.personB + ' doit à ' + settings.personA
             : settings.personA + ' doit à ' + settings.personB;
         document.getElementById('rent-balance-amount').textContent = formatDashboardMoney(Math.abs(rentBalance));
-        document.getElementById('summary-expenses').textContent = formatDashboardMoney(
-          Number(yearOperations.expenses || 0) + Number(yearOperations.rentalFees || 0)
-        );
         const yearCleaning = rents.filter(function (rent) {
-          return String(rent.date || '').slice(0, 4) === String(state.data.summaries.currentYear);
+          return String(rent.date || '').slice(0, 4) === currentYear;
         }).reduce(function (total, rent) { return total + (Number(rent.cleaningAmount) || 0); }, 0);
         const usesNewRentSummary = Number.isFinite(Number(summary.rentGross));
-        document.getElementById('summary-rent').textContent = formatDashboardMoney(
-          Number(yearOperations.rent || 0) - (usesNewRentSummary ? 0 : yearCleaning)
-        );
+        const yearRent = Number(state.data.summaries.year.rent || 0) - (usesNewRentSummary ? 0 : yearCleaning);
+        document.getElementById('summary-expenses').textContent = formatDashboardMoney(currentYearExpenses);
+        document.getElementById('summary-rent').textContent = formatDashboardMoney(yearRent);
         document.getElementById('summary-year-balance').textContent = formatDashboardMoney(
-          Number(yearOperations.net || 0) - (usesNewRentSummary ? 0 : yearCleaning)
+          yearRent - currentYearExpenses
         );
       }
 
@@ -2133,15 +2159,19 @@
         const maximum = Math.max.apply(null, rows.map(function (row) { return row.amount; }).concat([1]));
         document.getElementById('report-total').textContent = formatDashboardMoney(total);
         document.getElementById('report-chart').innerHTML = rows.length ? rows.map(function (row) {
-          return '<div class="report-bar-row"><span>' + escapeHtml(row.category) + '</span>' +
+          return '<button class="report-bar-row report-bar-button" type="button" data-report-detail="' + escapeHtml(row.category) +
+            '" aria-label="Voir les opérations : ' + escapeHtml(row.category) + '"><span>' + escapeHtml(row.category) + '</span>' +
             '<span class="report-bar-track"><span class="report-bar-fill" style="display:block;width:' +
             Math.max(2, Math.round((row.amount / maximum) * 100)) + '%"></span></span>' +
-            '<span class="report-bar-value">' + escapeHtml(formatDashboardMoney(row.amount)) + '</span></div>';
+            '<span class="report-bar-value">' + escapeHtml(formatDashboardMoney(row.amount)) + '</span></button>';
         }).join('') : '<div class="chart-empty">Aucune dépense pour cette sélection.</div>';
         document.getElementById('report-table-body').innerHTML = rows.length ? rows.map(function (row) {
-          return '<tr><td>' + escapeHtml(row.category) + '</td><td>' + row.count + '</td><td>' +
+          return '<tr data-report-detail="' + escapeHtml(row.category) + '"><td><button class="report-table-category" type="button" data-report-detail="' +
+            escapeHtml(row.category) + '" aria-label="Voir les opérations : ' + escapeHtml(row.category) + '">' +
+            escapeHtml(row.category) + ' →</button></td><td>' + row.count + '</td><td>' +
             escapeHtml(formatDashboardMoney(row.amount)) + '</td></tr>';
         }).join('') : '<tr><td colspan="3">Aucune dépense pour cette sélection.</td></tr>';
+        renderReportDetail(source);
         document.querySelectorAll('[data-report-category]').forEach(function (button) {
           const active = state.reportCategories.indexOf(button.dataset.reportCategory) !== -1;
           button.classList.toggle('is-active', active);
@@ -2159,6 +2189,43 @@
           button.textContent = action;
           button.setAttribute('aria-label', action + ' : ' + group.querySelector('.report-category-group-title').textContent);
         });
+      }
+
+      function openReportDetail(category) {
+        state.reportDetailCategory = category;
+        renderReport();
+        const detail = document.getElementById('report-detail');
+        if (!detail.hidden) detail.scrollIntoView({ block: 'start' });
+      }
+
+      function renderReportDetail(filteredTransactions) {
+        const detail = document.getElementById('report-detail');
+        const category = state.reportDetailCategory;
+        const transactions = filteredTransactions.filter(function (item) {
+          return (String(item.category || '').trim() || 'Autre') === category;
+        }).sort(function (a, b) {
+          return String(b.date || '').localeCompare(String(a.date || '')) ||
+            String(b.id || '').localeCompare(String(a.id || ''));
+        });
+        if (!category || !transactions.length) {
+          state.reportDetailCategory = '';
+          detail.hidden = true;
+          return;
+        }
+        const total = transactions.reduce(function (sum, item) { return sum + (Number(item.amount) || 0); }, 0);
+        document.getElementById('report-detail-title').textContent = category;
+        document.getElementById('report-detail-summary').textContent =
+          transactions.length + (transactions.length === 1 ? ' opération · ' : ' opérations · ') + formatMoney(total, true);
+        document.getElementById('report-detail-list').innerHTML = transactions.map(function (item) {
+          const date = String(item.date || '');
+          const dated = date ? formatDate(date) + ' ' + date.slice(0, 4) : 'Date non renseignée';
+          const payer = item.person ? ' · Payé par ' + item.person : '';
+          return '<div class="report-detail-row"><span class="report-detail-title">' +
+            escapeHtml(item.description || item.category || 'Dépense') + '</span><strong class="report-detail-amount">' +
+            escapeHtml(formatMoney(item.amount, true)) + '</strong><span class="report-detail-meta">' +
+            escapeHtml(dated + payer) + '</span></div>';
+        }).join('');
+        detail.hidden = false;
       }
 
       function renderTransactions() {
@@ -2718,10 +2785,7 @@
       function formatMonth(value) {
         const match = /^(\d{4})-(\d{2})$/.exec(String(value || ''));
         if (!match) return value;
-        const date = new Date(Number(match[1]), Number(match[2]) - 1, 1, 12, 0, 0);
-        return new Intl.DateTimeFormat('fr-FR', { month: 'short' })
-          .format(date)
-          .replace('.', '');
+        return ['jan', 'fév', 'mar', 'avr', 'mai', 'jun', 'jul', 'aoû', 'sep', 'oct', 'nov', 'déc'][Number(match[2]) - 1] || value;
       }
 
       function today() {
@@ -3076,6 +3140,16 @@
       document.getElementById('report-period').addEventListener('change', function (event) {
         state.reportPeriod = event.target.value;
         renderReport();
+      });
+      ['report-chart', 'report-table-body'].forEach(function (id) {
+        document.getElementById(id).addEventListener('click', function (event) {
+          const target = event.target.closest('[data-report-detail]');
+          if (target) openReportDetail(target.dataset.reportDetail);
+        });
+      });
+      document.getElementById('close-report-detail').addEventListener('click', function () {
+        state.reportDetailCategory = '';
+        document.getElementById('report-detail').hidden = true;
       });
       document.getElementById('open-cleanings').addEventListener('click', function () {
         renderCleanings();
