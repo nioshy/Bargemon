@@ -422,6 +422,9 @@
       }
 
       .year-operation {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
         min-width: 0;
       }
 
@@ -448,6 +451,7 @@
         font-family: inherit;
         font-size: clamp(20px, 5vw, 25px);
         font-weight: 600;
+        font-variant-numeric: tabular-nums;
         letter-spacing: -0.03em;
         text-overflow: ellipsis;
         white-space: nowrap;
