@@ -3209,10 +3209,13 @@
       document.getElementById('monthly-chart').addEventListener('click', function (event) {
         const button = event.target.closest('[data-chart-month]');
         if (button) showChartTooltip(button);
+        else hideChartTooltip();
       });
-      document.addEventListener('click', function (event) {
+      document.addEventListener('pointerdown', function (event) {
         if (!event.target.closest('#monthly-chart')) hideChartTooltip();
       });
+      window.addEventListener('scroll', hideChartTooltip, { capture: true, passive: true });
+      window.addEventListener('resize', hideChartTooltip);
       document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') hideChartTooltip();
       });
