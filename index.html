@@ -477,17 +477,17 @@
       .cleaning-card-arrow { color: var(--accent-deep); font-size: 22px; }
 
       .report-card { margin-bottom: 14px; }
-      .report-controls { display: grid; gap: 14px; margin-bottom: 16px; padding: 16px; border: 1px solid var(--line); border-radius: 18px; background: rgba(255,255,255,.84); }
+      .report-controls { display: grid; gap: 10px; margin-bottom: 14px; padding: 12px; border: 1px solid var(--line); border-radius: 18px; background: rgba(255,255,255,.84); }
       .report-control-label { display:block; margin-bottom:7px; color:var(--ink-soft); font-size:10px; font-weight:800; letter-spacing:.07em; text-transform:uppercase; }
-      .report-period { width: 100%; min-height: 44px; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); background: #fff; padding: 0 12px; }
-      .report-categories { display: flex; flex-wrap: wrap; gap: 8px; }
-      .report-category-group { width: 100%; padding-top: 4px; }
-      .report-category-group + .report-category-group { margin-top: 10px; padding-top: 14px; border-top: 1px solid var(--line); }
-      .report-category-group-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+      .report-period { width: 100%; min-height: 38px; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); background: #fff; padding: 0 12px; }
+      .report-categories { display: grid; gap: 7px; }
+      .report-category-group { min-width: 0; }
+      .report-category-group + .report-category-group { padding-top: 7px; border-top: 1px solid var(--line); }
+      .report-category-group-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
       .report-category-group-title { color: var(--ink); font-size: .85rem; font-weight: 750; }
-      .report-group-toggle { border: 0; color: var(--accent-deep); background: transparent; padding: 7px 0 7px 8px; cursor: pointer; font-size: 12px; font-weight: 750; white-space: nowrap; }
-      .report-category-group-items { display: flex; flex-wrap: wrap; gap: 8px; }
-      .report-chip { min-height: 36px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-soft); background: #fff; padding: 6px 12px; cursor: pointer; font-size: 12px; font-weight: 750; }
+      .report-group-toggle { border: 0; color: var(--accent-deep); background: transparent; padding: 3px 0 3px 8px; cursor: pointer; font-size: 11px; font-weight: 750; white-space: nowrap; }
+      .report-category-group-items { display: flex; gap: 6px; overflow-x: auto; padding: 2px 1px 5px; scrollbar-width: thin; scroll-snap-type: x proximity; }
+      .report-chip { flex: 0 0 auto; min-height: 30px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-soft); background: #fff; padding: 4px 9px; cursor: pointer; font-size: 11px; font-weight: 750; white-space: nowrap; scroll-snap-align: start; }
       .report-chip.is-active { border-color: var(--accent-deep); color: #fff; background: var(--accent-deep); }
       .report-total { margin: 0 0 14px; border-radius: 18px; color: #fff; background: linear-gradient(135deg,#245b88,#4f88b5); padding: 16px 18px; }
       .report-total span { display:block; color:rgba(255,255,255,.72); font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; }
@@ -1277,15 +1277,15 @@
           <div class="trend-header">
             <div>
               <p class="trend-period">Année complète</p>
-              <h2 id="trend-title">Dépenses et revenus</h2>
+              <h2 id="trend-title">Dépenses courantes et revenus</h2>
             </div>
             <div class="chart-legend" aria-label="Légende">
-              <span class="legend-item"><span class="legend-dot" aria-hidden="true"></span>Dépenses</span>
+              <span class="legend-item"><span class="legend-dot" aria-hidden="true"></span>Dépenses courantes</span>
               <span class="legend-item"><span class="legend-dot revenue" aria-hidden="true"></span>Revenus</span>
               <span class="legend-item"><span class="legend-line" aria-hidden="true"></span>Solde cumulé</span>
             </div>
           </div>
-          <div id="monthly-chart" class="monthly-chart" role="img" aria-label="Dépenses, revenus et solde cumulé de l’année"></div>
+          <div id="monthly-chart" class="monthly-chart" role="img" aria-label="Dépenses courantes, revenus et solde cumulé de l’année"></div>
         </section>
 
         <section class="balance-card" aria-labelledby="balance-heading">
@@ -1340,6 +1340,10 @@
             <h1>Compte rendu</h1>
           </div>
         </header>
+        <section class="report-total" aria-live="polite">
+          <span>Total sélectionné</span>
+          <strong id="report-total">0 €</strong>
+        </section>
         <section class="report-controls" aria-label="Filtres du compte rendu">
           <label>
             <span class="report-control-label">Période</span>
@@ -1349,10 +1353,6 @@
             <span class="report-control-label">Catégories</span>
             <div id="report-categories" class="report-categories"></div>
           </div>
-        </section>
-        <section class="report-total" aria-live="polite">
-          <span>Total sélectionné</span>
-          <strong id="report-total">0 €</strong>
         </section>
         <section id="report-chart" class="report-chart" aria-label="Graphique des dépenses par catégorie"></section>
         <div class="report-table-wrap">
@@ -1915,22 +1915,17 @@
         );
         document.getElementById('form-currency').textContent = settings.currencySymbol;
         document.getElementById('overview-year').textContent = state.data.summaries.currentYear;
-        renderSummary();
-        renderMonthlyChart();
+        const yearOperations = computeYearOperations();
+        renderSummary(yearOperations);
+        renderMonthlyChart(yearOperations);
         renderTransactions();
         renderCleanings();
         prepareReport();
       }
 
-      function renderSummary() {
+      function renderSummary(yearOperations) {
         const settings = state.data.settings;
         const summary = state.data.summaries.all;
-        const currentYear = String(state.data.summaries.currentYear);
-        const currentYearExpenses = reportSource().reduce(function (total, item) {
-          return String(item.date || '').slice(0, 4) === currentYear &&
-            expenseFamilyForCategory(String(item.category || '').trim() || 'Autre') === 'CURRENT'
-              ? total + (Number(item.amount) || 0) : total;
-        }, 0);
         const rents = state.data.cleanings || [];
         const grossRentBalance = rents.reduce(function (balance, rent) {
           const amount = Number(rent.amount) || 0;
@@ -1969,29 +1964,14 @@
             ? settings.personB + ' doit à ' + settings.personA
             : settings.personA + ' doit à ' + settings.personB;
         document.getElementById('rent-balance-amount').textContent = formatDashboardMoney(Math.abs(rentBalance));
-        const yearCleaning = rents.filter(function (rent) {
-          return String(rent.date || '').slice(0, 4) === currentYear;
-        }).reduce(function (total, rent) { return total + (Number(rent.cleaningAmount) || 0); }, 0);
-        const usesNewRentSummary = Number.isFinite(Number(summary.rentGross));
-        const yearRent = Number(state.data.summaries.year.rent || 0) - (usesNewRentSummary ? 0 : yearCleaning);
-        document.getElementById('summary-expenses').textContent = formatDashboardMoney(currentYearExpenses);
-        document.getElementById('summary-rent').textContent = formatDashboardMoney(yearRent);
-        document.getElementById('summary-year-balance').textContent = formatDashboardMoney(
-          yearRent - currentYearExpenses
-        );
+        document.getElementById('summary-expenses').textContent = formatDashboardMoney(yearOperations.expenses);
+        document.getElementById('summary-rent').textContent = formatDashboardMoney(yearOperations.rent);
+        document.getElementById('summary-year-balance').textContent = formatDashboardMoney(yearOperations.balance);
       }
 
-      function renderMonthlyChart() {
+      function renderMonthlyChart(yearOperations) {
         const chart = document.getElementById('monthly-chart');
-        const sourceSeries = Array.isArray(state.data.monthly) ? state.data.monthly : [];
-        const usesNewRentSummary = Number.isFinite(Number(state.data.summaries.all.rentGross));
-        const series = usesNewRentSummary ? sourceSeries : sourceSeries.map(function (item) {
-          const cleaning = (state.data.cleanings || []).reduce(function (total, rent) {
-            return String(rent.date || '').slice(0, 7) === item.month
-              ? total + (Number(rent.cleaningAmount) || 0) : total;
-          }, 0);
-          return { month: item.month, expenses: item.expenses, revenue: (Number(item.revenue) || 0) - cleaning };
-        });
+        const series = yearOperations.series;
         if (!series.length) {
           chart.innerHTML = '<div class="chart-empty">Aucune donnée mensuelle disponible.</div>';
           return;
@@ -2011,11 +1991,7 @@
           return;
         }
 
-        let cumulative = 0;
-        const cumulativeValues = series.map(function (item) {
-          cumulative += (Number(item.revenue) || 0) - (Number(item.expenses) || 0);
-          return cumulative;
-        });
+        const cumulativeValues = series.map(function (item) { return item.balance; });
         const lineMinimum = Math.min.apply(null, cumulativeValues.concat([0]));
         const lineMaximum = Math.max.apply(null, cumulativeValues.concat([0]));
         const lineSpan = Math.max(1, lineMaximum - lineMinimum);
@@ -2035,7 +2011,7 @@
           const expenseHeight = chartHeight(expenses, maximum);
           const revenueHeight = chartHeight(revenue, maximum);
           const label = formatMonth(item.month);
-          const accessible = label + ' : dépenses ' + formatDashboardMoney(expenses) +
+          const accessible = label + ' : dépenses courantes ' + formatDashboardMoney(expenses) +
             ', revenus ' + formatDashboardMoney(revenue) +
             ', solde cumulé ' + formatDashboardMoney(cumulativeValues[index]);
           return (
@@ -2060,6 +2036,39 @@
         return Array.isArray(state.data && state.data.reportTransactions)
           ? state.data.reportTransactions
           : [];
+      }
+
+      function currentExpenseTransactions() {
+        return reportSource().filter(function (item) {
+          return expenseFamilyForCategory(String(item.category || '').trim() || 'Autre') === 'CURRENT';
+        });
+      }
+
+      function computeYearOperations() {
+        const year = String(state.data.summaries.currentYear);
+        const series = Array.from({ length: 12 }, function (_, index) {
+          return { month: year + '-' + String(index + 1).padStart(2, '0'), expenses: 0, revenue: 0, balance: 0 };
+        });
+        const byMonth = Object.fromEntries(series.map(function (item) { return [item.month, item]; }));
+        currentExpenseTransactions().forEach(function (item) {
+          const bucket = byMonth[String(item.date || '').slice(0, 7)];
+          if (bucket) bucket.expenses += Number(item.amount) || 0;
+        });
+        (state.data.cleanings || []).forEach(function (rent) {
+          const bucket = byMonth[String(rent.date || '').slice(0, 7)];
+          if (bucket) bucket.revenue += (Number(rent.amount) || 0) - (Number(rent.cleaningAmount) || 0);
+        });
+        let balance = 0;
+        series.forEach(function (item) {
+          balance += item.revenue - item.expenses;
+          item.balance = balance;
+        });
+        return {
+          series: series,
+          expenses: series.reduce(function (total, item) { return total + item.expenses; }, 0),
+          rent: series.reduce(function (total, item) { return total + item.revenue; }, 0),
+          balance: balance,
+        };
       }
 
       function prepareReport() {
