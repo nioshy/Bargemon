@@ -648,11 +648,45 @@
       }
 
       .chart-bar {
-        width: min(9px, 42%);
+        display: block;
+        width: min(9px, 100%);
         border-radius: 5px 5px 1px 1px;
         background: #9bbbd7;
         transition: height 220ms ease;
       }
+
+      .chart-bar-button {
+        display: flex;
+        flex: 1 1 0;
+        max-width: 18px;
+        height: 100%;
+        padding: 0;
+        border: 0;
+        align-items: flex-end;
+        justify-content: center;
+        background: transparent;
+        cursor: pointer;
+      }
+
+      .chart-bar-button:focus-visible { outline: 2px solid var(--accent-deep); outline-offset: 2px; }
+
+      .chart-tooltip {
+        position: fixed;
+        z-index: 20;
+        min-width: 120px;
+        padding: 8px 11px;
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        color: var(--ink);
+        background: #fff;
+        box-shadow: 0 8px 24px rgba(23, 54, 83, .16);
+        font-size: 12px;
+        line-height: 1.4;
+        pointer-events: none;
+      }
+
+      .chart-tooltip strong { display: block; font-variant-numeric: tabular-nums; }
+      .chart-tooltip[hidden] { display: none; }
 
       .chart-bar.revenue {
         background: var(--accent-deep);
@@ -2020,14 +2054,35 @@
             ', solde cumulé ' + formatDashboardMoney(cumulativeValues[index]);
           return (
             '<div class="month-group" aria-label="' + escapeHtml(accessible) + '" title="' + escapeHtml(accessible) + '">' +
-              '<div class="bar-area" aria-hidden="true">' +
-                '<span class="chart-bar expense" style="height:' + expenseHeight + '%"></span>' +
-                '<span class="chart-bar revenue" style="height:' + revenueHeight + '%"></span>' +
+              '<div class="bar-area">' +
+                '<button class="chart-bar-button" type="button" data-chart-month="' + escapeHtml(label) + '" data-chart-kind="Dépenses courantes" data-chart-amount="' + escapeHtml(formatDashboardMoney(expenses)) + '" aria-label="' + escapeHtml(label + ' : dépenses courantes ' + formatDashboardMoney(expenses)) + '">' +
+                  '<span class="chart-bar expense" style="height:' + expenseHeight + '%"></span></button>' +
+                '<button class="chart-bar-button" type="button" data-chart-month="' + escapeHtml(label) + '" data-chart-kind="Revenus" data-chart-amount="' + escapeHtml(formatDashboardMoney(revenue)) + '" aria-label="' + escapeHtml(label + ' : revenus ' + formatDashboardMoney(revenue)) + '">' +
+                  '<span class="chart-bar revenue" style="height:' + revenueHeight + '%"></span></button>' +
               '</div>' +
               '<span class="month-label">' + escapeHtml(label) + '</span>' +
             '</div>'
           );
-        }).join('');
+        }).join('') + '<div id="chart-tooltip" class="chart-tooltip" role="status" hidden></div>';
+      }
+
+      function hideChartTooltip() {
+        const tooltip = document.getElementById('chart-tooltip');
+        if (tooltip) tooltip.hidden = true;
+      }
+
+      function showChartTooltip(button) {
+        const tooltip = document.getElementById('chart-tooltip');
+        if (!tooltip) return;
+        tooltip.innerHTML = escapeHtml(button.dataset.chartMonth) + '<strong>' +
+          escapeHtml(button.dataset.chartKind + ' : ' + button.dataset.chartAmount) + '</strong>';
+        tooltip.hidden = false;
+        const rect = button.getBoundingClientRect();
+        const left = Math.max(8, Math.min(window.innerWidth - tooltip.offsetWidth - 8,
+          rect.left + rect.width / 2 - tooltip.offsetWidth / 2));
+        const above = rect.top - tooltip.offsetHeight - 8;
+        tooltip.style.left = left + 'px';
+        tooltip.style.top = (above >= 8 ? above : rect.bottom + 8) + 'px';
       }
 
       function chartHeight(value, maximum) {
@@ -3150,6 +3205,16 @@
       });
       document.getElementById('close-report').addEventListener('click', function () {
         showScreen(elements.mainScreen);
+      });
+      document.getElementById('monthly-chart').addEventListener('click', function (event) {
+        const button = event.target.closest('[data-chart-month]');
+        if (button) showChartTooltip(button);
+      });
+      document.addEventListener('click', function (event) {
+        if (!event.target.closest('#monthly-chart')) hideChartTooltip();
+      });
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') hideChartTooltip();
       });
       document.getElementById('report-period').addEventListener('change', function (event) {
         state.reportPeriod = event.target.value;
