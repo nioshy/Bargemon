@@ -3812,7 +3812,96 @@
         document.getElementById('connection-warning').classList.toggle('is-visible', !navigator.onLine);
       }
 
-      updateConnectionState();
+      updateConnectionState();      (function installBalanceDetails() {
+        const css = document.createElement('style');
+        css.textContent = '#balance-drilldown{position:fixed;z-index:90;inset:0;overflow-y:auto;background:var(--paper);padding:calc(20px + var(--safe-top)) 16px calc(30px + var(--safe-bottom))}#balance-drilldown .bd-wrap{max-width:760px;margin:auto}#balance-drilldown .bd-head{display:flex;align-items:center;gap:12px;margin-bottom:18px}#balance-drilldown .bd-back{width:44px;height:44px;flex:0 0 auto;border:1px solid var(--line);border-radius:50%;background:white;font-size:23px;cursor:pointer}#balance-drilldown h1{margin:0;font-size:25px}#balance-drilldown h2{margin:18px 0 9px;font-size:17px}#balance-drilldown .bd-hero{border-radius:18px;background:linear-gradient(135deg,#245b88,#4f88b5);color:white;padding:17px}#balance-drilldown .bd-hero strong{display:block;margin-top:5px;font-size:27px;font-variant-numeric:tabular-nums}#balance-drilldown .bd-help{color:var(--ink-soft);font-size:12px;line-height:1.5;margin:12px 0}#balance-drilldown details,#balance-drilldown .bd-list{border:1px solid var(--line);border-radius:15px;background:white;margin-bottom:8px;overflow:hidden}#balance-drilldown summary{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:13px;cursor:pointer}#balance-drilldown summary span{font-weight:800;overflow-wrap:anywhere}#balance-drilldown summary small{grid-column:1/-1;color:var(--ink-soft);line-height:1.4}#balance-drilldown .bd-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;padding:11px 13px;border-bottom:1px solid var(--line)}#balance-drilldown .bd-row:last-child{border-bottom:0}#balance-drilldown .bd-row b{font-size:12px;overflow-wrap:anywhere}#balance-drilldown .bd-row strong{font-size:12px;white-space:nowrap}#balance-drilldown .bd-row small{grid-column:1/-1;color:var(--ink-soft);font-size:11px;line-height:1.4}#balance-drilldown .bd-warning{color:var(--danger);font-size:12px}#balance-heading,#rent-balance-heading{cursor:pointer}';
+        document.head.appendChild(css);
+        const panel = document.createElement('div');
+        panel.id = 'balance-drilldown';
+        panel.hidden = true;
+        document.body.appendChild(panel);
+        function share(item) { return Number.isFinite(Number(item.shareA)) ? Number(item.shareA) : 0.5; }
+        function date(item) { return item.date ? formatDate(item.date) : 'Date non renseignée'; }
+        function signed(value) { return Math.abs(value) < .005 ? '0 €' : (value > 0 ? '+' : '−') + formatMoney(Math.abs(value), false); }
+        function movement(title, meta, impact) { return '<div class="bd-row"><b>' + escapeHtml(title) + '</b><strong>' + escapeHtml(signed(impact)) + '</strong><small>' + escapeHtml(meta) + '</small></div>'; }
+        function close() { panel.hidden = true; document.body.style.overflow = ''; }
+        function open(kind) {
+          if (!state.data) return;
+          const data = state.data, A = data.settings.personA, B = data.settings.personB;
+          const rents = data.cleanings || [], groups = {}, adjustments = [], rentRows = [];
+          const expenseView = kind === 'expense';
+          const target = Number(expenseView ? data.summaries.all.expenseBalanceA : data.summaries.all.rentBalanceA) || 0;
+          let calculated = 0;
+          function addExpense(item, category, title, meta) {
+            const amount = Number(item.amount) || 0;
+            const impact = item.personKey === 'A' ? amount * (1 - share(item)) : -amount * share(item);
+            const group = groups[category] || (groups[category] = { a: 0, b: 0, impact: 0, rows: [] });
+            group[item.personKey === 'A' ? 'a' : 'b'] += amount;
+            group.impact += impact;
+            group.rows.push(movement(title, meta, impact));
+            calculated += impact;
+          }
+          if (expenseView) {
+            (data.reportTransactions || []).filter(function (item) { return item.type === 'EXPENSE' && !String(item.id || '').endsWith('-rental-fees'); }).forEach(function (item) {
+              addExpense(item, item.category || 'Autres dépenses', item.description || 'Dépense', date(item) + ' · Payé par ' + item.person + ' · Montant ' + formatMoney(item.amount, false));
+            });
+            rents.forEach(function (rent) {
+              const fees = Number(rent.rentalFeesTotal) || 0;
+              if (fees > 0) addExpense({ amount: fees, personKey: rent.personKey, shareA: rent.shareA }, 'Frais de location', 'Frais de location — ' + (rent.tenantName || 'séjour'), formatTransactionPeriod(rent) + ' · Supportés par ' + rent.person + ' · ' + formatMoney(fees, false));
+              if (rent.cleaner === 'SANDRINE' && rent.cleaningStatus === 'ALLOCATED') {
+                const amount = Number(rent.cleaningAmount) || 0;
+                calculated -= amount;
+                adjustments.push({ date: rent.date, html: movement('Ménage alloué — ' + (rent.tenantName || 'séjour'), formatTransactionPeriod(rent) + ' · Crédit intégral à Sandrine · ' + formatMoney(amount, false), -amount) });
+              }
+            });
+            (data.settlements || []).forEach(function (item) {
+              const amount = Number(item.amount) || 0, impact = item.personKey === 'A' ? amount : -amount;
+              calculated += impact;
+              const payer = item.personKey === 'A' ? A : B, recipient = item.personKey === 'A' ? B : A;
+              adjustments.push({ date: item.date, html: movement(item.description || 'Remboursement', date(item) + ' · ' + payer + ' a remboursé ' + recipient + ' · ' + formatMoney(amount, false), impact) });
+            });
+          } else {
+            rents.forEach(function (rent) {
+              const gross = Number(rent.amount) || 0, cleaning = Number(rent.cleaningAmount) || 0, net = gross - cleaning;
+              const impact = rent.personKey === 'A' ? -net * (1 - share(rent)) : net * share(rent);
+              calculated += impact;
+              rentRows.push({ date: rent.date, html: movement(rent.tenantName || rent.description || 'Location', formatTransactionPeriod(rent) + ' · Encaissé par ' + rent.person + ' · Loyer ' + formatMoney(gross, false) + (cleaning ? ' − ménage ' + formatMoney(cleaning, false) : '') + ' = ' + formatMoney(net, false) + ' à répartir', impact) });
+            });
+          }
+          const party = Math.abs(target) < .005 ? 'Tout est équilibré' : target > 0 ? B + ' doit à ' + A : A + ' doit à ' + B;
+          const hero = '<div class="bd-hero"><span>' + escapeHtml(party) + '</span><strong>' + escapeHtml(formatDashboardMoney(Math.abs(target))) + '</strong></div>';
+          const help = '<p class="bd-help">Les montants indiquent l’effet de chaque opération après répartition. + : Sandrine doit à ' + escapeHtml(A) + ' ; − : l’inverse. Remboursements et ménages alloués comptent en entier.</p>';
+          let body;
+          if (expenseView) {
+            const categories = Object.keys(groups).sort(function (x, y) { return Math.abs(groups[y].impact) - Math.abs(groups[x].impact); });
+            body = '<h2>Dépenses par catégorie</h2>' + (categories.length ? categories.map(function (category) {
+              const g = groups[category];
+              return '<details><summary><span>' + escapeHtml(category) + '</span><strong>' + escapeHtml(signed(g.impact)) + '</strong><small>Payé par ' + escapeHtml(A) + ' : ' + escapeHtml(formatMoney(g.a, false)) + ' · par ' + escapeHtml(B) + ' : ' + escapeHtml(formatMoney(g.b, false)) + ' · ' + g.rows.length + ' opération(s) · Toucher pour voir</small></summary>' + g.rows.join('') + '</details>';
+            }).join('') : '<p class="bd-help">Aucune dépense.</p>');
+            adjustments.sort(function (x, y) { return String(y.date || '').localeCompare(String(x.date || '')); });
+            body += '<h2>Remboursements et ménages alloués</h2><div class="bd-list">' + (adjustments.map(function (x) { return x.html; }).join('') || '<div class="bd-row">Aucun mouvement</div>') + '</div>';
+          } else {
+            rentRows.sort(function (x, y) { return String(y.date || '').localeCompare(String(x.date || '')); });
+            body = '<h2>Locations</h2><div class="bd-list">' + (rentRows.map(function (x) { return x.html; }).join('') || '<div class="bd-row">Aucun loyer</div>') + '</div>';
+          }
+          const complete = !expenseView || Array.isArray(data.settlements);
+          const mismatch = Math.abs(Math.round(calculated * 100) - Math.round(target * 100)) > 2;
+          const warning = !complete ? '<p class="bd-warning">L’historique des remboursements n’est pas encore disponible dans ce détail.</p>' : mismatch ? '<p class="bd-warning">Le détail ne correspond pas exactement au solde affiché (' + escapeHtml(formatMoney(calculated, false)) + ' contre ' + escapeHtml(formatMoney(target, false)) + ').</p>' : '';
+          panel.innerHTML = '<div class="bd-wrap"><header class="bd-head"><button class="bd-back" type="button" aria-label="Retour">←</button><h1>' + (expenseView ? 'Solde des dépenses' : 'Solde des loyers') + '</h1></header>' + hero + help + body + warning + '</div>';
+          panel.querySelector('.bd-back').addEventListener('click', close);
+          panel.hidden = false;
+          panel.scrollTop = 0;
+          document.body.style.overflow = 'hidden';
+        }
+        [['open-expense-balance','expense'],['open-rent-balance','rent']].forEach(function (entry) {
+          const card = document.querySelector(entry[1] === 'expense' ? '#balance-heading' : '#rent-balance-heading').closest('.balance-card');
+          card.id = entry[0]; card.style.cursor = 'pointer'; card.tabIndex = 0; card.setAttribute('role','button');
+          card.setAttribute('aria-label','Voir le détail du solde des ' + (entry[1] === 'expense' ? 'dépenses' : 'loyers'));
+          card.addEventListener('click', function () { open(entry[1]); });
+          card.addEventListener('keydown', function (event) { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); open(entry[1]); } });
+        });
+        document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && !panel.hidden) close(); });
+      })();
       bootstrap();
     </script>
   </body>
