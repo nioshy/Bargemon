@@ -1463,17 +1463,17 @@
           <strong id="projection-year" class="projection-year">—</strong>
           <div class="projection-mode" role="group" aria-label="Mode de simulation des loyers">
             <button class="projection-mode-button is-active" data-projection-mode="weekly" type="button" aria-pressed="true">Moyenne estivale</button>
-            <button class="projection-mode-button" data-projection-mode="monthly" type="button" aria-pressed="false">Loyers par mois</button>
+            <button class="projection-mode-button" data-projection-mode="monthly" type="button" aria-pressed="false">Moyennes par mois</button>
           </div>
           <div id="projection-weekly-inputs" class="projection-inputs">
             <div class="projection-input-row"><label for="projection-weekly-input">Loyer moyen par semaine louée · juin–juillet</label><input id="projection-weekly-input" type="number" min="0" step="1" inputmode="decimal" /></div>
             <span id="projection-weekly-difference" class="projection-difference"></span>
           </div>
           <div id="projection-monthly-inputs" class="projection-inputs" hidden>
-            <p class="projection-note">Montant total prévu pour chaque mois, hors ménage.</p>
-            <div class="projection-input-row"><label for="projection-june-input">Juin</label><input id="projection-june-input" type="number" min="0" step="1" inputmode="decimal" /><span id="projection-june-difference" class="projection-difference"></span></div>
-            <div class="projection-input-row"><label for="projection-july-input">Juillet</label><input id="projection-july-input" type="number" min="0" step="1" inputmode="decimal" /><span id="projection-july-difference" class="projection-difference"></span></div>
-            <div class="projection-input-row"><label for="projection-august-input">Août</label><input id="projection-august-input" type="number" min="0" step="1" inputmode="decimal" /><span id="projection-august-difference" class="projection-difference"></span></div>
+            <p class="projection-note">Loyer moyen par semaine louée dans chaque mois, hors ménage.</p>
+            <div class="projection-input-row"><label for="projection-june-input">Juin · €/semaine</label><input id="projection-june-input" type="number" min="0" step="1" inputmode="decimal" /><span id="projection-june-difference" class="projection-difference"></span></div>
+            <div class="projection-input-row"><label for="projection-july-input">Juillet · €/semaine</label><input id="projection-july-input" type="number" min="0" step="1" inputmode="decimal" /><span id="projection-july-difference" class="projection-difference"></span></div>
+            <div class="projection-input-row"><label for="projection-august-input">Août · €/semaine</label><input id="projection-august-input" type="number" min="0" step="1" inputmode="decimal" /><span id="projection-august-difference" class="projection-difference"></span></div>
           </div>
           <dl class="projection-metrics">
             <div><dt>Solde net <span id="projection-reference-year"></span></dt><dd id="projection-net">—</dd></div>
@@ -2256,36 +2256,46 @@
         const summer = computeRentForPeriod(referenceYear, 6, 8);
         const occupiedWeeks = summer.nights / 7;
         const summerWeekly = occupiedWeeks > 0 ? summer.rent / occupiedWeeks : NaN;
-        const monthly = {
-          june: computeRentForPeriod(referenceYear, 6, 7).rent,
-          july: computeRentForPeriod(referenceYear, 7, 8).rent,
-          august: computeRentForPeriod(referenceYear, 8, 9).rent,
+        const monthlyPeriods = {
+          june: computeRentForPeriod(referenceYear, 6, 7),
+          july: computeRentForPeriod(referenceYear, 7, 8),
+          august: computeRentForPeriod(referenceYear, 8, 9),
         };
+        const monthlyWeeks = {};
+        const monthly = {};
+        ['june', 'july', 'august'].forEach(function (key) {
+          monthlyWeeks[key] = monthlyPeriods[key].nights / 7;
+          monthly[key] = monthlyWeeks[key] > 0 ? monthlyPeriods[key].rent / monthlyWeeks[key] : NaN;
+        });
         if (state.projectionReferenceYear !== referenceYear || !state.projectionInputs) {
           state.projectionReferenceYear = referenceYear;
           state.projectionInputs = {
             weekly: Number.isFinite(summerWeekly) ? String(Math.round(summerWeekly)) : '',
-            june: String(Math.round(monthly.june)),
-            july: String(Math.round(monthly.july)),
-            august: String(Math.round(monthly.august)),
+            june: Number.isFinite(monthly.june) ? String(Math.round(monthly.june)) : '',
+            july: Number.isFinite(monthly.july) ? String(Math.round(monthly.july)) : '',
+            august: Number.isFinite(monthly.august) ? String(Math.round(monthly.august)) : '',
           };
         }
         const inputs = state.projectionInputs;
         const selectedKeys = state.projectionMode === 'monthly' ? ['june', 'july', 'august'] : ['weekly'];
         const validInputs = selectedKeys.every(function (key) {
-          return inputs[key] !== '' && Number.isFinite(Number(inputs[key])) && Number(inputs[key]) >= 0;
+          return (state.projectionMode === 'monthly' && !monthlyWeeks[key]) ||
+            (inputs[key] !== '' && Number.isFinite(Number(inputs[key])) && Number(inputs[key]) >= 0);
         });
         const delta = !validInputs ? NaN : state.projectionMode === 'monthly'
           ? ['june', 'july', 'august'].reduce(function (sum, key) {
-              return sum + Number(inputs[key]) - Math.round(monthly[key]);
+              return sum + (monthlyWeeks[key] > 0
+                ? (Number(inputs[key]) - Math.round(monthly[key])) * monthlyWeeks[key] : 0);
             }, 0)
           : occupiedWeeks > 0
             ? (Number(inputs.weekly) - Math.round(summerWeekly)) * occupiedWeeks
             : NaN;
         const projectedNet = reference.balance + delta;
         const projectedWeekly = state.projectionMode === 'monthly' && occupiedWeeks > 0
-          ? summerWeekly + (Number(inputs.june) - Math.round(monthly.june) +
-              Number(inputs.july) - Math.round(monthly.july)) / occupiedWeeks
+          ? summerWeekly + ((monthlyWeeks.june > 0 ?
+              (Number(inputs.june) - Math.round(monthly.june)) * monthlyWeeks.june : 0) +
+              (monthlyWeeks.july > 0 ?
+                (Number(inputs.july) - Math.round(monthly.july)) * monthlyWeeks.july : 0)) / occupiedWeeks
           : Number(inputs.weekly);
         const yearsToBreakEven = remaining > 0 && projectedNet > 0
           ? Math.ceil((remaining - 0.000001) / projectedNet)
@@ -2311,6 +2321,7 @@
           occupiedWeeks: occupiedWeeks,
           summerWeekly: summerWeekly,
           monthly: monthly,
+          monthlyWeeks: monthlyWeeks,
           breakEvenYear: breakEvenYear,
           sensitivity: sensitivity,
         };
@@ -2342,8 +2353,12 @@
           ? formatProjectionDifference(state.projectionInputs.weekly, projection.summerWeekly)
           : 'Aucune semaine louée en juin–juillet ' + projection.referenceYear + '.';
         ['june', 'july', 'august'].forEach(function (key) {
+          document.getElementById('projection-' + key + '-input').disabled = !projection.monthlyWeeks[key];
           document.getElementById('projection-' + key + '-difference').textContent =
-            formatProjectionDifference(state.projectionInputs[key], projection.monthly[key]);
+            projection.monthlyWeeks[key] > 0
+              ? formatProjectionDifference(state.projectionInputs[key], projection.monthly[key])
+              : 'Aucune semaine louée en ' + ({ june: 'juin', july: 'juillet', august: 'août' })[key] +
+                ' ' + projection.referenceYear + ' : pas de moyenne comparable.';
         });
         document.getElementById('projection-reference-year').textContent = projection.referenceYear;
         document.getElementById('projection-expense-year').textContent = projection.referenceYear;
@@ -2375,7 +2390,7 @@
           ' Projection linéaire : solde annuel constant, sans nouvelles rénovations ni inflation. ' +
           'Rénovations cumulées : ' + formatDashboardMoney(projection.renovations) +
           '. Loyer estival calculé hors ménage, au prorata des nuits louées entre le 1er juin et le 1er août ; ' +
-          'la sensibilité conserve le même nombre de semaines louées.' +
+          'la projection et la sensibilité conservent le même nombre de semaines louées par mois.' +
           (projection.remaining > 0 && projection.projectedNet <= 0 ?
             ' Le solde annuel doit devenir positif pour atteindre le seuil.' : '') +
           (projection.remaining > 0 && !projection.occupiedWeeks ?
