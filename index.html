@@ -670,6 +670,8 @@
       .bar-area {
         display: flex;
         min-width: 0;
+        height: var(--chart-zero-position, 100%);
+        align-self: start;
         border-bottom: 1px solid var(--line);
         align-items: flex-end;
         justify-content: center;
@@ -2132,13 +2134,15 @@
         const cumulativeValues = series.map(function (item) { return item.balance; });
         const lineMinimum = Math.min.apply(null, cumulativeValues.concat([0]));
         const lineMaximum = Math.max.apply(null, cumulativeValues.concat([0]));
-        const lineSpan = Math.max(1, lineMaximum - lineMinimum);
+        const zeroY = lineMinimum < 0 ? 80 : 100;
+        chart.style.setProperty('--chart-zero-position', zeroY + '%');
         const points = cumulativeValues.map(function (value, index) {
           const x = series.length === 1 ? 50 : (index / (series.length - 1)) * 100;
-          const y = 8 + ((lineMaximum - value) / lineSpan) * 84;
+          const y = value >= 0
+            ? zeroY - (value / Math.max(1, lineMaximum)) * (zeroY - 8)
+            : zeroY + (Math.abs(value) / Math.max(1, Math.abs(lineMinimum))) * (98 - zeroY);
           return x.toFixed(2) + ',' + y.toFixed(2);
         }).join(' ');
-        const zeroY = 8 + ((lineMaximum - 0) / lineSpan) * 84;
         const lineSvg = '<svg class="cumulative-line" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' +
           '<line class="zero" x1="0" y1="' + zeroY.toFixed(2) + '" x2="100" y2="' + zeroY.toFixed(2) + '"></line>' +
           '<polyline class="balance" vector-effect="non-scaling-stroke" points="' + points + '"></polyline>' +
