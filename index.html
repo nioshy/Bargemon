@@ -1638,7 +1638,6 @@
         reportPeriod: 'all',
         reportCategories: [],
         reportDetailCategory: '',
-        reportSelectionInitialized: false,
         hostCachedData: null,
         editId: null,
         selectedType: 'EXPENSE',
@@ -2139,10 +2138,6 @@
           return String(item.category || '').trim() || 'Autre';
         }))).sort(function (a, b) { return a.localeCompare(b, 'fr'); });
 
-        if (!state.reportSelectionInitialized) {
-          state.reportCategories = categories.slice();
-          state.reportSelectionInitialized = true;
-        }
         state.reportCategories = state.reportCategories.filter(function (category) {
           return categories.indexOf(category) !== -1;
         });
@@ -3200,8 +3195,11 @@
         openTransaction(null);
       });
       document.getElementById('open-report').addEventListener('click', function () {
+        state.reportCategories = [];
+        state.reportDetailCategory = '';
         prepareReport();
         showScreen(elements.reportScreen);
+        window.requestAnimationFrame(function () { window.scrollTo(0, 0); });
       });
       document.getElementById('close-report').addEventListener('click', function () {
         showScreen(elements.mainScreen);
