@@ -400,6 +400,35 @@
         font-size: 10px;
       }
 
+      .projection-card {
+        margin: 0 0 14px;
+        border: 1px solid var(--line);
+        border-radius: 17px;
+        background: rgba(255, 255, 255, 0.82);
+        padding: 15px 16px;
+      }
+
+      .projection-heading { margin: 0 0 12px; color: var(--accent-deep); font-size: 14px; font-weight: 850; }
+      .projection-year { display: block; margin: 0 0 13px; font-size: 28px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+      .projection-mode { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin: 0 0 13px; }
+      .projection-mode-button { min-height: 40px; border: 1px solid var(--line); border-radius: 11px; color: var(--ink-soft); background: #fff; padding: 7px; font-size: 11px; font-weight: 800; cursor: pointer; }
+      .projection-mode-button.is-active { border-color: var(--accent-deep); color: #fff; background: var(--accent-deep); }
+      .projection-inputs { display: grid; gap: 9px; margin-bottom: 15px; }
+      .projection-inputs[hidden] { display: none; }
+      .projection-input-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(105px, 0.55fr); align-items: center; gap: 10px; }
+      .projection-input-row label { font-size: 12px; font-weight: 750; }
+      .projection-input-row input { width: 100%; min-width: 0; min-height: 38px; border: 1px solid var(--line); border-radius: 10px; padding: 6px 9px; color: var(--ink); background: #fff; font: inherit; font-variant-numeric: tabular-nums; }
+      .projection-difference { grid-column: 1 / -1; margin-top: -8px; color: var(--ink-soft); font-size: 10px; }
+      .projection-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0 0 13px; }
+      .projection-metrics div { min-width: 0; }
+      .projection-metrics dt { color: var(--ink-soft); font-size: 10px; font-weight: 750; line-height: 1.35; }
+      .projection-metrics dd { margin: 4px 0 0; font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums; }
+      .projection-sensitivity { border-top: 1px solid var(--line); padding-top: 11px; }
+      .projection-sensitivity h3 { margin: 0 0 7px; font-size: 12px; }
+      .projection-sensitivity-row { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; font-size: 11px; }
+      .projection-sensitivity-row strong { font-variant-numeric: tabular-nums; white-space: nowrap; }
+      .projection-note { margin: 10px 0 0; color: var(--ink-soft); font-size: 10px; line-height: 1.45; }
+
       .year-operations {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1344,6 +1373,14 @@
           <p class="balance-detail">Loyers hors ménage, répartis selon la part de chaque propriétaire. Sans effet sur le solde des dépenses.</p>
         </section>
 
+        <button id="open-projection" class="cleaning-card report-card" type="button">
+          <span>
+            <span class="cleaning-card-title">Projection de rentabilité</span>
+            <span class="cleaning-card-note">Quand les loyers pourraient amortir les rénovations</span>
+          </span>
+          <span class="cleaning-card-arrow" aria-hidden="true">→</span>
+        </button>
+
         <button id="open-report" class="cleaning-card report-card" type="button">
           <span>
             <span class="cleaning-card-title">Compte rendu</span>
@@ -1408,6 +1445,48 @@
             <button id="close-report-detail" class="report-detail-close" type="button">Fermer</button>
           </div>
           <div id="report-detail-list"></div>
+        </section>
+      </div>
+    </main>
+
+    <main id="projection-screen" class="screen">
+      <div class="main-shell">
+        <header class="subview-header">
+          <button id="close-projection" class="back-button" type="button" aria-label="Retour">←</button>
+          <div>
+            <p class="eyebrow">Estimation</p>
+            <h1>Rentabilité</h1>
+          </div>
+        </header>
+        <section class="projection-card" aria-labelledby="projection-heading">
+          <h2 id="projection-heading" class="projection-heading">Seuil de rentabilité des rénovations</h2>
+          <strong id="projection-year" class="projection-year">—</strong>
+          <div class="projection-mode" role="group" aria-label="Mode de simulation des loyers">
+            <button class="projection-mode-button is-active" data-projection-mode="weekly" type="button" aria-pressed="true">Moyenne estivale</button>
+            <button class="projection-mode-button" data-projection-mode="monthly" type="button" aria-pressed="false">Loyers par mois</button>
+          </div>
+          <div id="projection-weekly-inputs" class="projection-inputs">
+            <div class="projection-input-row"><label for="projection-weekly-input">Loyer moyen par semaine louée · juin–juillet</label><input id="projection-weekly-input" type="number" min="0" step="1" inputmode="decimal" /></div>
+            <span id="projection-weekly-difference" class="projection-difference"></span>
+          </div>
+          <div id="projection-monthly-inputs" class="projection-inputs" hidden>
+            <p class="projection-note">Montant total prévu pour chaque mois, hors ménage.</p>
+            <div class="projection-input-row"><label for="projection-june-input">Juin</label><input id="projection-june-input" type="number" min="0" step="1" inputmode="decimal" /><span id="projection-june-difference" class="projection-difference"></span></div>
+            <div class="projection-input-row"><label for="projection-july-input">Juillet</label><input id="projection-july-input" type="number" min="0" step="1" inputmode="decimal" /><span id="projection-july-difference" class="projection-difference"></span></div>
+            <div class="projection-input-row"><label for="projection-august-input">Août</label><input id="projection-august-input" type="number" min="0" step="1" inputmode="decimal" /><span id="projection-august-difference" class="projection-difference"></span></div>
+          </div>
+          <dl class="projection-metrics">
+            <div><dt>Solde net <span id="projection-reference-year"></span></dt><dd id="projection-net">—</dd></div>
+            <div><dt>Loyer estival moyen · juin–juillet / semaine louée</dt><dd id="projection-summer-rate">—</dd></div>
+            <div><dt>Rénovations à amortir</dt><dd id="projection-remaining">—</dd></div>
+            <div><dt>Dépenses courantes <span id="projection-expense-year"></span></dt><dd id="projection-current-expenses">—</dd></div>
+            <div><dt>Solde annuel projeté</dt><dd id="projection-projected-net">—</dd></div>
+          </dl>
+          <div class="projection-sensitivity">
+            <h3>Loyer estival moyen nécessaire pour avancer le seuil</h3>
+            <div id="projection-sensitivity-rows"></div>
+          </div>
+          <p id="projection-note" class="projection-note"></p>
         </section>
       </div>
     </main>
@@ -1638,6 +1717,9 @@
         reportPeriod: 'all',
         reportCategories: [],
         reportDetailCategory: '',
+        projectionMode: 'weekly',
+        projectionReferenceYear: null,
+        projectionInputs: null,
         hostCachedData: null,
         editId: null,
         selectedType: 'EXPENSE',
@@ -1655,6 +1737,7 @@
         identityScreen: document.getElementById('identity-screen'),
         mainScreen: document.getElementById('main-screen'),
         reportScreen: document.getElementById('report-screen'),
+        projectionScreen: document.getElementById('projection-screen'),
         cleaningScreen: document.getElementById('cleaning-screen'),
         loading: document.getElementById('loading-overlay'),
         toast: document.getElementById('toast'),
@@ -1814,7 +1897,7 @@
       });
 
       function showScreen(target) {
-        [elements.unlockScreen, elements.identityScreen, elements.mainScreen, elements.reportScreen, elements.cleaningScreen].forEach(function (screen) {
+        [elements.unlockScreen, elements.identityScreen, elements.mainScreen, elements.reportScreen, elements.projectionScreen, elements.cleaningScreen].forEach(function (screen) {
           screen.classList.toggle('is-visible', screen === target);
         });
       }
@@ -1954,6 +2037,7 @@
         document.getElementById('overview-year').textContent = state.data.summaries.currentYear;
         const yearOperations = computeYearOperations();
         renderSummary(yearOperations);
+        renderBreakEvenProjection();
         renderMonthlyChart(yearOperations);
         renderTransactions();
         renderCleanings();
@@ -2102,8 +2186,8 @@
         });
       }
 
-      function computeYearOperations() {
-        const year = String(state.data.summaries.currentYear);
+      function computeYearOperations(selectedYear) {
+        const year = String(selectedYear || state.data.summaries.currentYear);
         const series = Array.from({ length: 12 }, function (_, index) {
           return { month: year + '-' + String(index + 1).padStart(2, '0'), expenses: 0, revenue: 0, balance: 0 };
         });
@@ -2127,6 +2211,175 @@
           rent: series.reduce(function (total, item) { return total + item.revenue; }, 0),
           balance: balance,
         };
+      }
+
+      function parseIsoUtc(value) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value || ''))) return NaN;
+        const time = Date.parse(value + 'T00:00:00Z');
+        return Number.isFinite(time) && new Date(time).toISOString().slice(0, 10) === value ? time : NaN;
+      }
+
+      function computeRentForPeriod(year, firstMonth, lastMonthExclusive) {
+        const periodStart = Date.UTC(year, firstMonth - 1, 1);
+        const periodEnd = Date.UTC(year, lastMonthExclusive - 1, 1);
+        const day = 24 * 60 * 60 * 1000;
+        return (state.data.cleanings || []).reduce(function (total, rent) {
+          const start = parseIsoUtc(rent.rentStartDate);
+          const end = parseIsoUtc(rent.rentEndDate);
+          if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) return total;
+          const overlap = Math.max(0, Math.min(end, periodEnd) - Math.max(start, periodStart));
+          if (!overlap) return total;
+          const rentWithoutCleaning = (Number(rent.amount) || 0) - (Number(rent.cleaningAmount) || 0);
+          total.nights += overlap / day;
+          total.rent += rentWithoutCleaning * overlap / (end - start);
+          return total;
+        }, { nights: 0, rent: 0 });
+      }
+
+      function computeBreakEvenProjection() {
+        const currentYear = Number(state.data.summaries.currentYear);
+        const referenceYear = currentYear === 2026 ? 2026 : currentYear - 1;
+        const reference = computeYearOperations(referenceYear);
+        const renovations = reportSource().filter(function (item) {
+          return item.type === 'EXPENSE' && expenseFamilyForCategory(String(item.category || '').trim() || 'Autre') === 'RENOVATION' &&
+            (!/^\d{4}/.test(String(item.date || '')) || Number(String(item.date).slice(0, 4)) <= referenceYear);
+        }).reduce(function (sum, item) { return sum + (Number(item.amount) || 0); }, 0);
+        const years = new Set();
+        currentExpenseTransactions().concat(state.data.cleanings || []).forEach(function (item) {
+          const year = Number(String(item.date || '').slice(0, 4));
+          if (Number.isInteger(year) && year >= 2000 && year <= referenceYear) years.add(year);
+        });
+        const cumulativeOperatingNet = Array.from(years).reduce(function (sum, year) {
+          return sum + computeYearOperations(year).balance;
+        }, 0);
+        const remaining = renovations - cumulativeOperatingNet;
+        const summer = computeRentForPeriod(referenceYear, 6, 8);
+        const occupiedWeeks = summer.nights / 7;
+        const summerWeekly = occupiedWeeks > 0 ? summer.rent / occupiedWeeks : NaN;
+        const monthly = {
+          june: computeRentForPeriod(referenceYear, 6, 7).rent,
+          july: computeRentForPeriod(referenceYear, 7, 8).rent,
+          august: computeRentForPeriod(referenceYear, 8, 9).rent,
+        };
+        if (state.projectionReferenceYear !== referenceYear || !state.projectionInputs) {
+          state.projectionReferenceYear = referenceYear;
+          state.projectionInputs = {
+            weekly: Number.isFinite(summerWeekly) ? String(Math.round(summerWeekly)) : '',
+            june: String(Math.round(monthly.june)),
+            july: String(Math.round(monthly.july)),
+            august: String(Math.round(monthly.august)),
+          };
+        }
+        const inputs = state.projectionInputs;
+        const selectedKeys = state.projectionMode === 'monthly' ? ['june', 'july', 'august'] : ['weekly'];
+        const validInputs = selectedKeys.every(function (key) {
+          return inputs[key] !== '' && Number.isFinite(Number(inputs[key])) && Number(inputs[key]) >= 0;
+        });
+        const delta = !validInputs ? NaN : state.projectionMode === 'monthly'
+          ? ['june', 'july', 'august'].reduce(function (sum, key) {
+              return sum + Number(inputs[key]) - Math.round(monthly[key]);
+            }, 0)
+          : occupiedWeeks > 0
+            ? (Number(inputs.weekly) - Math.round(summerWeekly)) * occupiedWeeks
+            : NaN;
+        const projectedNet = reference.balance + delta;
+        const projectedWeekly = state.projectionMode === 'monthly' && occupiedWeeks > 0
+          ? summerWeekly + (Number(inputs.june) - Math.round(monthly.june) +
+              Number(inputs.july) - Math.round(monthly.july)) / occupiedWeeks
+          : Number(inputs.weekly);
+        const yearsToBreakEven = remaining > 0 && projectedNet > 0
+          ? Math.ceil((remaining - 0.000001) / projectedNet)
+          : 0;
+        const breakEvenYear = yearsToBreakEven > 0 ? referenceYear + yearsToBreakEven : null;
+        const sensitivity = [1, 2, 3].map(function (yearsGained) {
+          const targetHorizon = yearsToBreakEven - yearsGained;
+          const requiredWeekly = targetHorizon > 0 && occupiedWeeks > 0
+            ? Math.max(projectedWeekly, projectedWeekly +
+                (remaining / targetHorizon - projectedNet) / occupiedWeeks)
+            : NaN;
+          return { yearsGained: yearsGained, targetYear: referenceYear + targetHorizon, requiredWeekly: requiredWeekly };
+        });
+        return {
+          currentYear: currentYear,
+          referenceYear: referenceYear,
+          annualNet: reference.balance,
+          annualCurrentExpenses: reference.expenses,
+          projectedNet: projectedNet,
+          validInputs: validInputs,
+          renovations: renovations,
+          remaining: remaining,
+          occupiedWeeks: occupiedWeeks,
+          summerWeekly: summerWeekly,
+          monthly: monthly,
+          breakEvenYear: breakEvenYear,
+          sensitivity: sensitivity,
+        };
+      }
+
+      function formatProjectionDifference(value, reference) {
+        if (!Number.isFinite(Number(value)) || value === '') return 'Saisissez un montant valide.';
+        const difference = Number(value) - reference;
+        const sign = difference > 0.5 ? '+' : difference < -0.5 ? '−' : '';
+        return 'Écart avec ' + state.projectionReferenceYear + ' : ' +
+          (sign ? sign + formatDashboardMoney(Math.abs(difference)) : formatDashboardMoney(0));
+      }
+
+      function renderBreakEvenProjection(updateInputs) {
+        const projection = computeBreakEvenProjection();
+        document.querySelectorAll('[data-projection-mode]').forEach(function (button) {
+          const active = button.dataset.projectionMode === state.projectionMode;
+          button.classList.toggle('is-active', active);
+          button.setAttribute('aria-pressed', String(active));
+        });
+        document.getElementById('projection-weekly-inputs').hidden = state.projectionMode !== 'weekly';
+        document.getElementById('projection-monthly-inputs').hidden = state.projectionMode !== 'monthly';
+        if (updateInputs !== false) {
+          ['weekly', 'june', 'july', 'august'].forEach(function (key) {
+            document.getElementById('projection-' + key + '-input').value = state.projectionInputs[key];
+          });
+        }
+        document.getElementById('projection-weekly-difference').textContent = Number.isFinite(projection.summerWeekly)
+          ? formatProjectionDifference(state.projectionInputs.weekly, projection.summerWeekly)
+          : 'Aucune semaine louée en juin–juillet ' + projection.referenceYear + '.';
+        ['june', 'july', 'august'].forEach(function (key) {
+          document.getElementById('projection-' + key + '-difference').textContent =
+            formatProjectionDifference(state.projectionInputs[key], projection.monthly[key]);
+        });
+        document.getElementById('projection-reference-year').textContent = projection.referenceYear;
+        document.getElementById('projection-expense-year').textContent = projection.referenceYear;
+        document.getElementById('projection-net').textContent = formatDashboardMoney(projection.annualNet);
+        document.getElementById('projection-current-expenses').textContent = formatDashboardMoney(projection.annualCurrentExpenses);
+        document.getElementById('projection-remaining').textContent = formatDashboardMoney(Math.max(0, projection.remaining));
+        document.getElementById('projection-summer-rate').textContent = Number.isFinite(projection.summerWeekly)
+          ? formatDashboardMoney(projection.summerWeekly) : '—';
+        document.getElementById('projection-projected-net').textContent = Number.isFinite(projection.projectedNet)
+          ? formatDashboardMoney(projection.projectedNet) : '—';
+        const year = document.getElementById('projection-year');
+        year.textContent = !Number.isFinite(projection.projectedNet) ? 'Saisissez les loyers'
+          : projection.renovations <= 0 ? 'Sans rénovation à amortir'
+          : projection.remaining <= 0 ? 'Déjà amorties'
+            : projection.projectedNet <= 0 ? 'Non estimable'
+              : projection.breakEvenYear;
+        document.getElementById('projection-sensitivity-rows').innerHTML = projection.sensitivity.map(function (item) {
+          const available = projection.remaining > 0 && projection.projectedNet > 0 &&
+            Number.isFinite(item.requiredWeekly) && item.targetYear > projection.referenceYear;
+          return '<div class="projection-sensitivity-row"><span>Gagner ' + item.yearsGained +
+            (item.yearsGained === 1 ? ' an' : ' ans') +
+            (available ? ' · seuil ' + item.targetYear : '') + '</span><strong>' +
+            (available ? formatDashboardMoney(item.requiredWeekly) + ' / semaine' : '—') + '</strong></div>';
+        }).join('');
+        const note = projection.currentYear === projection.referenceYear
+          ? '2026 est encore partielle : les montants enregistrés à ce jour sont repris comme hypothèse annuelle.'
+          : 'Référence : dernière année terminée (' + projection.referenceYear + ').';
+        document.getElementById('projection-note').textContent = note +
+          ' Projection linéaire : solde annuel constant, sans nouvelles rénovations ni inflation. ' +
+          'Rénovations cumulées : ' + formatDashboardMoney(projection.renovations) +
+          '. Loyer estival calculé hors ménage, au prorata des nuits louées entre le 1er juin et le 1er août ; ' +
+          'la sensibilité conserve le même nombre de semaines louées.' +
+          (projection.remaining > 0 && projection.projectedNet <= 0 ?
+            ' Le solde annuel doit devenir positif pour atteindre le seuil.' : '') +
+          (projection.remaining > 0 && !projection.occupiedWeeks ?
+            ' Aucun séjour de juin–juillet avec dates de début et fin exploitables : la sensibilité ne peut pas être calculée.' : '');
       }
 
       function prepareReport() {
@@ -3203,6 +3456,26 @@
       });
       document.getElementById('close-report').addEventListener('click', function () {
         showScreen(elements.mainScreen);
+      });
+      document.getElementById('open-projection').addEventListener('click', function () {
+        renderBreakEvenProjection();
+        showScreen(elements.projectionScreen);
+        window.requestAnimationFrame(function () { window.scrollTo(0, 0); });
+      });
+      document.getElementById('close-projection').addEventListener('click', function () {
+        showScreen(elements.mainScreen);
+      });
+      document.querySelectorAll('[data-projection-mode]').forEach(function (button) {
+        button.addEventListener('click', function () {
+          state.projectionMode = button.dataset.projectionMode;
+          renderBreakEvenProjection();
+        });
+      });
+      ['weekly', 'june', 'july', 'august'].forEach(function (key) {
+        document.getElementById('projection-' + key + '-input').addEventListener('input', function (event) {
+          state.projectionInputs[key] = event.target.value;
+          renderBreakEvenProjection(false);
+        });
       });
       document.getElementById('monthly-chart').addEventListener('click', function (event) {
         const button = event.target.closest('[data-chart-month]');
