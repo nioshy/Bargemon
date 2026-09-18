@@ -661,7 +661,7 @@
       }
 
       .chart-scroll { overflow-x: auto; overscroll-behavior-inline: contain; -webkit-overflow-scrolling: touch; }
-      .chart-swipe-hint { display: none; margin: 0 0 7px; color: var(--ink-soft); font-size: 11px; }
+      .monthly-chart-mobile { display: none; }
 
       .month-group {
         display: grid;
@@ -1242,18 +1242,28 @@
         .app-header h1 { min-width: 0; font-size: clamp(25px, 7vw, 34px); white-space: normal; overflow-wrap: anywhere; }
         .add-card-note { display: none; }
 
-        .year-operations { grid-template-columns: minmax(0, 1fr); gap: 0; }
-        .year-overview-title { grid-column: 1; margin-bottom: 4px; }
-        .year-operation { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 12px; padding: 10px 0; }
-        .year-operation + .year-operation { border-left: 0; border-top: 1px solid var(--line); padding-left: 0; }
-        .year-operation span { margin: 0; font-size: 11px; letter-spacing: 0.03em; }
-        .year-operation strong { overflow: visible; font-size: 22px; text-align: right; text-overflow: clip; white-space: normal; }
+        .year-operations { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 12px; }
+        .year-overview-title { grid-column: 1 / -1; margin-bottom: 8px; }
+        .year-operation { justify-content: space-between; padding: 8px 0; }
+        .year-operation + .year-operation { border-left: 0; padding-left: 0; }
+        .year-operation:nth-of-type(2) { border-left: 1px solid var(--line); padding-left: 12px; }
+        .year-operation:last-child { grid-column: 1 / -1; display: flex; flex-direction: row; align-items: baseline; gap: 12px; border-top: 1px solid var(--line); margin-top: 8px; padding-top: 12px; }
+        .year-operation span { margin: 0 0 7px; font-size: 10px; letter-spacing: 0.03em; }
+        .year-operation:last-child span { margin: 0; }
+        .year-operation strong { overflow: visible; font-size: clamp(18px, 5.3vw, 22px); text-align: left; text-overflow: clip; white-space: normal; }
+        .year-operation:last-child strong { text-align: right; }
 
         .trend-header { display: grid; gap: 9px; }
         .trend-header h2 { font-size: 21px; }
         .chart-legend { display: flex; flex-wrap: wrap; gap: 6px 12px; }
-        .chart-swipe-hint { display: block; }
-        .monthly-chart { min-width: 600px; }
+        .chart-scroll { display: none; }
+        .monthly-chart-mobile { display: grid; gap: 15px; }
+        .mobile-chart-half { position: relative; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); align-items: end; gap: 4px; min-width: 0; }
+        .mobile-chart-half .month-group { grid-template-rows: 96px auto; gap: 5px; }
+        .mobile-chart-half .cumulative-line { height: 96px; }
+        .mobile-chart-half .month-label { font-size: 10px; }
+        .mobile-chart-half + .mobile-chart-half { padding-top: 12px; border-top: 1px solid var(--line); }
+        .mobile-chart-half + .mobile-chart-half .cumulative-line { top: 12px; }
 
         .balance-copy { flex-direction: column; align-items: stretch; gap: 6px; }
         .balance-amount { align-self: flex-end; max-width: 100%; text-align: right; white-space: normal; overflow-wrap: anywhere; }
@@ -1428,7 +1438,7 @@
           <div class="trend-header">
             <div>
               <p class="trend-period">Année complète</p>
-              <h2 id="trend-title">Dépenses courantes et revenus</h2>
+              <h2 id="trend-title">Dépenses et revenus</h2>
             </div>
             <div class="chart-legend" aria-label="Légende">
               <span class="legend-item"><span class="legend-dot" aria-hidden="true"></span>Dépenses courantes</span>
@@ -1436,10 +1446,10 @@
               <span class="legend-item"><span class="legend-line" aria-hidden="true"></span>Solde cumulé</span>
             </div>
           </div>
-          <p class="chart-swipe-hint">Glisser pour voir tous les mois →</p>
-          <div class="chart-scroll" role="region" aria-label="Graphique annuel défilant horizontalement" tabindex="0">
-            <div id="monthly-chart" class="monthly-chart" role="group" aria-label="Dépenses courantes, revenus et solde cumulé de l’année"></div>
-          </div>
+        <div class="chart-scroll" role="region" aria-label="Graphique annuel défilant horizontalement" tabindex="0">
+          <div id="monthly-chart" class="monthly-chart" role="group" aria-label="Dépenses courantes, revenus et solde cumulé de l’année"></div>
+        </div>
+        <div id="monthly-chart-mobile" class="monthly-chart-mobile" role="group" aria-label="Graphique annuel, de janvier à décembre"></div>
         </section>
 
         <section class="balance-card" aria-labelledby="balance-heading">
@@ -2196,9 +2206,11 @@
 
       function renderMonthlyChart(yearOperations) {
         const chart = document.getElementById('monthly-chart');
+        const mobileChart = document.getElementById('monthly-chart-mobile');
         const series = yearOperations.series;
         if (!series.length) {
           chart.innerHTML = '<div class="chart-empty">Aucune donnée mensuelle disponible.</div>';
+          mobileChart.innerHTML = chart.innerHTML;
           return;
         }
 
@@ -2213,6 +2225,7 @@
 
         if (!hasValues) {
           chart.innerHTML = '<div class="chart-empty">Aucune dépense ou revenu daté sur cette période.</div>';
+          mobileChart.innerHTML = chart.innerHTML;
           return;
         }
 
@@ -2221,18 +2234,24 @@
         const lineMaximum = Math.max.apply(null, cumulativeValues.concat([0]));
         const zeroY = lineMinimum < 0 ? 80 : 100;
         chart.style.setProperty('--chart-zero-position', zeroY + '%');
-        const points = cumulativeValues.map(function (value, index) {
-          const x = series.length === 1 ? 50 : (index / (series.length - 1)) * 100;
+        mobileChart.style.setProperty('--chart-zero-position', zeroY + '%');
+        function balanceY(value) {
           const y = value >= 0
             ? zeroY - (value / Math.max(1, lineMaximum)) * (zeroY - 8)
             : zeroY + (Math.abs(value) / Math.max(1, Math.abs(lineMinimum))) * (98 - zeroY);
-          return x.toFixed(2) + ',' + y.toFixed(2);
-        }).join(' ');
-        const lineSvg = '<svg class="cumulative-line" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' +
+          return y;
+        }
+        function lineSvgFor(values, slotCount) {
+          const points = values.map(function (value, index) {
+            const x = ((index + 0.5) / (slotCount || values.length)) * 100;
+            return x.toFixed(2) + ',' + balanceY(value).toFixed(2);
+          }).join(' ');
+          return '<svg class="cumulative-line" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' +
           '<line class="zero" x1="0" y1="' + zeroY.toFixed(2) + '" x2="100" y2="' + zeroY.toFixed(2) + '"></line>' +
           '<polyline class="balance" vector-effect="non-scaling-stroke" points="' + points + '"></polyline>' +
           '</svg>';
-        chart.innerHTML = lineSvg + series.map(function (item, index) {
+        }
+        function monthMarkup(item, index) {
           const expenses = Number(item.expenses) || 0;
           const revenue = Number(item.revenue) || 0;
           const expenseHeight = chartHeight(expenses, maximum);
@@ -2252,16 +2271,22 @@
               '<span class="month-label">' + escapeHtml(label) + '</span>' +
             '</div>'
           );
-        }).join('') + '<div id="chart-tooltip" class="chart-tooltip" role="status" hidden></div>';
+        }
+        chart.innerHTML = lineSvgFor(cumulativeValues) + series.map(monthMarkup).join('') +
+          '<div class="chart-tooltip" role="status" hidden></div>';
+        mobileChart.innerHTML = [0, 6].filter(function (start) { return start < series.length; }).map(function (start) {
+          const months = series.slice(start, start + 6);
+          return '<div class="mobile-chart-half">' + lineSvgFor(cumulativeValues.slice(start, start + 6), 6) +
+            months.map(function (item, index) { return monthMarkup(item, start + index); }).join('') + '</div>';
+        }).join('') + '<div class="chart-tooltip" role="status" hidden></div>';
       }
 
       function hideChartTooltip() {
-        const tooltip = document.getElementById('chart-tooltip');
-        if (tooltip) tooltip.hidden = true;
+        document.querySelectorAll('.chart-tooltip').forEach(function (tooltip) { tooltip.hidden = true; });
       }
 
       function showChartTooltip(button) {
-        const tooltip = document.getElementById('chart-tooltip');
+        const tooltip = button.closest('#monthly-chart, #monthly-chart-mobile').querySelector('.chart-tooltip');
         if (!tooltip) return;
         tooltip.innerHTML = escapeHtml(button.dataset.chartMonth) + '<strong>' +
           escapeHtml(button.dataset.chartKind + ' : ' + button.dataset.chartAmount) + '</strong>';
@@ -3703,13 +3728,15 @@
           renderBreakEvenProjection(false);
         });
       });
-      document.getElementById('monthly-chart').addEventListener('click', function (event) {
-        const button = event.target.closest('[data-chart-month]');
-        if (button) showChartTooltip(button);
-        else hideChartTooltip();
+      ['monthly-chart', 'monthly-chart-mobile'].forEach(function (id) {
+        document.getElementById(id).addEventListener('click', function (event) {
+          const button = event.target.closest('[data-chart-month]');
+          if (button) showChartTooltip(button);
+          else hideChartTooltip();
+        });
       });
       document.addEventListener('pointerdown', function (event) {
-        if (!event.target.closest('#monthly-chart')) hideChartTooltip();
+        if (!event.target.closest('#monthly-chart, #monthly-chart-mobile')) hideChartTooltip();
       });
       window.addEventListener('scroll', hideChartTooltip, { capture: true, passive: true });
       window.addEventListener('resize', hideChartTooltip);
