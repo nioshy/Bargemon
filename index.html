@@ -3007,7 +3007,7 @@
         });
         document.getElementById('person-field-label').textContent =
           type === 'EXPENSE' ? 'Payé par' : type === 'RENT' ? 'Reçu par' : 'Remboursé par';
-        document.getElementById('category-field').hidden = type === 'SETTLEMENT';
+        document.getElementById('category-field').hidden = type !== 'EXPENSE';
         document.getElementById('expense-family-field').hidden = type !== 'EXPENSE';
         document.getElementById('settlement-field').hidden = type !== 'SETTLEMENT';
         document.getElementById('share-field').hidden = type === 'SETTLEMENT';
