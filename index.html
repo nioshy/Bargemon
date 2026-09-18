@@ -425,8 +425,8 @@
       .projection-metrics dd { margin: 4px 0 0; font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums; }
       .projection-sensitivity { border-top: 1px solid var(--line); padding-top: 11px; }
       .projection-sensitivity h3 { margin: 0 0 7px; font-size: 12px; }
-      .projection-sensitivity-row { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; font-size: 11px; }
-      .projection-sensitivity-row strong { font-variant-numeric: tabular-nums; white-space: nowrap; }
+      .projection-sensitivity-row { display: grid; gap: 2px; padding: 6px 0; font-size: 11px; }
+      .projection-sensitivity-row strong { font-variant-numeric: tabular-nums; }
       .projection-note { margin: 10px 0 0; color: var(--ink-soft); font-size: 10px; line-height: 1.45; }
 
       .year-operations {
@@ -1475,15 +1475,30 @@
             <div class="projection-input-row"><label for="projection-july-input">Juillet · €/semaine</label><input id="projection-july-input" type="number" min="0" step="1" inputmode="decimal" /><span id="projection-july-difference" class="projection-difference"></span></div>
             <div class="projection-input-row"><label for="projection-august-input">Août · €/semaine</label><input id="projection-august-input" type="number" min="0" step="1" inputmode="decimal" /><span id="projection-august-difference" class="projection-difference"></span></div>
           </div>
+          <h3 class="projection-heading">Taux d’occupation · juin–août</h3>
+          <div class="projection-mode" role="group" aria-label="Mode de simulation du taux d’occupation">
+            <button class="projection-mode-button is-active" data-occupancy-mode="average" type="button" aria-pressed="true">Moyenne estivale</button>
+            <button class="projection-mode-button" data-occupancy-mode="monthly" type="button" aria-pressed="false">Par mois</button>
+          </div>
+          <div id="projection-occupancy-average-inputs" class="projection-inputs">
+            <div class="projection-input-row"><label for="projection-occupancy-average-input">Occupation · % des semaines juin–août</label><input id="projection-occupancy-average-input" type="number" min="0" step="0.1" inputmode="decimal" /></div>
+            <span id="projection-occupancy-average-difference" class="projection-difference"></span>
+          </div>
+          <div id="projection-occupancy-monthly-inputs" class="projection-inputs" hidden>
+            <div class="projection-input-row"><label for="projection-occupancy-june-input">Juin · %</label><input id="projection-occupancy-june-input" type="number" min="0" step="0.1" inputmode="decimal" /><span id="projection-occupancy-june-difference" class="projection-difference"></span></div>
+            <div class="projection-input-row"><label for="projection-occupancy-july-input">Juillet · %</label><input id="projection-occupancy-july-input" type="number" min="0" step="0.1" inputmode="decimal" /><span id="projection-occupancy-july-difference" class="projection-difference"></span></div>
+            <div class="projection-input-row"><label for="projection-occupancy-august-input">Août · %</label><input id="projection-occupancy-august-input" type="number" min="0" step="0.1" inputmode="decimal" /><span id="projection-occupancy-august-difference" class="projection-difference"></span></div>
+          </div>
           <dl class="projection-metrics">
             <div><dt>Solde net <span id="projection-reference-year"></span></dt><dd id="projection-net">—</dd></div>
             <div><dt>Loyer estival moyen · juin–juillet / semaine louée</dt><dd id="projection-summer-rate">—</dd></div>
+            <div><dt>Occupation de référence · nuits louées / juin–août</dt><dd id="projection-reference-occupancy">—</dd></div>
             <div><dt>Rénovations à amortir</dt><dd id="projection-remaining">—</dd></div>
             <div><dt>Dépenses courantes <span id="projection-expense-year"></span></dt><dd id="projection-current-expenses">—</dd></div>
             <div><dt>Solde annuel projeté</dt><dd id="projection-projected-net">—</dd></div>
           </dl>
           <div class="projection-sensitivity">
-            <h3>Loyer estival moyen nécessaire pour avancer le seuil</h3>
+            <h3>Loyer ou occupation nécessaires pour avancer le seuil</h3>
             <div id="projection-sensitivity-rows"></div>
           </div>
           <p id="projection-note" class="projection-note"></p>
@@ -1718,8 +1733,10 @@
         reportCategories: [],
         reportDetailCategory: '',
         projectionMode: 'weekly',
+        occupancyMode: 'average',
         projectionReferenceYear: null,
         projectionInputs: null,
+        occupancyInputs: null,
         hostCachedData: null,
         editId: null,
         selectedType: 'EXPENSE',
@@ -2253,61 +2270,114 @@
           return sum + computeYearOperations(year).balance;
         }, 0);
         const remaining = renovations - cumulativeOperatingNet;
-        const summer = computeRentForPeriod(referenceYear, 6, 8);
-        const occupiedWeeks = summer.nights / 7;
-        const summerWeekly = occupiedWeeks > 0 ? summer.rent / occupiedWeeks : NaN;
+        const summer = computeRentForPeriod(referenceYear, 6, 9);
+        const juneJuly = computeRentForPeriod(referenceYear, 6, 8);
+        const fullYear = computeRentForPeriod(referenceYear, 1, 13);
+        const occupiedWeeks = fullYear.nights / 7;
+        const offSeasonWeeks = Math.max(0, (fullYear.nights - summer.nights) / 7);
+        const summerWeekly = juneJuly.nights > 0 ? juneJuly.rent / (juneJuly.nights / 7) : NaN;
+        const summerCalendarWeeks = (Date.UTC(referenceYear, 8, 1) - Date.UTC(referenceYear, 5, 1)) / (7 * 86400000);
+        const referenceOccupancy = occupiedWeeks / summerCalendarWeeks * 100;
         const monthlyPeriods = {
           june: computeRentForPeriod(referenceYear, 6, 7),
           july: computeRentForPeriod(referenceYear, 7, 8),
           august: computeRentForPeriod(referenceYear, 8, 9),
         };
         const monthlyWeeks = {};
+        const monthlyOccupancyWeeks = {};
+        const monthlyCalendarWeeks = {};
+        const monthlyOccupancy = {};
         const monthly = {};
-        ['june', 'july', 'august'].forEach(function (key) {
+        const monthNumbers = { june: 6, july: 7, august: 8 };
+        const monthKeys = ['june', 'july', 'august'];
+        monthKeys.forEach(function (key) {
           monthlyWeeks[key] = monthlyPeriods[key].nights / 7;
+          monthlyCalendarWeeks[key] = (Date.UTC(referenceYear, monthNumbers[key], 1) -
+            Date.UTC(referenceYear, monthNumbers[key] - 1, 1)) / (7 * 86400000);
+          monthlyOccupancyWeeks[key] = monthlyWeeks[key] +
+            offSeasonWeeks * monthlyCalendarWeeks[key] / summerCalendarWeeks;
+          monthlyOccupancy[key] = monthlyOccupancyWeeks[key] / monthlyCalendarWeeks[key] * 100;
           monthly[key] = monthlyWeeks[key] > 0 ? monthlyPeriods[key].rent / monthlyWeeks[key] : NaN;
         });
-        if (state.projectionReferenceYear !== referenceYear || !state.projectionInputs) {
+        const referenceWeekly = Number.isFinite(summerWeekly) ? summerWeekly :
+          occupiedWeeks > 0 ? fullYear.rent / occupiedWeeks : NaN;
+        if (state.projectionReferenceYear !== referenceYear || !state.projectionInputs || !state.occupancyInputs) {
           state.projectionReferenceYear = referenceYear;
           state.projectionInputs = {
-            weekly: Number.isFinite(summerWeekly) ? String(Math.round(summerWeekly)) : '',
-            june: Number.isFinite(monthly.june) ? String(Math.round(monthly.june)) : '',
-            july: Number.isFinite(monthly.july) ? String(Math.round(monthly.july)) : '',
-            august: Number.isFinite(monthly.august) ? String(Math.round(monthly.august)) : '',
+            weekly: Number.isFinite(referenceWeekly) ? String(Math.round(referenceWeekly)) : '',
+            june: Number.isFinite(monthly.june) ? String(Math.round(monthly.june)) : Number.isFinite(referenceWeekly) ? String(Math.round(referenceWeekly)) : '',
+            july: Number.isFinite(monthly.july) ? String(Math.round(monthly.july)) : Number.isFinite(referenceWeekly) ? String(Math.round(referenceWeekly)) : '',
+            august: Number.isFinite(monthly.august) ? String(Math.round(monthly.august)) : Number.isFinite(referenceWeekly) ? String(Math.round(referenceWeekly)) : '',
+          };
+          state.occupancyInputs = {
+            average: referenceOccupancy.toFixed(1),
+            june: monthlyOccupancy.june.toFixed(1),
+            july: monthlyOccupancy.july.toFixed(1),
+            august: monthlyOccupancy.august.toFixed(1),
           };
         }
         const inputs = state.projectionInputs;
-        const selectedKeys = state.projectionMode === 'monthly' ? ['june', 'july', 'august'] : ['weekly'];
-        const validInputs = selectedKeys.every(function (key) {
-          return (state.projectionMode === 'monthly' && !monthlyWeeks[key]) ||
-            (inputs[key] !== '' && Number.isFinite(Number(inputs[key])) && Number(inputs[key]) >= 0);
+        const occupancyInputs = state.occupancyInputs;
+        const occupancyKeys = state.occupancyMode === 'monthly' ? monthKeys : ['average'];
+        const validOccupancy = occupancyKeys.every(function (key) {
+          return occupancyInputs[key] !== '' && Number.isFinite(Number(occupancyInputs[key])) &&
+            Number(occupancyInputs[key]) >= 0;
         });
-        const delta = !validInputs ? NaN : state.projectionMode === 'monthly'
-          ? ['june', 'july', 'august'].reduce(function (sum, key) {
-              return sum + (monthlyWeeks[key] > 0
-                ? (Number(inputs[key]) - Math.round(monthly[key])) * monthlyWeeks[key] : 0);
-            }, 0)
-          : occupiedWeeks > 0
-            ? (Number(inputs.weekly) - Math.round(summerWeekly)) * occupiedWeeks
-            : NaN;
-        const projectedNet = reference.balance + delta;
-        const projectedWeekly = state.projectionMode === 'monthly' && occupiedWeeks > 0
-          ? summerWeekly + ((monthlyWeeks.june > 0 ?
-              (Number(inputs.june) - Math.round(monthly.june)) * monthlyWeeks.june : 0) +
-              (monthlyWeeks.july > 0 ?
-                (Number(inputs.july) - Math.round(monthly.july)) * monthlyWeeks.july : 0)) / occupiedWeeks
-          : Number(inputs.weekly);
-        const yearsToBreakEven = remaining > 0 && projectedNet > 0
+        const scenarioWeeks = {};
+        const weeksPerOccupancyPoint = {};
+        monthKeys.forEach(function (key) {
+          const referencePercent = state.occupancyMode === 'monthly'
+            ? Number(monthlyOccupancy[key].toFixed(1)) : Number(referenceOccupancy.toFixed(1));
+          weeksPerOccupancyPoint[key] = referencePercent > 0
+            ? monthlyOccupancyWeeks[key] / referencePercent : monthlyCalendarWeeks[key] / 100;
+          const enteredPercent = Number(occupancyInputs[state.occupancyMode === 'monthly' ? key : 'average']);
+          scenarioWeeks[key] = validOccupancy ? enteredPercent * weeksPerOccupancyPoint[key] : NaN;
+        });
+        const scenarioOccupiedWeeks = monthKeys.reduce(function (sum, key) { return sum + scenarioWeeks[key]; }, 0);
+        const scenarioOccupancy = scenarioOccupiedWeeks / summerCalendarWeeks * 100;
+        const validRates = (state.projectionMode === 'weekly' ? ['weekly'] : monthKeys).every(function (key) {
+          if ((state.projectionMode === 'monthly' && scenarioWeeks[key] <= 0) ||
+              (state.projectionMode === 'weekly' && scenarioOccupiedWeeks <= 0)) return true;
+          return inputs[key] !== '' && Number.isFinite(Number(inputs[key])) && Number(inputs[key]) >= 0;
+        });
+        const scenarioRates = {};
+        const scenarioRent = validOccupancy && validRates ? monthKeys.reduce(function (sum, key) {
+          const baseRate = Number.isFinite(monthly[key]) ? monthly[key] :
+            Number.isFinite(referenceWeekly) ? referenceWeekly : 0;
+          const selectedRate = state.projectionMode === 'monthly' ? Number(inputs[key]) : Number(inputs.weekly);
+          const displayedReference = state.projectionMode === 'monthly'
+            ? Number.isFinite(monthly[key]) ? Math.round(monthly[key]) :
+              Number.isFinite(referenceWeekly) ? Math.round(referenceWeekly) : 0
+            : Number.isFinite(referenceWeekly) ? Math.round(referenceWeekly) : 0;
+          scenarioRates[key] = baseRate + selectedRate - displayedReference;
+          return sum + monthlyPeriods[key].rent + (scenarioWeeks[key] - monthlyOccupancyWeeks[key]) * baseRate +
+            (selectedRate - displayedReference) * scenarioWeeks[key];
+        }, 0) : NaN;
+        const projectedNet = reference.balance + scenarioRent -
+          monthKeys.reduce(function (sum, key) { return sum + monthlyPeriods[key].rent; }, 0);
+        const projectedWeekly = scenarioOccupiedWeeks > 0 ? scenarioRent / scenarioOccupiedWeeks : NaN;
+        const yearsToBreakEven = remaining > 0 && Number.isFinite(projectedNet) && projectedNet > 0
           ? Math.ceil((remaining - 0.000001) / projectedNet)
           : 0;
         const breakEvenYear = yearsToBreakEven > 0 ? referenceYear + yearsToBreakEven : null;
         const sensitivity = [1, 2, 3].map(function (yearsGained) {
           const targetHorizon = yearsToBreakEven - yearsGained;
-          const requiredWeekly = targetHorizon > 0 && occupiedWeeks > 0
+          const neededAnnualIncrease = targetHorizon > 0 ? remaining / targetHorizon - projectedNet : NaN;
+          const requiredWeekly = targetHorizon > 0 && scenarioOccupiedWeeks > 0
             ? Math.max(projectedWeekly, projectedWeekly +
-                (remaining / targetHorizon - projectedNet) / occupiedWeeks)
+                neededAnnualIncrease / scenarioOccupiedWeeks)
             : NaN;
-          return { yearsGained: yearsGained, targetYear: referenceYear + targetHorizon, requiredWeekly: requiredWeekly };
+          const revenuePerOccupancyPoint = monthKeys.reduce(function (sum, key) {
+            return sum + scenarioRates[key] * weeksPerOccupancyPoint[key];
+          }, 0);
+          const overallPointsPerInputPoint = monthKeys.reduce(function (sum, key) {
+            return sum + weeksPerOccupancyPoint[key];
+          }, 0) / summerCalendarWeeks * 100;
+          const requiredOccupancy = targetHorizon > 0 && revenuePerOccupancyPoint > 0
+            ? Math.max(scenarioOccupancy, scenarioOccupancy +
+                neededAnnualIncrease / revenuePerOccupancyPoint * overallPointsPerInputPoint) : NaN;
+          return { yearsGained: yearsGained, targetYear: referenceYear + targetHorizon,
+            requiredWeekly: requiredWeekly, requiredOccupancy: requiredOccupancy };
         });
         return {
           currentYear: currentYear,
@@ -2315,13 +2385,19 @@
           annualNet: reference.balance,
           annualCurrentExpenses: reference.expenses,
           projectedNet: projectedNet,
-          validInputs: validInputs,
+          validInputs: validOccupancy && validRates,
           renovations: renovations,
           remaining: remaining,
           occupiedWeeks: occupiedWeeks,
+          offSeasonWeeks: offSeasonWeeks,
+          scenarioOccupiedWeeks: scenarioOccupiedWeeks,
+          referenceOccupancy: referenceOccupancy,
+          scenarioOccupancy: scenarioOccupancy,
           summerWeekly: summerWeekly,
+          referenceWeekly: referenceWeekly,
           monthly: monthly,
           monthlyWeeks: monthlyWeeks,
+          monthlyOccupancy: monthlyOccupancy,
           breakEvenYear: breakEvenYear,
           sensitivity: sensitivity,
         };
@@ -2335,6 +2411,20 @@
           (sign ? sign + formatDashboardMoney(Math.abs(difference)) : formatDashboardMoney(0));
       }
 
+      function formatProjectionPercent(value) {
+        return Number(value).toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + ' %';
+      }
+
+      function formatOccupancyDifference(value, reference) {
+        if (value === '' || !Number.isFinite(Number(value))) return 'Saisissez un taux valide.';
+        const difference = Number(value) - reference;
+        const sign = difference > 0.05 ? '+' : difference < -0.05 ? '−' : '';
+        const magnitude = Math.abs(difference) < 0.05 ? 0 : Math.abs(difference);
+        return 'Écart avec ' + state.projectionReferenceYear + ' : ' +
+          (sign || '') + magnitude.toLocaleString('fr-FR', { maximumFractionDigits: 1 }) +
+          (magnitude >= 0.95 && magnitude < 1.05 ? ' point' : ' points');
+      }
+
       function renderBreakEvenProjection(updateInputs) {
         const projection = computeBreakEvenProjection();
         document.querySelectorAll('[data-projection-mode]').forEach(function (button) {
@@ -2344,22 +2434,35 @@
         });
         document.getElementById('projection-weekly-inputs').hidden = state.projectionMode !== 'weekly';
         document.getElementById('projection-monthly-inputs').hidden = state.projectionMode !== 'monthly';
+        document.querySelectorAll('[data-occupancy-mode]').forEach(function (button) {
+          const active = button.dataset.occupancyMode === state.occupancyMode;
+          button.classList.toggle('is-active', active);
+          button.setAttribute('aria-pressed', String(active));
+        });
+        document.getElementById('projection-occupancy-average-inputs').hidden = state.occupancyMode !== 'average';
+        document.getElementById('projection-occupancy-monthly-inputs').hidden = state.occupancyMode !== 'monthly';
         if (updateInputs !== false) {
           ['weekly', 'june', 'july', 'august'].forEach(function (key) {
             document.getElementById('projection-' + key + '-input').value = state.projectionInputs[key];
           });
+          ['average', 'june', 'july', 'august'].forEach(function (key) {
+            document.getElementById('projection-occupancy-' + key + '-input').value = state.occupancyInputs[key];
+          });
         }
-        document.getElementById('projection-weekly-difference').textContent = Number.isFinite(projection.summerWeekly)
-          ? formatProjectionDifference(state.projectionInputs.weekly, projection.summerWeekly)
-          : 'Aucune semaine louée en juin–juillet ' + projection.referenceYear + '.';
+        document.getElementById('projection-weekly-difference').textContent = Number.isFinite(projection.referenceWeekly)
+          ? formatProjectionDifference(state.projectionInputs.weekly, projection.referenceWeekly)
+          : 'Aucune semaine louée en juin–août ' + projection.referenceYear + ' : saisissez un loyer.';
         ['june', 'july', 'august'].forEach(function (key) {
-          document.getElementById('projection-' + key + '-input').disabled = !projection.monthlyWeeks[key];
           document.getElementById('projection-' + key + '-difference').textContent =
             projection.monthlyWeeks[key] > 0
               ? formatProjectionDifference(state.projectionInputs[key], projection.monthly[key])
               : 'Aucune semaine louée en ' + ({ june: 'juin', july: 'juillet', august: 'août' })[key] +
                 ' ' + projection.referenceYear + ' : pas de moyenne comparable.';
+          document.getElementById('projection-occupancy-' + key + '-difference').textContent =
+            formatOccupancyDifference(state.occupancyInputs[key], projection.monthlyOccupancy[key]);
         });
+        document.getElementById('projection-occupancy-average-difference').textContent =
+          formatOccupancyDifference(state.occupancyInputs.average, projection.referenceOccupancy);
         document.getElementById('projection-reference-year').textContent = projection.referenceYear;
         document.getElementById('projection-expense-year').textContent = projection.referenceYear;
         document.getElementById('projection-net').textContent = formatDashboardMoney(projection.annualNet);
@@ -2367,21 +2470,26 @@
         document.getElementById('projection-remaining').textContent = formatDashboardMoney(Math.max(0, projection.remaining));
         document.getElementById('projection-summer-rate').textContent = Number.isFinite(projection.summerWeekly)
           ? formatDashboardMoney(projection.summerWeekly) : '—';
+        document.getElementById('projection-reference-occupancy').textContent =
+          formatProjectionPercent(projection.referenceOccupancy);
         document.getElementById('projection-projected-net').textContent = Number.isFinite(projection.projectedNet)
           ? formatDashboardMoney(projection.projectedNet) : '—';
         const year = document.getElementById('projection-year');
-        year.textContent = !Number.isFinite(projection.projectedNet) ? 'Saisissez les loyers'
+        year.textContent = !Number.isFinite(projection.projectedNet) ? 'Saisissez les hypothèses'
           : projection.renovations <= 0 ? 'Sans rénovation à amortir'
           : projection.remaining <= 0 ? 'Déjà amorties'
             : projection.projectedNet <= 0 ? 'Non estimable'
               : projection.breakEvenYear;
         document.getElementById('projection-sensitivity-rows').innerHTML = projection.sensitivity.map(function (item) {
           const available = projection.remaining > 0 && projection.projectedNet > 0 &&
-            Number.isFinite(item.requiredWeekly) && item.targetYear > projection.referenceYear;
+            item.targetYear > projection.referenceYear;
           return '<div class="projection-sensitivity-row"><span>Gagner ' + item.yearsGained +
             (item.yearsGained === 1 ? ' an' : ' ans') +
             (available ? ' · seuil ' + item.targetYear : '') + '</span><strong>' +
-            (available ? formatDashboardMoney(item.requiredWeekly) + ' / semaine' : '—') + '</strong></div>';
+            (available && Number.isFinite(item.requiredWeekly)
+              ? formatDashboardMoney(item.requiredWeekly) + ' / semaine' : '—') +
+            ' ou ' + (available && Number.isFinite(item.requiredOccupancy)
+              ? formatProjectionPercent(item.requiredOccupancy) + ' d’occupation' : '—') + '</strong></div>';
         }).join('');
         const note = projection.currentYear === projection.referenceYear
           ? '2026 est encore partielle : les montants enregistrés à ce jour sont repris comme hypothèse annuelle.'
@@ -2389,12 +2497,14 @@
         document.getElementById('projection-note').textContent = note +
           ' Projection linéaire : solde annuel constant, sans nouvelles rénovations ni inflation. ' +
           'Rénovations cumulées : ' + formatDashboardMoney(projection.renovations) +
-          '. Loyer estival calculé hors ménage, au prorata des nuits louées entre le 1er juin et le 1er août ; ' +
-          'la projection et la sensibilité conservent le même nombre de semaines louées par mois.' +
+          '. Loyers hors ménage, répartis au prorata des nuits louées. Occupation : toutes les nuits louées de l’année divisées par les 92 nuits de juin–août. ' +
+          'Les nuits hors saison sont réparties entre juin, juillet et août comme semaines équivalentes pour la simulation. ' +
+          'Au-delà de 100 %, les semaines supplémentaires sont valorisées au tarif estival supposé. ' +
+          'Les sensibilités font varier soit le loyer moyen juin–août, soit l’occupation, l’autre hypothèse restant fixe.' +
           (projection.remaining > 0 && projection.projectedNet <= 0 ?
             ' Le solde annuel doit devenir positif pour atteindre le seuil.' : '') +
-          (projection.remaining > 0 && !projection.occupiedWeeks ?
-            ' Aucun séjour de juin–juillet avec dates de début et fin exploitables : la sensibilité ne peut pas être calculée.' : '');
+          (projection.remaining > 0 && !projection.scenarioOccupiedWeeks ?
+            ' Sans semaine louée projetée, la sensibilité des loyers ne peut pas être calculée.' : '');
       }
 
       function prepareReport() {
@@ -3486,9 +3596,21 @@
           renderBreakEvenProjection();
         });
       });
+      document.querySelectorAll('[data-occupancy-mode]').forEach(function (button) {
+        button.addEventListener('click', function () {
+          state.occupancyMode = button.dataset.occupancyMode;
+          renderBreakEvenProjection();
+        });
+      });
       ['weekly', 'june', 'july', 'august'].forEach(function (key) {
         document.getElementById('projection-' + key + '-input').addEventListener('input', function (event) {
           state.projectionInputs[key] = event.target.value;
+          renderBreakEvenProjection(false);
+        });
+      });
+      ['average', 'june', 'july', 'august'].forEach(function (key) {
+        document.getElementById('projection-occupancy-' + key + '-input').addEventListener('input', function (event) {
+          state.occupancyInputs[key] = event.target.value;
           renderBreakEvenProjection(false);
         });
       });
