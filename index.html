@@ -3849,7 +3849,7 @@
           '#balance-drilldown .bd-cumulative{font-weight:800;color:var(--accent-deep)}',
           '#balance-drilldown .bd-entry{padding:11px 13px;background:var(--paper);border-top:1px solid var(--line)}',
           '#balance-drilldown .bd-entry .bd-name{font-size:12px;font-weight:700}',
-          '#balance-drilldown .bd-entry .bd-name::before{content:none}',
+          '#balance-drilldown details[open] .bd-entry .bd-name::before{content:none}',
           '#balance-drilldown .bd-entry-meta{grid-column:1/-1;color:var(--ink-soft);font-size:11px;line-height:1.4}',
           '#balance-drilldown .bd-empty{padding:13px;color:var(--ink-soft);font-size:13px}',
           '#balance-drilldown .bd-warning{color:var(--danger);font-size:12px}',
@@ -3962,8 +3962,8 @@
           const data = state.data;
           const A = data.settings.personA, B = data.settings.personB;
           const groups = [
-            newGroup('Rénovations', 'Montants payés ; le solde tient compte de la répartition de chaque dépense.'),
-            newGroup('Dépenses courantes', 'Montants payés, y compris les frais de location.'),
+            newGroup('Rénovations', 'Montants payés, moins les avoirs ; le solde tient compte de la répartition de chaque dépense.'),
+            newGroup('Dépenses courantes', 'Montants payés, y compris les frais de location. Les avoirs diminuent les montants payés.'),
             newGroup('Loyers', 'Montants encaissés hors ménage ; le solde des loyers reste calculé séparément.'),
             newGroup('Remboursements', 'Sommes versées et ménages alloués ; ces mouvements agissent en entier sur le solde des dépenses.')
           ];
@@ -3985,8 +3985,9 @@
           (data.reportTransactions || []).filter(function (item) {
             return item.type === 'EXPENSE' && !String(item.id || '').endsWith('-rental-fees');
           }).forEach(function (item) {
+            const action = Number(item.amount) < 0 ? 'Avoir reçu par ' : 'Payé par ';
             addExpense(item, item.category || 'Autres dépenses', item.description || 'Dépense',
-              date(item) + ' · Payé par ' + item.person + ' · Montant ' + formatMoney(item.amount, false), item.date);
+              date(item) + ' · ' + action + item.person + ' · Montant ' + formatMoney(item.amount, false), item.date);
           });
 
           rents.forEach(function (rent) {
@@ -4085,5 +4086,3 @@
     </script>
   </body>
 </html>
-
-
